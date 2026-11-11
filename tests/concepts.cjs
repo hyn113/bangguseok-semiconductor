@@ -1,0 +1,32 @@
+const assert=require('node:assert/strict');
+const {JSDOM}=require('jsdom');
+const {build}=require('esbuild');
+const fs=require('node:fs/promises');
+const path=require('node:path');
+const {pathToFileURL}=require('node:url');
+(async()=>{
+ const dom=new JSDOM('<html><body><div id="root"></div></body></html>',{url:'http://localhost/'});
+ for(const name of ['window','document','HTMLElement','HTMLInputElement','Node','MutationObserver'])global[name]=dom.window[name];
+ global.navigator=dom.window.navigator;global.IS_REACT_ACT_ENVIRONMENT=true;global.requestAnimationFrame=callback=>setTimeout(callback,0);
+ const React=require('react'),{act}=React,{createRoot}=require('react-dom/client');
+ const {getByRole,getByText,queryByText,fireEvent,within}=require('@testing-library/dom');
+ const output=path.resolve('tests/.concepts-test-'+process.pid+'.mjs');
+ const built=await build({entryPoints:['src/ConceptPanel.tsx'],bundle:true,platform:'node',format:'esm',packages:'external',loader:{'.css':'empty'},write:false,outfile:output});
+ await fs.writeFile(output,built.outputFiles[0].contents);
+ let ConceptPanel;try{({ConceptPanel}=await import(pathToFileURL(output).href))}finally{await fs.unlink(output)}
+ const topics=[{id:'fan',title:'팬의 역할',definition:'팬은 공기를 이동시킵니다.',principle:'압력 차이가 흐름을 만듭니다.',connection:'팬을 선택한 장면입니다.',misconception:'필터 자체가 공기를 움직이지는 않습니다.',question:{prompt:'공기를 움직이는 부품은?',options:['팬','외함'],answer:0,explanation:'팬이 공기를 이동시킵니다.',optionExplanations:['팬의 역할을 이해했어요.','외함은 지지 구조입니다. 팬이 공기를 움직입니다.']},sources:[{label:'공식 자료',url:'https://example.com/fan'}]},{id:'filter',title:'필터의 역할',definition:'필터는 입자를 줄입니다.',principle:'여재가 입자를 포집합니다.',connection:'필터를 살펴보는 장면입니다.',misconception:'보호망과 여재는 다릅니다.',question:{prompt:'입자를 포집하는 것은?',options:['표시등','여재'],answer:1,explanation:'여재가 입자를 포집합니다.'},sources:[]}];
+ const root=createRoot(document.getElementById('root')),body=document.body;let noteCalls=0;
+ const render=async(props={})=>act(async()=>root.render(React.createElement(ConceptPanel,{topics,currentId:'fan',onNotes:()=>noteCalls++,...props})));
+ const click=async(name)=>act(async()=>fireEvent.click(getByRole(body,'button',{name,exact:true})));
+ await render();getByText(body,'팬은 공기를 이동시킵니다.');assert.equal(getByRole(body,'button',{name:'원리와 확인 문제 펼치기'}).getAttribute('aria-expanded'),'false');assert.equal(document.querySelector('.concept-body').hidden,true);
+ await click('원리와 확인 문제 펼치기');getByRole(body,'heading',{name:'원리'});getByRole(body,'heading',{name:'지금 장면과 연결'});getByRole(body,'heading',{name:'자주 헷갈리는 점'});assert.equal(getByRole(body,'button',{name:'답 확인하기'}).disabled,true);
+ await act(async()=>fireEvent.click(getByRole(body,'radio',{name:'외함'})));await click('답 확인하기');getByText(body,'외함은 지지 구조입니다. 팬이 공기를 움직입니다.');getByRole(body,'status');assert.equal(document.querySelector('fieldset').disabled,true);
+ await click('다시 풀어보기');assert.equal(getByRole(body,'button',{name:'답 확인하기'}).disabled,true);await act(async()=>fireEvent.click(getByRole(body,'radio',{name:'팬',exact:true})));await click('답 확인하기');getByText(body,'팬의 역할을 이해했어요.');
+ await click('필터의 역할');getByText(body,'필터는 입자를 줄입니다.');assert.equal(getByRole(body,'button',{name:'답 확인하기'}).disabled,true);assert.equal(queryByText(body,'팬의 역할을 이해했어요.'),null);
+ await render({topics:topics.map(topic=>({...topic})),contextLabel:'다시 렌더링'});getByText(body,'필터는 입자를 줄입니다.');assert.equal(getByRole(body,'button',{name:'필터의 역할',exact:true}).getAttribute('aria-pressed'),'true');
+ await render({currentId:'filter'});await click('팬의 역할');await render({currentId:'fan'});getByText(body,'팬은 공기를 이동시킵니다.');
+ assert.equal(document.querySelector('.concept-sources').open,false);const link=getByRole(body,'link',{name:/공식 자료/,hidden:true});assert.equal(link.getAttribute('target'),'_blank');assert.equal(link.getAttribute('rel'),'noopener noreferrer');
+ await click('내 메모에 정리하기');assert.equal(noteCalls,1);await click('핵심 설명 접기');assert.equal(document.querySelector('.concept-body').hidden,true);await click('원리와 확인 문제 펼치기');
+ await render({topics:[topics[1]],currentId:'absent'});getByText(body,'필터는 입자를 줄입니다.');await render({topics:[]});assert.equal(document.getElementById('root').children.length,0);await render({key:'expanded-entry',initialExpanded:true});assert.equal(document.querySelector('.concept-body').hidden,false);getByRole(body,'button',{name:'핵심 설명 접기'});assert.equal(getByRole(body,'button',{name:'답 확인하기'}).disabled,true);await act(async()=>root.unmount());
+ console.log('PASS inline concepts: collapse, selectable topics, currentId sync, unrelated render preservation, formative wrong/correct feedback, retry, note callback, safe external links, removed/empty topics, optional initially expanded entry without answering.');
+})().catch(error=>{console.error(error);process.exit(1)});

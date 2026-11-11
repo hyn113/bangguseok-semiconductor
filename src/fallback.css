@@ -1,0 +1,13 @@
+/* Original, static educational alternative when WebGL cannot initialize. */
+.learning-fallback{box-sizing:border-box;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px 14px;background:radial-gradient(ellipse at 50% 45%,#fff 0,#f2f5f7 72%);color:#526372;overflow:auto;touch-action:pan-y}
+.learning-fallback-mode{flex:none;text-align:center;margin:0;font-size:12px;font-weight:650;line-height:1.5;color:#975719}.learning-fallback-mode>span{margin-right:4px}.learning-fallback-mode small{display:block;font-size:10px;font-weight:400;color:#6e7880;max-width:310px;margin:2px auto 0;line-height:1.5}
+.learning-fallback-figure{display:block;flex:1 1 145px;width:100%;max-width:450px;min-height:90px;max-height:260px;overflow:visible}.learning-fallback-figure text{font-family:inherit;font-size:12px;fill:#526372}
+.learning-fallback-choices{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;flex:none;width:100%;max-width:380px}.learning-fallback-choices button{min-height:38px;padding:7px 11px;border:1px solid #cbd5dd;border-radius:7px;background:white;color:#526372;font-size:11px;line-height:1.3;cursor:pointer}.learning-fallback-choices button.selected{border-color:#e98a36;background:#fff0df;color:#985011}.learning-fallback-choices button:focus-visible{outline:3px solid #275574;outline-offset:2px}
+.learning-fallback-caption{flex:none;text-align:center;font-size:10px;line-height:1.55;color:#6e7880;margin:0;max-width:350px}
+@media(max-width:650px){.learning-fallback{padding:9px;gap:5px}.learning-fallback-mode{font-size:11px}.learning-fallback-mode small{font-size:9px}.learning-fallback-choices button{flex:1 1 40%;min-height:36px;font-size:10px;padding:6px}.equipment-fallback .learning-fallback-choices button{flex:1 1 25%}.learning-fallback-caption{font-size:9px}}
+/* Eight distinct FFU parts remain available without a 3D context. */
+.ffu-fallback-choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));max-width:420px;gap:4px}.ffu-fallback-choices button{min-width:0;min-height:34px;padding:5px 3px;font-size:10px;overflow-wrap:anywhere}.equipment-fallback .learning-fallback-caption strong{color:#985011;font-weight:600}
+@media(max-width:650px){.ffu-fallback-choices button{min-height:34px;font-size:9px}.equipment-fallback{gap:4px}.equipment-fallback .learning-fallback-caption{font-size:9px}}
+.selected-model .equipment-fallback .learning-fallback-choices{display:none}.selected-model .equipment-fallback .learning-fallback-figure{min-height:70px}.equipment-fallback .learning-fallback-figure{min-height:80px}
+/* Keep the start of oversized fallback content reachable in short viewports. */
+.learning-fallback{justify-content:safe center}

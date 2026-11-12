@@ -1,0 +1,13 @@
+Air shower preview asset provenance — 2026-11-12
+
+studio_small_04_1k.hdr
+Title: Studio Small 04
+Author: Greg Zaal / Poly Haven
+Source: https://polyhaven.com/a/studio_small_04
+License: CC0 https://polyhaven.com/license
+Download: https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_04_1k.hdr
+Expected MD5 from official files API: 4d58f1d1b8f919f2bb4de1b748d11270
+Use: image-based lighting / reflections only. Not a cleanroom photograph or geometry.
+
+Room geometry and procedural textures: independently authored for this prototype.
+No manufacturer CAD, photographs, logos or unlicensed model assets included.

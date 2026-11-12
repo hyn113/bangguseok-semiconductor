@@ -1,12 +1,4 @@
 node_modules/
-.env
-.env.*
-!.env.example
-.openai/
-.DS_Store
-screenshots/
-playwright-report/
-tests/*-test.mjs
 .npm-cache/
 dist/
 test-results/
@@ -22,3 +14,5 @@ tests/progress-test.mjs
 tests/learning-test.mjs
 
 tests/selector-test.mjs
+
+/node_modules

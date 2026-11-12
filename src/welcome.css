@@ -59,7 +59,7 @@
 
 /* v24 · MVP 배지, 필수 닉네임, 단색 입체 버튼 */
 .entry-brand{display:flex;align-items:center;gap:12px;min-width:0}
-.entry-mvp{flex-shrink:0;font-size:11px;font-weight:800;letter-spacing:2px;color:#17242b;padding:5px 9px 4px;border-radius:6px;background:#ffad5c;text-shadow:none}
+.entry-mvp{flex-shrink:0;color:#fff;font-weight:700}
 .welcome-copy label small.entry-required{color:#ffb567;font-weight:700}
 .welcome-copy input[aria-invalid=true]{border-color:#ff9a5c;background:#ff7a1a14}
 .entry-field-error{margin:-4px 0 0;font-size:11px;color:#ffc59a;font-weight:700}
@@ -78,5 +78,42 @@
 .entry-top button,.tour-top button,.tour-card>div>button:not(.entry-start){border:1px solid #ffffff40;border-radius:8px;background:#223440;box-shadow:0 3px 0 #111f27;transition:transform .1s ease,box-shadow .1s ease}
 .entry-top button:active,.tour-top button:active,.tour-card>div>button:not(.entry-start):active{transform:translateY(3px);box-shadow:0 0 0 #111f27}
 
-@media(max-width:850px){.entry-mvp{font-size:10px;padding:4px 7px 3px;letter-spacing:1.5px}.entry-brand{gap:9px}}
+@media(max-width:850px){.entry-brand{gap:9px}}
 @media(prefers-reduced-motion:reduce){.entry-start,.entry-options button,.entry-top button,.tour-top button,.tour-card>div>button{transition:none!important}.entry-start:active,.entry-options button:active,.entry-top button:active,.tour-top button:active,.tour-card>div>button:active{transform:none}}
+
+/* v24 · 타이포 위계 — Pretendard, 자간 0
+   display 36 / heading 28 / title 20 / body 15 / ui 13 / caption 12 */
+.entry-page{--t-display:36px;--t-heading:28px;--t-title:20px;--t-body:15px;--t-ui:13px;--t-caption:12px;font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;-webkit-font-smoothing:antialiased}
+.entry-page,.entry-page *{letter-spacing:0!important}
+.entry-page button,.entry-page input,.entry-page textarea{font-family:inherit}
+
+/* caption 12 — 브랜드 보조, 영문 꼬리표, 안내·푸터 */
+.entry-mvp,.entry-wordmark i,.entry-prototype,.guide-portrait>span,.entry-kicker,.entry-privacy,.entry-footer,.entry-options span,.tour-card>small,.welcome-copy input::placeholder{font-size:var(--t-caption)!important;line-height:1.5}
+.entry-kicker,.entry-options span,.guide-portrait>span{font-weight:600}
+.entry-privacy{line-height:1.6}
+
+/* ui 13 — 라벨, 입력, 버튼, 보조 설명 */
+.welcome-copy label,.welcome-copy input,.entry-field-error,.entry-start,.entry-back,.entry-top button,.tour-top button,.tour-top>span,.tour-hotspots button span,.entry-options small,.entry-options b,.tour-card>div>button{font-size:var(--t-ui)}
+.welcome-copy label{font-weight:600}
+.entry-start,.entry-options b{font-weight:700}
+.entry-options small{line-height:1.6}
+
+/* brand — THE FIRST FAB */
+.entry-wordmark{font-size:15px;font-weight:800;line-height:1.2}
+.entry-wordmark i{font-weight:500;margin-top:4px;opacity:.85}
+
+/* body 15 */
+.entry-intro,.entry-choice-card>p,.tour-card>p{font-size:var(--t-body);line-height:1.65}
+
+/* title 20 */
+.entry-english{font-size:var(--t-title);font-weight:600;line-height:1.3;margin:4px 0 14px}
+.entry-options strong{font-size:var(--t-title);font-weight:700;line-height:1.3}
+
+/* heading 28 */
+.entry-choice-card h1,.tour-card h1{font-size:var(--t-heading);font-weight:700;line-height:1.35}
+
+/* display 36 */
+.welcome-copy h1{font-size:var(--t-display);font-weight:800;line-height:1.2}
+
+@media(max-width:850px){.entry-page{--t-display:30px;--t-heading:24px;--t-title:18px;--t-body:14px}.entry-wordmark{font-size:13px}}
+@media(max-width:420px){.entry-page{--t-display:26px;--t-heading:22px;--t-title:17px}}

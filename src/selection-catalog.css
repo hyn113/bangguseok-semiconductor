@@ -2,3 +2,4 @@
 /* Dark text keeps the existing orange action color with readable contrast. */
 .catalog-actions .orange{color:#17242b}
 .catalog-dots.selector-switch button.selected{width:44px;height:44px;background:transparent}
+.catalog-track .selected-copy .catalog-sub{min-height:0;margin:4px 0 8px;font-size:16px;font-weight:600;line-height:1.5;color:#fff;letter-spacing:0}

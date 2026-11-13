@@ -793,3 +793,11 @@ body.is-resizing .panel-resizer:not([data-dragging])::after{opacity:0!important}
 .ws-side{position:sticky}
 .panel-resizer.ws-resizer{position:absolute;top:0;bottom:0;right:-6px;left:auto}
 @media(max-width:760px){.ws{grid-template-columns:1fr}.panel-resizer.ws-resizer{display:none}}
+
+/* 다크 모드 워크스페이스: 선택된 메뉴 · 보기 전환이 잘 보이게 한 단계 밝은 회색 + 흰 글자 */
+:root{--ws-on-bg:var(--c-selected);--ws-on-fg:var(--c-ink);--ws-seg-on:var(--c-surface)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--ws-on-bg:var(--gray-700);--ws-on-fg:var(--gray-0);--ws-seg-on:var(--gray-700)}}
+:root[data-theme=dark]{--ws-on-bg:var(--gray-700);--ws-on-fg:var(--gray-0);--ws-seg-on:var(--gray-700)}
+.ws-nav button[aria-current=page]{background:var(--ws-on-bg);color:var(--ws-on-fg)}
+.ws-nav button[aria-current=page] small{color:var(--ws-on-fg);opacity:.8}
+.ws-view button[aria-pressed=true]{background:var(--ws-seg-on);color:var(--ws-on-fg)}

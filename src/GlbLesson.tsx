@@ -9,6 +9,7 @@ import './lesson-workbench.css';
 import {Icon} from './Icon';
 import {GlbStage,type PlayState,type CircuitState,type CircuitKey} from './GlbStage';
 import {glbLessons,modelUrl,type GlbLessonId,type GlbPart} from './glbLessons';
+import {LessonNav,LessonCompanies,type NavLesson} from './lessonNav';
 
 /* 블렌더 단계별 모형 학습 화면 (웨이퍼 · 산화 · FFU · RIE · MOSFET · 전기 논리)
    왼쪽: 단계 목록과 설명 · 가운데: 3D와 재생 막대 · 오른쪽: 메모 · AI
@@ -22,7 +23,7 @@ function GlbNotes({id,name,profile,onQuiz}:{id:string;name:string;profile?:React
  return <aside id="shell-panel-right" className="lesson-notes shell-right" aria-label="학습 도우미"><div className="lesson-notes-head">{profile??<b>체험 학습자</b>}<div className="shell-actions"><button type="button" className="shell-quiz" onClick={onQuiz}>퀴즈 풀기</button><PanelToggle side="right"/></div></div><StudyHub lesson={id} primary={{label:`${name} 학습 메모`,value:note.text,updated:note.updated,failed:note.failed,onChange:text=>setNote(writeLessonNote(id,text))}}/></aside>;
 }
 
-export function GlbLesson({id,onExit,onMission,profile,right,extra}:{id:GlbLessonId;onExit:()=>void;onMission:()=>void;profile?:ReactNode;right?:ReactNode;extra?:ReactNode}){
+export function GlbLesson({id,onExit,onMission,onSwitch,profile,right,extra}:{id:GlbLessonId;onExit:()=>void;onMission:()=>void;onSwitch?:(id:NavLesson)=>void;profile?:ReactNode;right?:ReactNode;extra?:ReactNode}){
  const def=glbLessons[id],shell=useLessonShell();
  const saved=useMemo(()=>readStep(id),[id]);
  const[track,setTrack]=useState(()=>def.tracks.find(t=>t.id===saved?.t)?.id??def.tracks[0].id);
@@ -30,7 +31,9 @@ export function GlbLesson({id,onExit,onMission,profile,right,extra}:{id:GlbLesso
  const[step,setStep]=useState(()=>Math.min(saved?.i??0,stages.length-1));
  const stage=stages[step];
  const[paused,setPaused]=useState(false),[replay,setReplay]=useState(0),[reset,setReset]=useState(0),[demo,setDemo]=useState(0);
- const[play,setPlay]=useState<PlayState>('loading'),[part,setPart]=useState<GlbPart|null>(null);
+ const[play,setPlay]=useState<PlayState>('loading'),[part,setPartState]=useState<GlbPart|null>(null),[clear,setClear]=useState(0),[seenTip,setSeenTip]=useState(false);
+ const setPart=(p:GlbPart|null)=>{setPartState(p);if(p)setSeenTip(true)};
+ const[tab,setTab]=useState<'steps'|'parts'>('steps'),[present,setPresent]=useState<GlbPart[]>([]),[focus,setFocus]=useState<{part:GlbPart;n:number}|null>(null);
  const[circuit,setCircuit]=useState<CircuitState>({closed:false,high:false,a:false,b:false});
  const[seen,setSeen]=useState<Set<string>>(()=>new Set());
  const heading=useRef<HTMLHeadingElement>(null);
@@ -51,7 +54,7 @@ export function GlbLesson({id,onExit,onMission,profile,right,extra}:{id:GlbLesso
   <div className="glb-grid shell-grid">
    <section className="glb-visual shell-center" aria-label="3D 학습 공간">
     <GlbStage src={src} label={`${def.title} · ${stage.title} 3D 모형`} play={stage.play} paused={paused} replay={replay} reset={reset} parts={def.parts}
-     interact={stage.interact} circuit={circuit} demo={demo} onToggle={toggle} onState={setPlay} onPick={setPart}/>
+     interact={stage.interact} circuit={circuit} demo={demo} clear={clear} focus={focus} onParts={setPresent} onToggle={toggle} onState={setPlay} onPick={setPart}/>
     <div className="glb-player" role="group" aria-label="단계 재생">
      <button type="button" className="glb-icon" aria-label="이전 단계" data-tip="이전 단계" data-tip-pos="bottom" disabled={step===0} onClick={()=>go(step-1)}><Icon name="chevron-left"/></button>
      <span className="glb-player-title"><b>{String(step+1).padStart(2,'0')}</b><span>{stage.title}</span></span>
@@ -62,11 +65,19 @@ export function GlbLesson({id,onExit,onMission,profile,right,extra}:{id:GlbLesso
        :<button type="button" className="glb-icon" aria-label={paused?'재생':'일시정지'} data-tip={paused?'재생':'일시정지'} data-tip-pos="bottom" disabled={play==='loading'} onClick={()=>setPaused(v=>!v)}><Icon name={paused?'play-fill':'pause-fill'}/></button>}</>}
      {stage.interact&&<><i className="glb-sep" aria-hidden="true"/><button type="button" className="glb-icon" aria-label="예시 재생" data-tip="예시 애니메이션 보기" data-tip-pos="bottom" disabled={play==='loading'||play==='playing'} onClick={()=>setDemo(d=>d+1)}><Icon name="play-fill"/></button></>}
     </div>
+    {part?<div className="glb-part-pop" role="status" aria-live="polite"><div><b>{part.name}</b><button type="button" className="glb-icon" aria-label="설명 닫기" onClick={()=>setClear(c=>c+1)}><Icon name="x-lg"/></button></div><p>{part.desc}</p></div>
+     :play!=='loading'&&!seenTip&&<p className="glb-part-tip" aria-hidden="true"><Icon name="hand-index" className="lead"/>부품을 누르면 설명이 나와요</p>}
     <CanvasToolbar tiles={[{id:'reset',label:'초기화',icon:'arrow-counterclockwise',onClick:()=>{setPaused(false);setReset(r=>r+1)}}]} view={{camera:true,labels:true}}/>
    </section>
 
    <section id="shell-panel-left" className="glb-guide shell-left">
     <div className="workbench-panel-title"><PanelToggle side="left"/><button className="shell-back" data-tip="실습 선택" data-tip-pos="bottom" onClick={onExit}><Icon name="chevron-left"/><span className="sr-only">실습 선택</span></button><LessonTitle id={id} fallback={def.title}/></div>
+    <LessonNav current={id} area={def.area} onSwitch={onSwitch}/>
+    <div className="tabs glb-tabs" role="tablist" aria-label="학습 보기"><button type="button" role="tab" aria-selected={tab==='steps'} className={tab==='steps'?'active':''} onClick={()=>setTab('steps')}>{def.area==='설계'?'학습 단계':'공정 단계'}</button><button type="button" role="tab" aria-selected={tab==='parts'} className={tab==='parts'?'active':''} onClick={()=>setTab('parts')}>{def.area==='설계'?'구성 설명':'장비 설명'}</button></div>
+    {tab==='parts'?<div className="glb-parts" role="tabpanel">
+     <p className="glb-note">누르면 3D에서 그 부품을 강조해요. 흐린 항목은 다른 단계 장면에 있어요.</p>
+     <ul>{def.parts.map(pt=>{const here=present.includes(pt);return <li key={pt.name}><button type="button" aria-pressed={part===pt} data-absent={!here||undefined} onClick={()=>{if(here)setFocus(f=>({part:pt,n:(f?.n??0)+1}));else setPart(pt)}}><b>{pt.name}</b><span>{pt.desc}</span></button></li>})}</ul>
+    </div>:<>
     {def.tracks.length>1&&<div className="glb-tracks" role="tablist" aria-label="공정 방식">{def.tracks.map(t=><button key={t.id} type="button" role="tab" aria-selected={t.id===track} onClick={()=>switchTrack(t.id)}><b>{t.label}</b><small>{t.sub}</small></button>)}</div>}
     <ol className="guide-items glb-steps" aria-label="학습 단계">{stages.map((s,i)=><li key={s.file}><button type="button" className={i===step?'active':''} aria-current={i===step?'step':undefined} onClick={()=>go(i)}><span>{String(i+1).padStart(2,'0')}</span>{s.title}{seen.has(track+':'+i)&&i!==step&&<Icon name="check2" className="glb-seen"/>}</button></li>)}</ol>
     <div className="glb-progress" aria-label={`살펴본 단계 ${progress}%`}><i style={{width:progress+'%'}}/></div>
@@ -85,24 +96,24 @@ export function GlbLesson({id,onExit,onMission,profile,right,extra}:{id:GlbLesso
       <p className="glb-state">출력 Y = <b>{circuit.a&&circuit.b?1:0}</b> · 표시등 {circuit.a&&circuit.b?'켜짐':'꺼짐'}</p></div>}
 
      {stage.hint&&<p className="glb-hint"><Icon name="hand-index" className="lead"/>{stage.hint}</p>}
-     {part&&<div className="glb-part" role="status"><span>선택한 부품</span><b>{part.name}</b><p>{part.desc}</p></div>}
      {stage.note&&<p className="glb-note">{stage.note}</p>}
      <div className="glb-nav">
       {step>0&&<button type="button" className="btn btn--secondary" onClick={()=>go(step-1)}>이전 단계</button>}
       {!last?<button type="button" className="btn btn--primary" onClick={()=>go(step+1)}>다음 단계</button>
        :def.tracks.length>1&&track!==def.tracks[def.tracks.length-1].id?<button type="button" className="btn btn--primary" onClick={()=>{const n=def.tracks[def.tracks.findIndex(t=>t.id===track)+1];setTrack(n.id);setStep(0)}}>{def.tracks[def.tracks.findIndex(t=>t.id===track)+1].label} 보기</button>
-       :<button type="button" className="btn btn--primary" onClick={onMission}>퀴즈로 확인하기</button>}
+       :null}
      </div>
      {last&&<p className="glb-done"><Icon name="check-circle" className="lead"/>{def.done}</p>}
     </article>
-
     {extra}
+    </>}
     <details className="glb-about"><summary>이 학습에 대해</summary>
      <p>{def.intro}</p>
      <ul>{def.goals.map(g=><li key={g}>{g}</li>)}</ul>
      <p className="glb-note">{def.caution}</p>
      {def.refs.length>0&&<ul className="glb-refs">{def.refs.map(r=><li key={r.title}>{r.url?<a href={r.url} target="_blank" rel="noreferrer">{r.title}<Icon name="box-arrow-up-right" className="trail"/></a>:r.title}</li>)}</ul>}
     </details>
+    <LessonCompanies id={id}/>
    </section>
    {right??<GlbNotes id={id} name={def.title.split('·').pop()!.trim()} profile={profile} onQuiz={onMission}/>}
   </div>

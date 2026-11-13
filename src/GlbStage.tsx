@@ -16,7 +16,7 @@ export type PlayState='loading'|'playing'|'paused'|'done'|'static'|'error';
 export type CircuitState={closed:boolean;high:boolean;a:boolean;b:boolean};
 export type CircuitKey=keyof CircuitState;
 type Props={src:string;label:string;play:'once'|'loop'|'none';paused:boolean;replay:number;reset:number;parts:GlbPart[];
- interact?:Interaction;circuit?:CircuitState;demo?:number;onToggle?:(k:CircuitKey)=>void;onState?:(s:PlayState)=>void;onPick?:(p:GlbPart|null)=>void};
+ interact?:Interaction;circuit?:CircuitState;demo?:number;clear?:number;focus?:{part:GlbPart;n:number}|null;onParts?:(p:GlbPart[])=>void;onToggle?:(k:CircuitKey)=>void;onState?:(s:PlayState)=>void;onPick?:(p:GlbPart|null)=>void};
 
 const Q_ON=new THREE.Quaternion(0,0,0,1),Q_OFF=new THREE.Quaternion(0,0,0.3193088,0.9476507);
 const LEVERS:Record<string,CircuitKey>={'switch a lever':'closed','signal switch lever':'high','input a lever':'a','input b lever':'b'};
@@ -28,7 +28,7 @@ type Live={root:THREE.Object3D|null;mixer:THREE.AnimationMixer|null;actions:THRE
 export function GlbStage(p:Props){
  const host=useRef<HTMLDivElement>(null),props=useRef(p);props.current=p;
  const[status,setStatus]=useState<'loading'|'ready'|'error'>('loading');
- const api=useRef<{load:(src:string)=>void;replay:()=>void;reset:()=>void;demo:()=>void;apply:()=>void;pause:(on:boolean)=>void}|null>(null);
+ const api=useRef<{focus:(p:GlbPart)=>void;deselect:()=>void;load:(src:string)=>void;replay:()=>void;reset:()=>void;demo:()=>void;apply:()=>void;pause:(on:boolean)=>void}|null>(null);
 
  useEffect(()=>{
   const el=host.current;if(!el)return;
@@ -105,6 +105,7 @@ export function GlbStage(p:Props){
      if(own&&own!==inherited){part=own;const g=L.groups.get(own)??[];g.push(o);L.groups.set(own,g)}
      if(part)L.partOf.set(o,part);o.children.forEach(c=>walk(c,part))};
     root.children.forEach(c=>walk(c,null));
+    props.current.onParts?.(parts.filter(q=>L.groups.has(q)));
     L.mixer=new THREE.AnimationMixer(root);L.actions=gltf.animations.map(c=>L.mixer!.clipAction(c));L.play=props.current.play;L.demo=false;
     L.mixer.addEventListener('finished',()=>{if(L.actions.every(a=>!a.isRunning())){if(L.demo){L.demo=false;L.mixer?.stopAllAction();apply()}state('done')}});
     fit(root);apply();start();setStatus('ready');
@@ -124,7 +125,7 @@ export function GlbStage(p:Props){
   const resize=()=>{const w=el.clientWidth||1,h=el.clientHeight||1;renderer.setSize(w,h,false);camera.aspect=w/h;vis=measure();applyView()};
   const ro=new ResizeObserver(resize);ro.observe(el);resize();
   let disposed=false;
-  api.current={load,
+  api.current={focus:part=>{if(L.groups.has(part))select(part)},deselect:()=>select(null),load,
    replay:()=>{L.demo=false;start()},
    reset:()=>{select(null);camera.position.copy(homeCam);controls.target.copy(homeTarget);controls.update();if(props.current.interact)apply();else start()},
    demo:()=>{if(!L.mixer||!L.actions.length)return;L.demo=true;for(const a of L.actions){a.reset();a.setLoop(THREE.LoopOnce,1);a.clampWhenFinished=true;a.play()}L.mixer.timeScale=1;state('playing')},
@@ -142,6 +143,8 @@ export function GlbStage(p:Props){
  useEffect(()=>{if(p.replay)api.current?.replay()},[p.replay]);
  useEffect(()=>{if(p.reset)api.current?.reset()},[p.reset]);
  useEffect(()=>{if(p.demo)api.current?.demo()},[p.demo]);
+ useEffect(()=>{if(p.clear)api.current?.deselect()},[p.clear]);
+ useEffect(()=>{if(p.focus)api.current?.focus(p.focus.part)},[p.focus?.n]);
  useEffect(()=>{api.current?.pause(p.paused)},[p.paused]);
  useEffect(()=>{api.current?.apply()},[p.circuit?.closed,p.circuit?.high,p.circuit?.a,p.circuit?.b]);
 

@@ -91,3 +91,54 @@
 .glb-sep{width:1px;height:20px;margin:0 var(--sp-1);background:var(--c-line)}
 .shell-page[data-shell-left=closed] .glb-player,.shell-page[data-shell-right=closed] .glb-player{top:64px}
 @media(max-width:900px){.glb-player{top:var(--sp-3)}}
+
+/* 부품 설명: 3D 위에 떠서, 누른 자리 가까이(아래 가운데)에서 바로 읽어요 */
+.shell-page .shell-center>.glb-part-pop,.shell-page .shell-center>.glb-part-tip{position:absolute!important;z-index:3!important;left:calc(var(--shell-l) + (100vw - var(--shell-l) - var(--shell-r)) / 2);transform:translateX(-50%)}
+.glb-part-pop{bottom:96px;width:min(360px,calc(100vw - var(--shell-l) - var(--shell-r) - 48px));box-sizing:border-box;padding:var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-4);border-radius:var(--r-lg);background:var(--c-surface);box-shadow:var(--sh-float);animation:glb-pop .18s var(--ease)}
+.glb-part-pop>div{display:flex;align-items:center;gap:var(--sp-2);margin:-4px 0 var(--sp-1)}
+.glb-part-pop b{flex:1;font-size:var(--fs-body);font-weight:var(--fw-bold);color:var(--c-ink)}
+.glb-part-pop b::before{content:'';display:inline-block;width:8px;height:8px;margin-right:var(--sp-2);border-radius:50%;background:var(--c-accent);vertical-align:1px}
+.shell-page .glb-part-pop p{margin:0!important;font-size:var(--fs-ui);line-height:1.6;color:var(--c-ink-2)}
+.glb-part-tip{bottom:96px;display:flex;align-items:center;gap:var(--sp-2);margin:0!important;padding:6px var(--sp-3);border-radius:var(--r-pill);background:color-mix(in srgb,var(--c-surface) 88%,transparent);box-shadow:var(--sh-float);color:var(--c-ink-2)!important;font-size:var(--fs-caption)!important;pointer-events:none;white-space:nowrap}
+.glb-part-tip svg.bi{width:14px!important;height:14px!important}
+@keyframes glb-pop{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translate(-50%,0)}}
+@media(prefers-reduced-motion:reduce){.glb-part-pop{animation:none}}
+@media(max-width:900px){.shell-page .shell-center>.glb-part-pop,.shell-page .shell-center>.glb-part-tip{left:50%}}
+
+/* 다른 학습으로 이동 (8대 공정 1~8 · 장비 · 설계) */
+.lesson-nav{display:flex;flex-direction:column;gap:var(--sp-2);margin:0 0 var(--sp-4)}
+.lesson-nav-label{font-size:var(--fs-caption);font-weight:var(--fw-semibold);color:var(--c-muted)}
+.lesson-nav-steps{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
+.lesson-nav-steps button,.lesson-nav-chips button{height:32px;min-width:0;padding:0;border:1px solid var(--c-line);border-radius:var(--r-sm);background:var(--c-surface);color:var(--c-ink-2);font:inherit;font-size:var(--fs-ui);font-weight:var(--fw-semibold);font-variant-numeric:tabular-nums;cursor:pointer;transition:background-color .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease)}
+.lesson-nav-chips{display:flex;flex-wrap:wrap;gap:4px}
+.lesson-nav-chips button{padding:0 var(--sp-3)}
+.lesson-nav button:hover:not(:disabled){background:var(--c-hover);color:var(--c-ink)}
+.lesson-nav button[aria-current=page]{border-color:var(--c-accent);background:var(--c-accent);color:var(--gray-0)}
+.lesson-nav button[aria-current=page]:hover{background:var(--c-accent);color:var(--gray-0)}
+.lesson-nav button:disabled{border-style:dashed;background:transparent;color:var(--c-muted);opacity:.6;cursor:default}
+.lesson-nav button:focus-visible{outline:2px solid var(--c-accent);outline-offset:2px}
+/* 공정 단계 · 장비 설명 탭 */
+.shell-page .glb-tabs{margin:0 0 var(--sp-4)!important}
+.glb-parts ul{display:flex;flex-direction:column;gap:var(--sp-1);margin:var(--sp-3) 0 0;padding:0;list-style:none}
+.glb-parts button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:var(--sp-3);border:1px solid transparent;border-radius:var(--r-md);background:transparent;color:var(--c-ink);font:inherit;text-align:left;cursor:pointer;transition:background-color .15s var(--ease)}
+.glb-parts button b{font-size:var(--fs-ui);font-weight:var(--fw-semibold)}
+.glb-parts button span{font-size:var(--fs-caption);line-height:1.55;color:var(--c-ink-2)}
+.glb-parts button:hover{background:var(--c-hover)}
+.glb-parts button[aria-pressed=true]{border-color:var(--c-accent);background:var(--c-accent-soft)}
+.glb-parts button[data-absent] b{color:var(--c-muted)}
+.glb-parts button:focus-visible{outline:2px solid var(--c-accent);outline-offset:1px}
+/* 대표 관련 기업 */
+.lesson-companies{margin-top:0;border-top:1px solid var(--c-line)}
+.glb-about+.lesson-companies{margin-top:var(--sp-2)}
+.lesson-company-list{display:flex;flex-direction:column;gap:var(--sp-2);margin:var(--sp-2) 0 var(--sp-3)!important;padding:0!important;list-style:none}
+.lesson-company-list li{display:flex;gap:var(--sp-2);align-items:flex-start}
+.lesson-company-list svg.bi{flex:none;margin-top:3px;width:14px!important;height:14px!important;color:var(--c-muted)}
+.lesson-company-list span{display:flex;flex-direction:column;gap:1px}
+.lesson-company-list b{color:var(--c-ink);font-weight:var(--fw-semibold)}
+.lesson-company-list small{font-size:var(--fs-caption);color:var(--c-muted)}
+/* 탭: 초반 FFU 화면처럼 회색 바탕 세그먼트 */
+.shell-page .glb-tabs.tabs{display:grid!important;grid-template-columns:1fr 1fr;gap:4px!important;height:auto!important;margin:0 0 var(--sp-3)!important;padding:4px!important;border:0!important;border-radius:var(--r-md)!important;background:var(--c-surface-2)!important;box-shadow:none!important}
+.shell-page .glb-tabs.tabs button{display:flex!important;align-items:center;justify-content:center;width:auto!important;height:32px!important;min-height:0!important;margin:0!important;padding:0 var(--sp-3)!important;border:0!important;border-radius:var(--r-sm)!important;background:transparent!important;color:var(--c-ink-2)!important;font-size:var(--fs-ui)!important;font-weight:var(--fw-medium)!important;box-shadow:none!important}
+.shell-page .glb-tabs.tabs button:hover{color:var(--c-ink)!important}
+.shell-page .glb-tabs.tabs button.active{background:var(--c-surface)!important;color:var(--c-ink)!important;font-weight:var(--fw-semibold)!important;box-shadow:0 0 0 1px var(--c-line),0 1px 2px #1d22290f!important}
+.shell-page .glb-tabs.tabs button::after,.shell-page .glb-tabs.tabs::after{display:none!important}

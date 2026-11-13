@@ -3,13 +3,13 @@ import {Icon,type IconName} from './Icon';
 import {toggleTheme,useDarkMode} from './theme';
 
 /* 모든 화면 오른쪽 위에 고정되는 메뉴(햄버거).
-   IA 순서: 클린룸 공부하기 · 학습하러 가기 · 퀴즈 풀러 가기 · 워크스페이스 / 화면 모드 / 로그아웃 */
+   IA 순서: 클린룸 공부하기 · 학습하러 가기 · 워크스페이스 · 퀴즈 풀러 가기 / 화면 모드 / 로그아웃 */
 export type MenuTarget='tour'|'learn'|'quiz'|'workspace'|'logout';
 const items:{id:Exclude<MenuTarget,'logout'>;label:string;icon:IconName}[]=[
  {id:'tour',label:'클린룸 공부하기',icon:'compass'},
  {id:'learn',label:'학습하러 가기',icon:'boxes'},
- {id:'quiz',label:'퀴즈 풀러 가기',icon:'check2-circle'},
  {id:'workspace',label:'워크스페이스',icon:'journal-text'},
+ {id:'quiz',label:'퀴즈 풀러 가기',icon:'check2-circle'},
 ];
 export function AppMenu({current,onSelect}:{current?:MenuTarget|null;onSelect:(target:MenuTarget)=>void}){
  const[open,setOpen]=useState(false),root=useRef<HTMLDivElement>(null),dark=useDarkMode();

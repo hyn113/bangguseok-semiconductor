@@ -137,3 +137,58 @@
 .mission-dialog .game-tile{border-width:2px}
 /* 켜고 끄는 Secondary(선택됨)는 선택 타일과 같은 주황 표시로 통일 */
 :root :is(.btn.__eq,.btn--secondary,.outline,.shell-quiz,.catalog-cta.is-secondary,.tour-secondary,.head-actions>button,.entry-top button):not(#z)[aria-pressed=true]{background:var(--c-accent-soft)!important;border-color:var(--c-accent)!important;color:var(--c-accent-strong)!important;box-shadow:0 var(--ledge) 0 var(--btn-ledge-c)!important}
+
+/* ── 투명 버튼 없음: 모든 글자 버튼에 단색 바탕 ──
+   어두운 화면의 Secondary는 반투명 대신 진회색 단색, Tertiary도 연회색 단색 바탕 */
+.selection-page,.entry-page,.mission-scrim{--btn2-bg:var(--gray-700);--btn2-line:var(--gray-600);--btn2-hover:var(--gray-600);--btn2-press:var(--gray-800);--btn2-on:var(--gray-600);--btn2-ledge:var(--gray-900);--btn3-bg:var(--gray-800);--btn3-fg:var(--gray-100);--btn3-hover:var(--gray-700);--btn3-press:var(--gray-850);--btn-dis-bg:var(--gray-800);--btn-dis-fg:var(--gray-500);--btn-dis-line:var(--gray-700)}
+.entry-page .tour-panel,.mission-result-side{--btn2-bg:var(--c-surface);--btn2-line:var(--c-line);--btn2-hover:var(--c-hover);--btn2-press:var(--c-pressed);--btn2-on:var(--c-selected);--btn2-ledge:var(--gray-200);--btn3-bg:var(--c-surface-2);--btn3-fg:var(--c-ink-2);--btn3-hover:var(--c-selected);--btn3-press:var(--c-pressed);--btn-dis-bg:var(--gray-100);--btn-dis-fg:var(--gray-400);--btn-dis-line:var(--gray-200)}
+:root{--btn3-bg:var(--c-surface-2)}
+:root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes):not(#z){background:var(--btn3-bg)!important}
+:root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes):not(#z):hover:not(:disabled){background:var(--btn3-hover)!important}
+:root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes):not(#z):disabled{background:var(--btn-dis-bg)!important}
+/* 혼자 놓인 Tertiary는 이제 바탕이 있으니 왼쪽 맞춤 보정 제거 */
+.shell-page .gowning-source .text-button,.shell-page .concept-read .concept-notes{margin-left:0!important}
+
+/* ─────────────────────────────────────────────────────────────
+   최종 통일 규칙 (화면이 어둡든 밝든 같은 색 · 같은 여백)
+   Primary   주황 #f2862b · 흰 글자 · 진주황 받침
+   Secondary 흰 바탕 · 회색 2px 테두리 · 회색 받침 · 진한 글자
+   Tertiary  연회색 바탕 · 테두리/받침 없음 · 중간 회색 글자
+   비활성    연회색 바탕 · 옅은 글자 · 받침 없음
+   크기      큰 버튼(첫 화면·학습 선택·미션 대표 행동) 48 / 좌우 24
+             기본(그 밖의 모든 글자 버튼) 40 / 좌우 16
+             작은 버튼(패널 머리의 퀴즈 풀기 하나) 32 / 좌우 12
+   ───────────────────────────────────────────────────────────── */
+.selection-page,.entry-page,.mission-scrim,.entry-page .tour-panel,.mission-result-side{
+ --btn2-bg:var(--c-surface);--btn2-fg:var(--c-ink);--btn2-line:var(--c-line);--btn2-hover:var(--c-hover);--btn2-press:var(--c-pressed);--btn2-on:var(--c-selected);--btn2-ledge:var(--gray-300);
+ --btn3-bg:var(--c-surface-2);--btn3-fg:var(--c-ink-2);--btn3-hover:var(--c-selected);--btn3-press:var(--c-pressed);
+ --btn-dis-bg:var(--gray-100);--btn-dis-fg:var(--gray-400);--btn-dis-line:var(--gray-200)}
+:root{--btn2-ledge:var(--gray-300)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) :is(.selection-page,.entry-page,.mission-scrim){--btn2-ledge:var(--gray-950);--btn-dis-bg:var(--gray-850);--btn-dis-fg:var(--gray-600);--btn-dis-line:var(--gray-800)}}
+:root[data-theme=dark] :is(.selection-page,.entry-page,.mission-scrim){--btn2-ledge:var(--gray-950);--btn-dis-bg:var(--gray-850);--btn-dis-fg:var(--gray-600);--btn-dis-line:var(--gray-800)}
+:root[data-theme=dark]{--btn2-ledge:var(--gray-950)}
+/* Tertiary와 글자 버튼도 기본 크기(40)로 */
+:root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes,.wafer-compact-controls button,.learning-fallback-choices button,.head-actions>button,.entry-top button):not(#z){height:40px!important;padding:0 16px!important;border-radius:12px!important;font-size:var(--fs-body)!important}
+:root :is(.btn.__eq,.wafer-compact-controls button,.learning-fallback-choices button,.head-actions>button,.entry-top button):not(#z){--ledge:4px}
+:root :is(.btn.__eq,.btn--sm):not(#z){height:40px!important;padding:0 16px!important;border-radius:12px!important;font-size:var(--fs-body)!important}
+/* 작은 버튼은 패널 머리 '퀴즈 풀기'만 */
+:root :is(.btn.__eq,.shell-quiz):not(#z){height:32px!important;padding:0 12px!important;border-radius:10px!important;font-size:var(--fs-ui)!important;--ledge:3px}
+/* 미션 문제 화면 버튼도 같은 기본 크기 */
+.mission-actions .btn{min-width:96px}
+
+/* ─────────────────────────────────────────────────────────────
+   2D / 3D 쓰임 나누기
+   3D(받침 있는 입체): 글자가 적고 버튼이 주인공인 화면 — 첫 화면 · 시작 방법 · 학습 선택 · 퀴즈 미션
+   2D(평면): 읽을 거리가 많은 작업 화면 — 학습하기 패널 · 클린룸 공부하기 패널 · 워크스페이스 · 메모/AI 패널
+   2D에서도 색 · 크기 · 여백 · 위계는 같아요. 받침과 눌림 이동만 빠지고, Secondary 테두리는 1px.
+   ───────────────────────────────────────────────────────────── */
+:root :is(.shell-page,.ws,.tour-panel) :is(.btn.__eq,.btn,.btn--primary,.btn--secondary,.orange,.photo-primary,.concept-check-button,.outline,.shell-quiz,.ws-learn,.tour-primary,.tour-secondary,.photo-between button,.wafer-compact-controls button,.learning-fallback-choices button,.gowning-item):not(#z){box-shadow:none!important;margin-bottom:0!important;transform:none!important}
+:root :is(.shell-page,.ws,.tour-panel) :is(.btn.__eq,.btn,.btn--primary,.btn--secondary,.orange,.photo-primary,.concept-check-button,.outline,.shell-quiz,.ws-learn,.tour-primary,.tour-secondary,.photo-between button,.wafer-compact-controls button,.learning-fallback-choices button,.gowning-item):not(#z):active:not(:disabled){transform:none!important;box-shadow:none!important}
+:root :is(.shell-page,.ws,.tour-panel) :is(.btn.__eq,.btn--secondary,.outline,.shell-quiz,.ws-learn,.tour-secondary,.photo-between button,.wafer-compact-controls button,.learning-fallback-choices button,.gowning-item):not(#z){border-width:1px!important}
+/* 2D 누름 표시: 받침 대신 바탕만 한 단계 진하게 */
+:root :is(.shell-page,.ws,.tour-panel) :is(.btn.__eq,.btn--primary,.orange,.photo-primary,.concept-check-button,.tour-primary):not(#z):active:not(:disabled){background:var(--orange-600)!important}
+:root :is(.shell-page,.ws,.tour-panel) :is(.btn.__eq,.btn--secondary,.outline,.shell-quiz,.ws-learn,.tour-secondary,.photo-between button,.wafer-compact-controls button,.learning-fallback-choices button,.gowning-item):not(#z):active:not(:disabled){background:var(--btn2-press)!important}
+/* 2D 선택 표시: 주황 테두리 + 연주황 바탕 (받침 없음) */
+:root :is(.shell-page,.ws,.tour-panel) :is(.btn.__eq,.outline,.learning-fallback-choices button,.gowning-item):not(#z):is([aria-pressed=true],.selected,.chosen){box-shadow:none!important}
+/* 2D 화면은 글자 무게도 한 단계 가볍게(읽기 위주) */
+:root :is(.shell-page,.ws,.tour-panel) :is(.btn.__eq,.btn,.orange,.photo-primary,.outline,.shell-quiz,.ws-learn,.tour-primary,.tour-secondary,.text-button,.concept-notes,.photo-between button,.wafer-compact-controls button,.learning-fallback-choices button):not(#z){font-weight:600!important}

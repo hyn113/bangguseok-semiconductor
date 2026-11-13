@@ -134,7 +134,7 @@ function History({lesson,kind,query,setQuery,searchRef,current,primary,onOpen,on
    <span className="hub-menu-label">폴더로 옮기기</span>
    {folders.length?folders.map(f=><button key={f.id} type="button" role="menuitem" aria-current={book.assign[r.id]===f.id||undefined} onClick={()=>{moveToFolder(r.id,f.id);setMenu(null)}}><Icon name="folder" className="lead"/>{f.name}</button>):<button type="button" role="menuitem" onClick={()=>{setMenu(null);startFolder()}}><Icon name="folder-plus" className="lead"/>새 폴더 만들기</button>}
    {book.assign[r.id]&&<button type="button" role="menuitem" onClick={()=>{moveToFolder(r.id,null);setMenu(null)}}><Icon name="x-lg" className="lead"/>폴더에서 빼기</button>}
-   {!r.primary&&<><hr/><button type="button" role="menuitem" className="hub-danger" onClick={()=>{deleteEntry(r.id);setMenu(null)}}><Icon name="trash3" className="lead"/>삭제</button></>}
+   <hr/><button type="button" role="menuitem" className="hub-danger" onClick={()=>{if(r.primary){primary.onChange('');moveToFolder(r.id,null)}else deleteEntry(r.id);setMenu(null)}}><Icon name="trash3" className="lead"/>삭제</button>
   </div>}
  </li>;
 

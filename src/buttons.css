@@ -236,3 +236,8 @@
 :root :is(.btn.__eq,.shell-quiz):not(#z):hover:not(:disabled){background:var(--orange-600)!important}
 :root :is(.btn.__eq,.shell-quiz):not(#z):active:not(:disabled){background:var(--orange-600)!important;transform:none!important}
 :root :is(.btn.__eq,.shell-quiz):not(#z) svg.bi{color:currentColor!important}
+
+/* 워크스페이스 왼쪽 아래 '학습하러 가기': 배경보다 한 단계 옅은 회색 + 1px 선 (선택된 메뉴와 구분) */
+:root :is(.btn.__eq,.ws-side .ws-learn):not(#z){background:var(--c-surface-2)!important;color:var(--c-ink)!important;border:1px solid var(--c-line)!important;box-shadow:none!important}
+:root :is(.btn.__eq,.ws-side .ws-learn):not(#z):hover:not(:disabled){background:var(--c-selected)!important}
+:root :is(.btn.__eq,.ws-side .ws-learn):not(#z):active:not(:disabled){background:var(--c-pressed)!important}

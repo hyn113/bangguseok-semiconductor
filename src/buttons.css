@@ -76,3 +76,37 @@
 :root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes ):not(#z):disabled{background:transparent!important;color:var(--btn-dis-fg)!important;cursor:not-allowed;opacity:1!important}
 @media(prefers-reduced-motion:reduce){:root :is(.btn.__eq,.btn,.orange,.photo-primary,.entry-start,.catalog-cta,.tour-primary,.concept-check-button ):not(#z){transition:none}}
 :root .selection-page .catalog-cta:not(#z){min-width:160px}
+
+/* ─────────────────────────────────────────────────────────────
+   듀오링고처럼 더 볼드하게 (사이트 전체)
+   · 글자 굵게: lg 800 · md/sm 700
+   · Primary 받침 lg 5 · md 4 · sm 3px, Secondary도 2px 테두리 + 회색 받침
+   · 누르면 받침만큼 내려감, 모서리 lg 14 · md 12 · sm 10
+   ───────────────────────────────────────────────────────────── */
+:root{--btn2-ledge:var(--gray-200)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--btn2-ledge:var(--gray-950)}}
+:root[data-theme=dark]{--btn2-ledge:var(--gray-950)}
+.selection-page,.entry-page,.mission-scrim{--btn2-ledge:#0000004d}
+.entry-page .tour-panel,.mission-result-side{--btn2-ledge:var(--gray-200)}
+
+:root :is(.btn.__eq,.btn,.btn--primary,.orange,.photo-primary,.entry-start,.catalog-cta,.tour-primary,.concept-check-button,.ws-empty .ws-learn,
+ .btn--secondary,.outline,.shell-quiz,.tour-secondary,.ws-side .ws-learn,.head-actions>button,.entry-top button,.tour-leave-note button,
+ .btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes):not(#z){font-weight:700!important;border-radius:12px!important;transition:background-color .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease),box-shadow .08s ease,transform .08s ease}
+:root :is(.btn.__eq,.btn--lg,.entry-start,.catalog-cta,.tour-primary,.tour-secondary):not(#z){font-weight:800!important;border-radius:14px!important;font-size:15px!important}
+:root :is(.btn.__eq,.btn--sm,.shell-quiz,.head-actions>button,.entry-top button,.text-button,.entry-back,.concept-retry,.concept-notes):not(#z){border-radius:10px!important}
+
+/* Primary: 받침 두께 */
+:root :is(.btn.__eq,.btn--primary,.orange,.photo-primary,.entry-start,.catalog-cta.is-primary,.tour-primary,.concept-check-button,.ws-empty .ws-learn):not(#z){--ledge:4px}
+:root :is(.btn.__eq,.btn--lg.btn--primary,.entry-start,.catalog-cta.is-primary,.tour-primary):not(#z){--ledge:5px}
+:root :is(.btn.__eq,.btn--sm.btn--primary):not(#z){--ledge:3px}
+
+/* Secondary: 2px 테두리 + 회색 받침, 누르면 내려감 */
+:root :is(.btn.__eq,.btn--secondary,.outline,.shell-quiz,.catalog-cta.is-secondary,.tour-secondary,.ws-side .ws-learn,.head-actions>button,.entry-top button,.tour-leave-note button):not(#z){
+ --ledge:4px;border-width:2px!important;box-shadow:0 var(--ledge) 0 var(--btn2-ledge)!important}
+:root :is(.btn.__eq,.btn--sm.btn--secondary,.shell-quiz,.head-actions>button,.entry-top button):not(#z){--ledge:3px}
+:root :is(.btn.__eq,.btn--lg.btn--secondary,.catalog-cta.is-secondary,.tour-secondary):not(#z){--ledge:5px}
+:root :is(.btn.__eq,.btn--secondary,.outline,.shell-quiz,.catalog-cta.is-secondary,.tour-secondary,.ws-side .ws-learn,.head-actions>button,.entry-top button,.tour-leave-note button):not(#z):active:not(:disabled){transform:translateY(var(--ledge))!important;box-shadow:0 0 0 var(--btn2-ledge)!important}
+
+/* 받침이 있는 버튼은 받침만큼 아래 여백을 확보 */
+:root :is(.btn.__eq,.btn--primary,.btn--secondary,.orange,.photo-primary,.entry-start,.catalog-cta,.tour-primary,.tour-secondary,.outline,.shell-quiz,.concept-check-button,.ws-learn):not(#z){margin-bottom:var(--ledge)}
+:root :is(.btn.__eq,.btn,.orange,.photo-primary,.entry-start,.catalog-cta,.tour-primary,.concept-check-button,.outline,.shell-quiz,.tour-secondary,.ws-learn,.head-actions>button,.entry-top button,.tour-leave-note button):not(#z):disabled{margin-bottom:var(--ledge,0)}

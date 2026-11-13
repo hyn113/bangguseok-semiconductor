@@ -46,7 +46,6 @@ export function ConceptPanel({topics,currentId,onNotes,openSignal=0}:Props){
     <div><dt>장면 연결</dt><dd>{topic.connection}</dd></div>
     <div className="concept-caution"><dt>헷갈리는 점</dt><dd>{topic.misconception}</dd></div>
    </dl>
-   <details className="concept-practice"><summary><Icon name="check2-circle"/>확인 문제 풀기<Icon name="chevron-down" className="concept-practice-chevron"/></summary><ConceptQuestion topic={topic}/></details>
    {safe(topic).length>0&&<p className="concept-refs">{safe(topic).map((source,k)=><a key={source.url} href={source.url} target="_blank" rel="noopener noreferrer">{source.label}<Icon name="box-arrow-up-right" className="trail"/><span className="concept-sr-only"> (새 창)</span>{k<safe(topic).length-1?'':''}</a>)}</p>}
   </li>)}</ol>
   {onNotes&&<button type="button" className="concept-notes" onClick={onNotes}>내 메모에 정리하기<Icon name="journal-text" className="trail"/></button>}

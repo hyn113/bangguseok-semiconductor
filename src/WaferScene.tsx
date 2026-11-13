@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {createCameraRig} from './viewOptions';
-import {createPartFrames,pickAt} from './partFrames';
+import {createPartFrames,pickAt,createOutline} from './partFrames';
 
 type Props={interactionBlocked?:boolean;stage:number;progress:number;selected:number;onSelect:(n:number)=>void;reset:number;playing:boolean;onWorkProgress:(n:number)=>void;names?:string[]};
 /** Original illustrative geometry, not a dimensional manufacturing model. */
@@ -40,7 +40,7 @@ export function WaferScene(props:Props){
   controls.minDistance=4;controls.maxDistance=10;controls.maxPolarAngle=Math.PI*.48;
   const homeCam=camera.position.clone(),rig=createCameraRig(camera,controls.target,()=>homeCam);let orbiting=false;
   controls.addEventListener('start',()=>{orbiting=true});controls.addEventListener('end',()=>{orbiting=false});controls.addEventListener('change',()=>{if(orbiting)rig.cancel()});
-  const frames=createPartFrames(root);let hovered=-1;
+  const frames=createPartFrames(root),outline=createOutline(0xf2862b,.008);let hovered=-1;
   // Locally generated studio reflections; no downloaded HDR or manufacturer assets.
   const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment();
   const environment=pmrem.fromScene(room,.04);
@@ -164,7 +164,7 @@ export function WaferScene(props:Props){
    if(toolPoint.current&&s.stage>=2&&s.stage<=5)tool.position.set(toolPoint.current.x,.21,toolPoint.current.z);
    baseMat.roughness=s.stage<5?.36:s.stage===5?.36-p*.28:.08;
    baseMat.color.set(s.stage===4?0x7a8592:0x636d7b);
-   dieMaterial.emissive.set(s.stage===8&&s.selected===0?0x1c1f23:0);
+   dieMaterial.emissive.set(s.stage===8&&s.selected===0?0x4a2a0c:0);
    (edge.material as THREE.MeshStandardMaterial).emissive.set(s.stage===8&&s.selected===2?0x3a3f45:0);
    (notch.material as THREE.MeshStandardMaterial).emissive.set(s.selected===3?0x3a3f45:0);
    baseMat.emissive.set(s.stage===8&&s.selected===1?0x26292d:0);
@@ -181,12 +181,13 @@ export function WaferScene(props:Props){
    renderer.render(scene,camera);
    const names=s.names??[],at=(i:number)=>i>=0&&s.stage===8?{target:pick.find(o=>o.userData.part===i),name:names[i]??''}:null;
    if(s.stage!==8)hovered=-1;frames.update(camera,at(hovered),at(s.selected));
+   outline.set(s.stage===8&&s.selected>0?pick.find(o=>o.userData.part===s.selected):null);
   };
   const onContextLost=(event:Event)=>{event.preventDefault();cancelAnimationFrame(frame);setFailed(true);setContextLost(true)};
   renderer.domElement.addEventListener('webglcontextlost',onContextLost);
   frame=requestAnimationFrame(tick);
   return()=>{
-   cancelAnimationFrame(frame);frames.dispose();renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('lostpointercapture',clearPointer);document.removeEventListener('pointerup',endPointer);document.removeEventListener('pointercancel',endPointer);window.removeEventListener('blur',clearPointer);document.removeEventListener('visibilitychange',hidePointer);clearPointer();moveTool.current=null;observer.disconnect();controls.dispose();
+   cancelAnimationFrame(frame);frames.dispose();outline.dispose();renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('lostpointercapture',clearPointer);document.removeEventListener('pointerup',endPointer);document.removeEventListener('pointercancel',endPointer);window.removeEventListener('blur',clearPointer);document.removeEventListener('visibilitychange',hidePointer);clearPointer();moveTool.current=null;observer.disconnect();controls.dispose();
    const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>();
    scene.traverse(o=>{if(o instanceof THREE.Mesh){geometries.add(o.geometry);(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>materials.add(m));if(o instanceof THREE.InstancedMesh)o.dispose()}});
    geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());environment.dispose();key.shadow.dispose();renderer.dispose();renderer.domElement.remove();

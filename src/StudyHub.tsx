@@ -64,7 +64,6 @@ function Inline({text}:{text:string}){return <>{text.split(/(\*\*[^*]+\*\*)/g).m
 function Md({text}:{text:string}){
  return <>{text.split(/\n{2,}/).map((block,i)=>{const lines=block.split('\n');return lines.every(l=>l.startsWith('- '))?<ul key={i}>{lines.map((l,k)=><li key={k}><Inline text={l.slice(2)}/></li>)}</ul>:<p key={i}>{lines.map((l,k)=><span key={k}>{k>0&&<br/>}<Inline text={l}/></span>)}</p>})}</>;
 }
-const Avatar=()=><span className="chat-avatar" aria-hidden="true"><Icon name="stars"/></span>;
 
 function AiThread({lesson,entry,draft,setDraft,inputRef}:{lesson:string;entry?:Entry;draft:string;setDraft:(s:string)=>void;inputRef:Ref<HTMLTextAreaElement>}){
  const log=useRef<HTMLDivElement>(null),msgs=entry?.messages??[];
@@ -86,10 +85,10 @@ function AiThread({lesson,entry,draft,setDraft,inputRef}:{lesson:string;entry?:E
  const empty=!msgs.length&&!live;
  return <div className="hub-ai chat">
   <div ref={log} className="chat-log" aria-live="polite">
-   {empty?<div className="chat-empty"><Avatar/><strong>무엇이 궁금하세요?</strong><div className="chat-starters">{starterQuestions(lesson,3).map(q=><button key={q} type="button" onClick={()=>send(q)}><span>{q}</span><Icon name="arrow-up"/></button>)}</div></div>
+   {empty?<div className="chat-empty"><strong>무엇이 궁금하세요?</strong><div className="chat-starters">{starterQuestions(lesson,3).map(q=><button key={q} type="button" onClick={()=>send(q)}><span>{q}</span><Icon name="arrow-up"/></button>)}</div></div>
    :<>{msgs.map((m,i)=>m.role==='user'
      ?<div key={i} className="chat-msg is-user"><div className="chat-bubble">{m.text}</div></div>
-     :<div key={i} className="chat-msg is-ai"><Avatar/><div className="chat-content">
+     :<div key={i} className="chat-msg is-ai"><div className="chat-content">
        <div className="chat-md"><Md text={m.text}/></div>
        {!!m.sources?.length&&<p className="chat-sources">참고 · {m.sources.join(', ')}</p>}
        <div className="chat-actions">
@@ -98,11 +97,11 @@ function AiThread({lesson,entry,draft,setDraft,inputRef}:{lesson:string;entry?:E
        </div>
        {i===msgs.length-1&&!live&&!!m.followUps?.length&&<div className="chat-follow">{m.followUps.map(q=><button key={q} type="button" onClick={()=>send(q)}>{q}</button>)}</div>}
       </div></div>)}
-    {live&&<div className="chat-msg is-ai"><Avatar/><div className="chat-content">{live.waiting?<span className="chat-typing" aria-label="답변을 쓰는 중"><i/><i/><i/></span>:<div className="chat-md is-streaming"><Md text={live.text}/></div>}</div></div>}</>}
+    {live&&<div className="chat-msg is-ai"><div className="chat-content">{live.waiting?<span className="chat-typing" aria-label="답변을 쓰는 중"><i/><i/><i/></span>:<div className="chat-md is-streaming"><Md text={live.text}/></div>}</div></div>}</>}
   </div>
   <form className="chat-composer" onSubmit={e=>{e.preventDefault();send()}}>
    <textarea ref={inputRef} rows={1} aria-label="AI에게 질문" placeholder="무엇이든 물어보세요" value={draft} onChange={e=>setDraft(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();send()}}}/>
-   {live?<button type="button" className="chat-send is-stop" aria-label="답변 멈추기" onClick={()=>{live.sig.stopped=true}}><Icon name="stop-fill"/></button>
+   {live?<button type="button" className="chat-send is-stop" aria-label="답변 멈추기" onClick={()=>{live.sig.stopped=true}}><Icon name="stop"/></button>
     :<button type="submit" className="chat-send" aria-label="보내기" disabled={!draft.trim()}><Icon name="arrow-up"/></button>}
   </form>
   <p className="chat-foot">이 앱의 학습 자료로 답해요</p>

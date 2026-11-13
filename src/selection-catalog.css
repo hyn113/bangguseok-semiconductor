@@ -197,3 +197,19 @@ svg.bi.flip{transform:scaleX(-1)}
 .selection-page .catalog-paging{margin:12px auto 0!important}
 .selection-page .catalog-actions{margin:20px 0 0!important}
 @media(max-width:650px){.selection-page .selector-header{height:64px;padding:0 16px!important}}
+
+/* 탭 옆 검색 */
+.selection-page .catalog-bar{display:flex;align-items:center;justify-content:center;gap:8px;margin:24px auto}
+.selection-page .catalog-bar .catalog-tabs{margin:0!important}
+.catalog-search{display:flex;align-items:center;gap:8px;height:48px;padding:0 4px;border-radius:var(--r-lg);background:#ffffff1a;box-shadow:inset 0 0 0 1px #ffffff26;backdrop-filter:blur(12px);color:var(--gray-200);transition:width .2s var(--ease)}
+.catalog-search.is-open{width:240px;padding:0 8px 0 14px}
+.catalog-search.is-open:focus-within{box-shadow:inset 0 0 0 2px var(--gray-0)}
+.catalog-search input{flex:1;min-width:0;height:40px;border:0;outline:0;background:transparent;color:var(--gray-0);font:inherit;font-size:var(--fs-body)}
+.catalog-search input::placeholder{color:var(--gray-300)}
+.catalog-search input::-webkit-search-cancel-button{display:none}
+.catalog-search-open,.catalog-search-clear{display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:var(--r-md);background:transparent;color:var(--gray-0);cursor:pointer}
+.catalog-search-clear{width:28px;height:28px;border-radius:50%}
+.catalog-search-open:hover,.catalog-search-clear:hover{background:#ffffff24}
+.catalog-search-open:focus-visible,.catalog-search-clear:focus-visible{outline:2px solid var(--gray-0);outline-offset:-2px}
+.selection-page .catalog-empty{margin:64px auto;text-align:center;font-size:var(--fs-body);color:var(--gray-200)}
+@media(max-width:650px){.selection-page .catalog-bar{flex-wrap:wrap}.catalog-search.is-open{width:100%}}

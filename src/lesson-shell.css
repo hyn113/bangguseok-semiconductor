@@ -785,3 +785,4 @@ body.is-resizing .panel-resizer:not([data-dragging])::after{opacity:0!important}
 .shell-page .lesson-title-input::selection{background:var(--c-accent-soft)}
 .shell-page .lesson-title-input::selection{background:color-mix(in srgb,var(--c-accent) 22%,transparent)}
 .shell-page .lesson-title-input{box-shadow:inset 0 0 0 1px var(--c-accent)!important}
+.chat-content{padding-top:0}

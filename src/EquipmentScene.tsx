@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {createCameraRig,getViewOptions} from './viewOptions';
-import {createPartFrames,pickAt} from './partFrames';
+import {createPartFrames,pickAt,createOutline} from './partFrames';
 type Props={kind:'gown'|'ffu';step:number;playing:boolean;exploded:boolean;flow:boolean;selected:number;onSelect:(n:number)=>void;reset:number;names?:string[]};
 export function Scene(props:Props){
  const {kind,reset}=props,host=useRef<HTMLDivElement>(null),current=useRef(props);
@@ -27,7 +27,7 @@ export function Scene(props:Props){
   control.enableDamping=true;control.minDistance=3.5;control.maxDistance=10;control.maxPolarAngle=Math.PI*.52;control.enablePan=false;
   const homeCam=camera.position.clone(),rig=createCameraRig(camera,control.target,()=>homeCam);let orbiting=false;
   control.addEventListener('start',()=>{orbiting=true});control.addEventListener('end',()=>{orbiting=false});control.addEventListener('change',()=>{if(orbiting)rig.cancel()});
-  const frames=createPartFrames(root);let hovered=-1;
+  const frames=createPartFrames(root),outline=createOutline();let hovered=-1;
   const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment(),environment=pmrem.fromScene(room,.04);
   scene.environment=environment.texture;scene.environmentIntensity=.65;room.dispose();pmrem.dispose();
   scene.add(new THREE.HemisphereLight(0xffffff,0x66717d,.8));
@@ -195,16 +195,17 @@ export function Scene(props:Props){
    }else{
     const assembled=[1.68,1.13,1.5,1.81,1.77,1.13,1.5,1.01],separated=[2.35,1.02,1.6,3.02,2.76,.7,1.6,.42];groups.forEach((g,i)=>{g.position.y=THREE.MathUtils.lerp(g.position.y,(c.exploded?separated:assembled)[i],.08)});
     if(c.playing)fan!.rotation.y+=delta*2;
-    groups.forEach((g,i)=>g.traverse(o=>{if(o instanceof THREE.Mesh)(o.material as THREE.MeshStandardMaterial).emissive.set(i===c.selected?0x2b3036:i===hovered?0x15181b:0)}));
+    groups.forEach((g,i)=>g.traverse(o=>{if(o instanceof THREE.Mesh)(o.material as THREE.MeshStandardMaterial).emissive.set(i===c.selected?0x3a2410:i===hovered?0x1a1d21:0)}));
     dots.forEach((d,i)=>{d.visible=c.flow&&getViewOptions().effects;d.position.y=3.2-((elapsed*.6+i*.113)%2.9)})
    }
    rig.update();control.update();renderer.render(scene,camera);
+   if(kind==='ffu')outline.set(c.selected>=0?groups[c.selected]:null);
    if(kind==='ffu'){const n=c.names??[];frames.update(camera,hovered>=0?{target:groups[hovered],name:n[hovered]??''}:null,c.selected>=0?{target:groups[c.selected],name:n[c.selected]??''}:null)}
   };
   const onContextLost=(event:Event)=>{event.preventDefault();cancelAnimationFrame(frame);setError(true);setContextLost(true)};
   renderer.domElement.addEventListener('webglcontextlost',onContextLost);
   frame=requestAnimationFrame(tick);
-  return()=>{cancelAnimationFrame(frame);frames.dispose();renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('lostpointercapture',clearPointer);document.removeEventListener('pointerup',endPointer);document.removeEventListener('pointercancel',endPointer);window.removeEventListener('blur',clearPointer);document.removeEventListener('visibilitychange',hidePointer);clearPointer();ro.disconnect();control.dispose();const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>();scene.traverse(o=>{if(o instanceof THREE.Mesh){geometries.add(o.geometry);(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>materials.add(m))}});allocatedMaterials.forEach(m=>materials.add(m));if(cloth)materials.add(cloth);if(under)materials.add(under);geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());environment.dispose();sun.shadow.dispose();renderer.dispose();renderer.domElement.remove()};
+  return()=>{cancelAnimationFrame(frame);frames.dispose();outline.dispose();renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('lostpointercapture',clearPointer);document.removeEventListener('pointerup',endPointer);document.removeEventListener('pointercancel',endPointer);window.removeEventListener('blur',clearPointer);document.removeEventListener('visibilitychange',hidePointer);clearPointer();ro.disconnect();control.dispose();const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>();scene.traverse(o=>{if(o instanceof THREE.Mesh){geometries.add(o.geometry);(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>materials.add(m))}});allocatedMaterials.forEach(m=>materials.add(m));if(cloth)materials.add(cloth);if(under)materials.add(under);geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());environment.dispose();sun.shadow.dispose();renderer.dispose();renderer.domElement.remove()};
  },[kind,reset,contextLost]);
  return <div className={'scene'+(error?' is-fallback':'')} ref={host}>{error&&<EquipmentFallback kind={props.kind} selected={props.selected} onSelect={props.onSelect} step={props.step}/>}</div>;
 }

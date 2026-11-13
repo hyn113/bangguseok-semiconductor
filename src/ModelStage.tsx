@@ -4,7 +4,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {createCameraRig} from './viewOptions';
-import {createPartFrames,pickAt} from './partFrames';
+import {createPartFrames,pickAt,createOutline} from './partFrames';
 
 /* 블렌더에서 내보낸 .glb 모형을 띄우는 캔버스.
    - 드래그로 돌려보기, 스크롤로 확대 (손 도구)
@@ -32,7 +32,7 @@ export function ModelStage({src,label,exploded,resetSignal}:{src:string;label:st
   const homeCam=new THREE.Vector3(),homeTarget=new THREE.Vector3();
   const rig=createCameraRig(camera,controls.target,()=>homeCam);let orbiting=false;
   controls.addEventListener('start',()=>{orbiting=true});controls.addEventListener('end',()=>{orbiting=false});controls.addEventListener('change',()=>{if(orbiting)rig.cancel()});
-  const frames=createPartFrames(el);let hovered=-1,selected=-1;
+  const frames=createPartFrames(el),outline=createOutline();let hovered=-1,selected=-1;
   const nameOf=(i:number)=>{const o=parts[i]?.obj;return o?(o.name||'').replace(/[_.]+/g,' ').trim()||`구성 요소 ${i+1}`:''};
   const partIndex=(o:THREE.Object3D|null)=>{while(o){const i=parts.findIndex(p=>p.obj===o);if(i>=0)return i;o=o.parent}return -1};
   const canvas=renderer.domElement;let press:{x:number;y:number}|null=null;
@@ -67,10 +67,10 @@ export function ModelStage({src,label,exploded,resetSignal}:{src:string;label:st
   },undefined,()=>{if(!disposed)setStatus('error')});
 
   api.current={setExploded:on=>{target=on?1:0;if(reduce)amount=target},reset:()=>{target=0;selected=-1;if(reduce)amount=0;camera.position.copy(homeCam);controls.target.copy(homeTarget);controls.update()}};
-  const tick=()=>{frame=requestAnimationFrame(tick);amount+=(target-amount)*0.12;for(const p of parts)p.obj.position.copy(p.home).addScaledVector(p.out,amount);rig.update();controls.update();renderer.render(scene,camera);
+  const tick=()=>{frame=requestAnimationFrame(tick);amount+=(target-amount)*0.12;for(const p of parts)p.obj.position.copy(p.home).addScaledVector(p.out,amount);rig.update();controls.update();outline.set(selected>=0?parts[selected]?.obj:null);renderer.render(scene,camera);
    frames.update(camera,hovered>=0?{target:parts[hovered].obj,name:nameOf(hovered)}:null,selected>=0?{target:parts[selected].obj,name:nameOf(selected)}:null)};
   tick();
-  return()=>{disposed=true;api.current=null;frames.dispose();cancelAnimationFrame(frame);ro.disconnect();controls.dispose();
+  return()=>{disposed=true;api.current=null;frames.dispose();outline.dispose();cancelAnimationFrame(frame);ro.disconnect();controls.dispose();
    scene.traverse(o=>{const m=o as THREE.Mesh;m.geometry?.dispose?.();const mat=m.material as THREE.Material|THREE.Material[]|undefined;(Array.isArray(mat)?mat:mat?[mat]:[]).forEach(x=>x.dispose())});
    pmrem.dispose();renderer.dispose();renderer.domElement.remove()};
  },[src]);

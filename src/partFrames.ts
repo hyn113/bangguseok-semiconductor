@@ -56,3 +56,22 @@ export function pickAt(e:{clientX:number;clientY:number},canvas:HTMLCanvasElemen
  ray.setFromCamera(new THREE.Vector2((e.clientX-b.left)/b.width*2-1,-(e.clientY-b.top)/b.height*2+1),camera);
  return ray.intersectObjects(objects.filter(o=>o.visible),recursive)[0]??null;
 }
+
+/** 고른 부품의 윤곽선 — 모형 모양을 따라 바깥쪽에 얇은 주황 선을 그려요(뒤집은 껍데기 방식).
+    set(대상)으로 바꾸고, 같은 대상이면 다시 만들지 않아요. */
+export function createOutline(color=0xf2862b,thickness=.012){
+ const mat=new THREE.MeshBasicMaterial({color,side:THREE.BackSide,depthWrite:false});
+ mat.onBeforeCompile=shader=>{shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>\ntransformed += normalize(normal) * ${thickness.toFixed(4)};`)};
+ let current:THREE.Object3D|null=null;const hulls:THREE.Mesh[]=[];
+ const clear=()=>{for(const h of hulls)h.parent?.remove(h);hulls.length=0};
+ return {
+  set(target:THREE.Object3D|null|undefined){
+   if((target??null)===current)return;current=target??null;clear();if(!target)return;
+   target.traverse(o=>{const m=o as THREE.Mesh;if(!m.isMesh||(m as THREE.InstancedMesh).isInstancedMesh||!m.geometry?.attributes?.normal||m.userData.outline)return;
+    /* 앞뒤가 다 보이는 얇은 면(필터 주름 등)은 윤곽선이 면 전체를 덮어 버려서 빼요 */
+    const mm=m.material as THREE.Material|THREE.Material[];if((Array.isArray(mm)?mm:[mm]).some(x=>x.side===THREE.DoubleSide))return;
+    const h=new THREE.Mesh(m.geometry,mat);h.raycast=()=>{};h.renderOrder=-1;h.userData.outline=true;m.add(h);hulls.push(h)});
+  },
+  dispose(){clear();mat.dispose()},
+ };
+}

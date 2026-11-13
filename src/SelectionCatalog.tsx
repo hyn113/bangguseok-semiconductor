@@ -14,6 +14,8 @@ const modules={
  wafer:{title:'제1공정 · 웨이퍼 제조',sub:'잉곳부터 웨이퍼까지',copy:'잉곳 절단부터 빈 웨이퍼와 회로 구조까지 탐색해요.',symbol:'◎',label:'웨이퍼 선택'},
  mosfet:{title:'MOSFET 설계 기초',copy:'구조를 살펴보고 전압과 W/L을 바꾸며 전류의 변화를 확인해요.',symbol:'▤',label:'MOSFET 선택'}
 };
+/* 검색에 함께 쓰는 낱말(부품·용어) */
+const keywords:Record<CatalogModule,string>={wafer:'잉곳 웨이퍼 절단 연마 다이 노치 스크라이브 실리콘',photo:'포토 리소그래피 PR 감광액 노광 현상 도포 마스크 소프트베이크',gown:'클린룸 방진복 착의 장갑 마스크 후드 부츠 오염',ffu:'FFU 팬 필터 여재 헤파 HEPA 모터 하우징 공기 흐름 클린룸',mosfet:'MOSFET 트랜지스터 게이트 소스 드레인 채널 전압 전류 설계'};
 const glyph:Record<CatalogModule,IconName>={photo:'grid-3x3-gap',gown:'person-standing',ffu:'fan',wafer:'record-circle',mosfet:'boxes'};
 const tabs:{id:CatalogTab;name:string;items:CatalogModule[]}[]=[{id:'process',name:'8대 공정',items:['wafer','photo']},{id:'equipment',name:'장비',items:['gown','ffu']},{id:'design',name:'설계',items:['mosfet']},{id:'all',name:'전체',items:['wafer','photo','gown','ffu','mosfet']}];
 
@@ -36,9 +38,14 @@ export function Preview({id,live,gid}:{id:CatalogModule;live:boolean;gid:string}
    - 끌면 손을 따라 돌고, 놓으면 속도만큼 더 돌다가 가장 가까운 카드에서 멈춰요
    - 옆 카드를 누르면 그 카드가 정면으로 와요 */
 export function SelectionCatalog({selected,tab,onSelect,onTab,onOpen}:{selected:CatalogModule;tab:CatalogTab;onSelect:(id:CatalogModule)=>void;onTab:(id:CatalogTab)=>void;onOpen:(id:CatalogModule,concepts?:boolean)=>void}){
- const items=tabs.find(t=>t.id===tab)!.items,n=items.length,index=Math.max(0,items.indexOf(selected)),current=items[index],info=modules[current];
+ /* 검색: 모든 학습에서 이름·부제·설명으로 찾아요. 검색 중에는 탭 대신 결과만 보여요. */
+ const[query,setQuery]=useState(''),[searching,setSearching]=useState(false),searchInput=useRef<HTMLInputElement>(null);
+ const q=query.trim().toLowerCase().replace(/\s+/g,'');
+ const found=q?(tabs.find(t=>t.id==='all')!.items).filter(id=>{const m=modules[id];return [m.title,'sub' in m?m.sub:'',m.copy,area[id],keywords[id]].join(' ').toLowerCase().replace(/\s+/g,'').includes(q)}):null;
+ const items=found&&found.length?found:found?[selected]:tabs.find(t=>t.id===tab)!.items,noResult=!!found&&found.length===0,n=items.length,index=Math.max(0,items.indexOf(selected)),current=items[index],info=modules[current];
  const flat=n<3,GAP=24;
  const slots=flat?n:n*Math.ceil(10/n),step=flat?1:360/slots;
+ useEffect(()=>{if(found&&found.length&&!found.includes(selected))onSelect(found[0])},[q]);
  const surface=useRef<HTMLDivElement>(null),tabRefs=useRef<(HTMLButtonElement|null)[]>([]);
  const[vh,setVh]=useState(()=>typeof window==='undefined'?900:window.innerHeight),[width,setWidth]=useState(1000),[rot,setRot]=useState(-index*step),[dragging,setDragging]=useState(false);
  const rotRef=useRef(rot);rotRef.current=rot;
@@ -73,8 +80,11 @@ export function SelectionCatalog({selected,tab,onSelect,onTab,onOpen}:{selected:
  const wheel=(e:React.WheelEvent<HTMLDivElement>)=>{if(n<2)return;const dx=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:0;if(!dx)return;setDragging(true);const r=rubber(rotRef.current-dx*degPerPx*.6);rotRef.current=r;setRot(r);window.clearTimeout(wheelTimer.current);wheelTimer.current=window.setTimeout(()=>{setDragging(false);settle(rotRef.current)},140)};
  const norm=(d:number)=>{d=((d+180)%360+360)%360-180;return d};
  const front=frontSlot(rot);
- return <div className="selection-catalog"><div className="catalog-tabs" role="tablist" aria-label="학습 분야">{tabs.map((t,i)=><button key={t.id} ref={el=>{tabRefs.current[i]=el}} id={`catalog-tab-${t.id}`} type="button" role="tab" aria-selected={tab===t.id} aria-controls="catalog-panel" tabIndex={tab===t.id?0:-1} onClick={()=>chooseTab(t.id)} onKeyDown={event=>tabKey(event,i)}>{t.name}<span>{t.items.length}</span></button>)}</div>
+ return <div className="selection-catalog"><div className="catalog-bar"><div className="catalog-tabs" role="tablist" aria-label="학습 분야">{tabs.map((t,i)=><button key={t.id} ref={el=>{tabRefs.current[i]=el}} id={`catalog-tab-${t.id}`} type="button" role="tab" aria-selected={!q&&tab===t.id} aria-controls="catalog-panel" tabIndex={tab===t.id?0:-1} onClick={()=>{setQuery('');setSearching(false);chooseTab(t.id)}} onKeyDown={event=>tabKey(event,i)}>{t.name}<span>{t.items.length}</span></button>)}</div>
+ <div className={'catalog-search'+(searching||query?' is-open':'')}>{searching||query?<><Icon name="search"/><input ref={searchInput} type="search" aria-label="학습 검색" placeholder="학습 검색" value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{if(e.key==='Escape'){setQuery('');setSearching(false)}}} onBlur={()=>{if(!query)setSearching(false)}}/>{query&&<button type="button" className="catalog-search-clear" aria-label="검색어 지우기" onMouseDown={e=>e.preventDefault()} onClick={()=>{setQuery('');searchInput.current?.focus()}}><Icon name="x-lg"/></button>}</>
+  :<button type="button" className="catalog-search-open" aria-label="학습 검색" data-tip="검색" data-tip-pos="bottom" onClick={()=>{setSearching(true);requestAnimationFrame(()=>searchInput.current?.focus())}}><Icon name="search"/></button>}</div></div>
  <section id="catalog-panel" role="tabpanel" aria-labelledby={`catalog-tab-${tab}`}><span className="sr-only" role="status" aria-live="polite">{index+1} / {items.length} · {info.title}</span>
+ {noResult?<p className="catalog-empty" role="status">‘{query.trim()}’와 맞는 학습이 없어요</p>:<>
  <div className={'catalog-ring-stage catalog-track'+(n<2?' is-single':'')+(flat?' is-flat':'')} data-dragging={dragging||undefined} ref={surface} role="region" aria-roledescription="캐러셀" aria-label="학습 카드 둘러보기 · 끌어서 돌리기" tabIndex={0} style={{'--card-w':cardW+'px','--card-h':cardH+'px'} as React.CSSProperties}
   onKeyDown={event=>{if(event.target!==event.currentTarget)return;if(event.key==='ArrowRight'){event.preventDefault();move(1)}else if(event.key==='ArrowLeft'){event.preventDefault();move(-1)}}}
   onPointerDown={down} onPointerMove={dragMove} onPointerUp={up} onPointerCancel={cancel} onWheel={wheel}>
@@ -99,5 +109,5 @@ export function SelectionCatalog({selected,tab,onSelect,onTab,onOpen}:{selected:
  </div>
  <div className="catalog-info" aria-hidden="true"><p>{info.copy}</p></div>
  <div className="catalog-paging" data-single={items.length<2||undefined}>{items.length>1&&<button type="button" className="catalog-arrow" aria-label="이전 학습 카드" disabled={flat&&index===0} onClick={()=>move(-1)}><Icon name="chevron-left"/></button>}<div className="selector-switch catalog-dots" aria-label="학습 카드 선택">{items.map(id=><button key={id} className={current===id?'selected':''} aria-label={modules[id].label} aria-pressed={current===id} onClick={()=>pick(id)}/>)}</div>{items.length>1&&<button type="button" className="catalog-arrow" aria-label="다음 학습 카드" disabled={flat&&index===n-1} onClick={()=>move(1)}><Icon name="chevron-left" className="flip"/></button>}</div><p className="catalog-hint">{items.length>1?'좌우로 넘기거나 화살표를 눌러 선택해요. 키보드 방향키로도 이동할 수 있어요.':'현재 설계 학습은 MOSFET 1개예요. 전체 탭에서 다른 학습도 함께 볼 수 있어요.'}</p>
- <div className="selector-actions catalog-actions"><button type="button" className="catalog-cta is-primary" onClick={()=>onOpen(current)}>공부하기<Icon name="arrow-right" className="trail"/></button>{(current==='ffu'||current==='gown')&&<button type="button" className="catalog-cta is-secondary" onClick={()=>onOpen(current,true)}>{current==='ffu'?'퀴즈 풀기':'클린룸 개념 보기'}</button>}</div></section></div>
+ <div className="selector-actions catalog-actions"><button type="button" className="catalog-cta is-primary" onClick={()=>onOpen(current)}>공부하기</button>{(current==='ffu'||current==='gown')&&<button type="button" className="catalog-cta is-secondary" onClick={()=>onOpen(current,true)}>{current==='ffu'?'퀴즈 풀기':'클린룸 개념 보기'}</button>}</div></>}</section></div>
 }

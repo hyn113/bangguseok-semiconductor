@@ -16,7 +16,7 @@ export function AppMenu({current,onSelect}:{current?:MenuTarget|null;onSelect:(t
  useEffect(()=>{if(!open)return;const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){setOpen(false);root.current?.querySelector<HTMLButtonElement>('.menu-button')?.focus()}};const down=(e:PointerEvent)=>{if(!root.current?.contains(e.target as Node))setOpen(false)};document.addEventListener('keydown',key);document.addEventListener('pointerdown',down);return()=>{document.removeEventListener('keydown',key);document.removeEventListener('pointerdown',down)}},[open]);
  const pick=(t:MenuTarget)=>{setOpen(false);onSelect(t)};
  return <div ref={root} className="menu-wrap global-menu">
-  <button className="menu-button" data-tip="메뉴" data-tip-pos="left" aria-label="메뉴 열기" aria-expanded={open} aria-haspopup="menu" onClick={()=>setOpen(o=>!o)}><Icon name="list" size={20}/></button>
+  <button className="menu-button" data-tip="메뉴" data-tip-pos="left" aria-label="메뉴 열기" aria-expanded={open} aria-haspopup="menu" onClick={()=>setOpen(o=>!o)}><Icon name="list"/></button>
   {open&&<div className="dropdown" role="menu">
    {items.map(item=><button key={item.id} role="menuitem" aria-current={current===item.id?'page':undefined} disabled={current===item.id} onClick={()=>pick(item.id)}><Icon name={item.icon} className="lead"/>{item.label}</button>)}
    <button role="menuitemcheckbox" aria-checked={dark} onClick={toggleTheme}><Icon name={dark?'sun':'moon-stars'} className="lead"/>{dark?'라이트 모드':'다크 모드'}</button>

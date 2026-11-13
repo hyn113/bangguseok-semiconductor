@@ -19,8 +19,8 @@
 
 
  /* ── 고정 팔레트: 사이트 전체가 이 값만 씀 ── */
- --gray-0:#ffffff;--gray-50:#f3f5f8;--gray-100:#ebeef2;--gray-200:#e2e6ec;--gray-300:#cdd3dc;--gray-400:#a7b0bd;
- --gray-500:#8892a1;--gray-600:#626d7d;--gray-700:#4a5565;--gray-800:#2a3240;--gray-850:#1e2530;--gray-900:#161c24;--gray-925:#141a23;--gray-950:#0d1117;
+ --gray-0:#ffffff;--gray-50:#f4f5f7;--gray-100:#eceef0;--gray-200:#e3e6e9;--gray-300:#cfd3d8;--gray-400:#aab0b7;
+ --gray-500:#8c929b;--gray-600:#666d76;--gray-700:#4e555e;--gray-800:#2d323a;--gray-850:#21252b;--gray-900:#181c21;--gray-925:#161a1f;--gray-950:#0e1114;
  --orange-50:#fff1e4;--orange-200:#fbcfa3;--orange-500:#f2862b;--orange-600:#d26a12;--orange-900:#3a2615;
 
  /* 라이트 (기본) */
@@ -40,8 +40,8 @@
  --c-accent-strong:var(--orange-600);
  --c-accent-soft:var(--orange-50);
  --c-danger:#c2410c;
- --sh-panel:0 0 0 1px #1a2a440f,0 1px 2px #1a2a440a,0 12px 32px -8px #1a2a441f;
- --sh-float:0 0 0 1px #1a2a4412,0 2px 4px #1a2a440d,0 16px 40px -8px #1a2a4433;
+ --sh-panel:0 0 0 1px #1d22290f,0 1px 2px #1d22290a,0 12px 32px -8px #1d22291f;
+ --sh-float:0 0 0 1px #1d222912,0 2px 4px #1d22290d,0 16px 40px -8px #1d222933;
  color-scheme:light;
 }
 @media (prefers-color-scheme:dark){

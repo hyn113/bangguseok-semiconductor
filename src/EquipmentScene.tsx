@@ -3,7 +3,9 @@ import {useEffect,useRef,useState} from 'react';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
-type Props={kind:'gown'|'ffu';step:number;playing:boolean;exploded:boolean;flow:boolean;selected:number;onSelect:(n:number)=>void;reset:number};
+import {createCameraRig,getViewOptions} from './viewOptions';
+import {createPartFrames,pickAt} from './partFrames';
+type Props={kind:'gown'|'ffu';step:number;playing:boolean;exploded:boolean;flow:boolean;selected:number;onSelect:(n:number)=>void;reset:number;names?:string[]};
 export function Scene(props:Props){
  const {kind,reset}=props,host=useRef<HTMLDivElement>(null),current=useRef(props);
  const [error,setError]=useState(false);
@@ -23,6 +25,9 @@ export function Scene(props:Props){
   camera.position.set(kind==='gown'?3.5:4.6,kind==='gown'?2.8:4.1,6);
   const control=new OrbitControls(camera,renderer.domElement);control.target.set(0,1.3,0);
   control.enableDamping=true;control.minDistance=3.5;control.maxDistance=10;control.maxPolarAngle=Math.PI*.52;control.enablePan=false;
+  const homeCam=camera.position.clone(),rig=createCameraRig(camera,control.target,()=>homeCam);let orbiting=false;
+  control.addEventListener('start',()=>{orbiting=true});control.addEventListener('end',()=>{orbiting=false});control.addEventListener('change',()=>{if(orbiting)rig.cancel()});
+  const frames=createPartFrames(root);let hovered=-1;
   const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment(),environment=pmrem.fromScene(room,.04);
   scene.environment=environment.texture;scene.environmentIntensity=.65;room.dispose();pmrem.dispose();
   scene.add(new THREE.HemisphereLight(0xffffff,0x66717d,.8));
@@ -166,7 +171,8 @@ export function Scene(props:Props){
   }
   const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();let down:{id:number;x:number;y:number;moved:boolean}|null=null;
   renderer.domElement.onpointerdown=e=>{if(down||e.button!==0||e.isPrimary===false)return;down={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false}};
-  renderer.domElement.onpointermove=e=>{if(down?.id===e.pointerId&&Math.hypot(e.clientX-down.x,e.clientY-down.y)>6)down.moved=true};
+  renderer.domElement.onpointermove=e=>{if(down?.id===e.pointerId&&Math.hypot(e.clientX-down.x,e.clientY-down.y)>6)down.moved=true;if(kind!=='ffu')return;if(down){hovered=-1;return}const hit=pickAt(e,renderer.domElement,camera,pick);hovered=hit?hit.object.userData.part:-1;renderer.domElement.style.cursor=hovered>=0?'pointer':''};
+  renderer.domElement.onpointerleave=()=>{hovered=-1;renderer.domElement.style.cursor=''};
   renderer.domElement.onpointercancel=e=>{if(down?.id===e.pointerId)down=null};
   renderer.domElement.onpointerup=e=>{if(!down||down.id!==e.pointerId)return;const start=down;down=null;if(kind!=='ffu'||start.moved||Math.hypot(e.clientX-start.x,e.clientY-start.y)>6)return;const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObjects(pick)[0];if(hit)current.current.onSelect(hit.object.userData.part)};
   const clearPointer=()=>{down=null};
@@ -190,14 +196,15 @@ export function Scene(props:Props){
     const assembled=[1.68,1.13,1.5,1.81,1.77,1.13,1.5,1.01],separated=[2.35,1.02,1.6,3.02,2.76,.7,1.6,.42];groups.forEach((g,i)=>{g.position.y=THREE.MathUtils.lerp(g.position.y,(c.exploded?separated:assembled)[i],.08)});
     if(c.playing)fan!.rotation.y+=delta*2;
     groups.forEach((g,i)=>g.traverse(o=>{if(o instanceof THREE.Mesh)(o.material as THREE.MeshStandardMaterial).emissive.set(i===c.selected?0x21170d:0)}));
-    dots.forEach((d,i)=>{d.visible=c.flow;d.position.y=3.2-((elapsed*.6+i*.113)%2.9)})
+    dots.forEach((d,i)=>{d.visible=c.flow&&getViewOptions().effects;d.position.y=3.2-((elapsed*.6+i*.113)%2.9)})
    }
-   control.update();renderer.render(scene,camera);
+   rig.update();control.update();renderer.render(scene,camera);
+   if(kind==='ffu'){const n=c.names??[];frames.update(camera,hovered>=0?{target:groups[hovered],name:n[hovered]??''}:null,c.selected>=0?{target:groups[c.selected],name:n[c.selected]??''}:null)}
   };
   const onContextLost=(event:Event)=>{event.preventDefault();cancelAnimationFrame(frame);setError(true);setContextLost(true)};
   renderer.domElement.addEventListener('webglcontextlost',onContextLost);
   frame=requestAnimationFrame(tick);
-  return()=>{cancelAnimationFrame(frame);renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('lostpointercapture',clearPointer);document.removeEventListener('pointerup',endPointer);document.removeEventListener('pointercancel',endPointer);window.removeEventListener('blur',clearPointer);document.removeEventListener('visibilitychange',hidePointer);clearPointer();ro.disconnect();control.dispose();const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>();scene.traverse(o=>{if(o instanceof THREE.Mesh){geometries.add(o.geometry);(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>materials.add(m))}});allocatedMaterials.forEach(m=>materials.add(m));if(cloth)materials.add(cloth);if(under)materials.add(under);geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());environment.dispose();sun.shadow.dispose();renderer.dispose();renderer.domElement.remove()};
+  return()=>{cancelAnimationFrame(frame);frames.dispose();renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('lostpointercapture',clearPointer);document.removeEventListener('pointerup',endPointer);document.removeEventListener('pointercancel',endPointer);window.removeEventListener('blur',clearPointer);document.removeEventListener('visibilitychange',hidePointer);clearPointer();ro.disconnect();control.dispose();const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>();scene.traverse(o=>{if(o instanceof THREE.Mesh){geometries.add(o.geometry);(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>materials.add(m))}});allocatedMaterials.forEach(m=>materials.add(m));if(cloth)materials.add(cloth);if(under)materials.add(under);geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());environment.dispose();sun.shadow.dispose();renderer.dispose();renderer.domElement.remove()};
  },[kind,reset,contextLost]);
  return <div className={'scene'+(error?' is-fallback':'')} ref={host}>{error&&<EquipmentFallback kind={props.kind} selected={props.selected} onSelect={props.onSelect} step={props.step}/>}</div>;
 }

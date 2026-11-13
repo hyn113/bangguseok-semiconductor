@@ -4,8 +4,10 @@ import {DirectWorkHandle,createSurfaceTracker} from './DirectWorkHandle';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+import {createCameraRig} from './viewOptions';
+import {createPartFrames,pickAt} from './partFrames';
 
-type Props={interactionBlocked?:boolean;stage:number;progress:number;selected:number;onSelect:(n:number)=>void;reset:number;playing:boolean;onWorkProgress:(n:number)=>void};
+type Props={interactionBlocked?:boolean;stage:number;progress:number;selected:number;onSelect:(n:number)=>void;reset:number;playing:boolean;onWorkProgress:(n:number)=>void;names?:string[]};
 /** Original illustrative geometry, not a dimensional manufacturing model. */
 export function WaferScene(props:Props){
  const {reset}=props;
@@ -36,6 +38,9 @@ export function WaferScene(props:Props){
   const controls=new OrbitControls(camera,renderer.domElement);
   controls.target.set(0,.4,0);controls.enableDamping=true;controls.enablePan=false;
   controls.minDistance=4;controls.maxDistance=10;controls.maxPolarAngle=Math.PI*.48;
+  const homeCam=camera.position.clone(),rig=createCameraRig(camera,controls.target,()=>homeCam);let orbiting=false;
+  controls.addEventListener('start',()=>{orbiting=true});controls.addEventListener('end',()=>{orbiting=false});controls.addEventListener('change',()=>{if(orbiting)rig.cancel()});
+  const frames=createPartFrames(root);let hovered=-1;
   // Locally generated studio reflections; no downloaded HDR or manufacturer assets.
   const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment();
   const environment=pmrem.fromScene(room,.04);
@@ -124,7 +129,8 @@ export function WaferScene(props:Props){
   };
   let down:{id:number;x:number;y:number;moved:boolean}|null=null;
   renderer.domElement.onpointerdown=e=>{if(state.current.interactionBlocked||state.current.stage!==8||down||e.button!==0||e.isPrimary===false)return;down={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false}};
-  renderer.domElement.onpointermove=e=>{if(down&&down.id===e.pointerId&&Math.hypot(e.clientX-down.x,e.clientY-down.y)>6)down.moved=true};
+  renderer.domElement.onpointermove=e=>{if(down&&down.id===e.pointerId&&Math.hypot(e.clientX-down.x,e.clientY-down.y)>6)down.moved=true;if(down||state.current.stage!==8||state.current.interactionBlocked){hovered=-1;return}const hit=pickAt(e,renderer.domElement,camera,pick);hovered=hit?hit.object.userData.part:-1;renderer.domElement.style.cursor=hovered>=0?'pointer':''};
+  renderer.domElement.onpointerleave=()=>{hovered=-1;renderer.domElement.style.cursor=''};
   renderer.domElement.onpointercancel=e=>{if(down?.id===e.pointerId)down=null};
   renderer.domElement.onpointerup=e=>{
    if(!down||down.id!==e.pointerId)return;const ended=down;down=null;
@@ -162,7 +168,7 @@ export function WaferScene(props:Props){
    (edge.material as THREE.MeshStandardMaterial).emissive.set(s.stage===8&&s.selected===2?0x754214:0);
    (notch.material as THREE.MeshStandardMaterial).emissive.set(s.selected===3?0x663000:0);
    baseMat.emissive.set(s.stage===8&&s.selected===1?0x34220e:0);
-   controls.update();
+   if(controls.enabled)rig.update();controls.update();
    if(s.stage>=1&&s.stage<=5&&handle.current&&guide.current){
     camera.updateMatrixWorld();
     const start=new THREE.Vector3(1.32,1.6,0).project(camera),end=new THREE.Vector3(1.32,.05,0).project(camera);
@@ -173,12 +179,14 @@ export function WaferScene(props:Props){
     Object.assign(guide.current.style,{left:`${sx}px`,top:`${sy}px`,height:`${Math.hypot(dx,dy)}px`,transform:`rotate(${Math.atan2(-dx,dy)}rad)`});
    }
    renderer.render(scene,camera);
+   const names=s.names??[],at=(i:number)=>i>=0&&s.stage===8?{target:pick.find(o=>o.userData.part===i),name:names[i]??''}:null;
+   if(s.stage!==8)hovered=-1;frames.update(camera,at(hovered),at(s.selected));
   };
   const onContextLost=(event:Event)=>{event.preventDefault();cancelAnimationFrame(frame);setFailed(true);setContextLost(true)};
   renderer.domElement.addEventListener('webglcontextlost',onContextLost);
   frame=requestAnimationFrame(tick);
   return()=>{
-   cancelAnimationFrame(frame);renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('lostpointercapture',clearPointer);document.removeEventListener('pointerup',endPointer);document.removeEventListener('pointercancel',endPointer);window.removeEventListener('blur',clearPointer);document.removeEventListener('visibilitychange',hidePointer);clearPointer();moveTool.current=null;observer.disconnect();controls.dispose();
+   cancelAnimationFrame(frame);frames.dispose();renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('lostpointercapture',clearPointer);document.removeEventListener('pointerup',endPointer);document.removeEventListener('pointercancel',endPointer);window.removeEventListener('blur',clearPointer);document.removeEventListener('visibilitychange',hidePointer);clearPointer();moveTool.current=null;observer.disconnect();controls.dispose();
    const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>();
    scene.traverse(o=>{if(o instanceof THREE.Mesh){geometries.add(o.geometry);(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>materials.add(m));if(o instanceof THREE.InstancedMesh)o.dispose()}});
    geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());environment.dispose();key.shadow.dispose();renderer.dispose();renderer.domElement.remove();

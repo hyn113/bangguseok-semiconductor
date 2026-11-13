@@ -1,43 +1,62 @@
 /* 방구석 반도체 디자인 토큰
    - 간격·패딩·마진·갭은 모두 4px 배수 (--sp-*)
    - 글자 크기는 6단계 위계 (--fs-*)
+   - 색은 푸른빛이 살짝 도는 회색(slate) 기반, 주황은 포인트에만
+   - 라이트/다크: <html data-theme="light|dark">, 지정이 없으면 시스템 설정을 따름
    - 아이콘: Bootstrap Icons (src/Icon.tsx) */
 :root{
- /* 글꼴 */
  --font-sans:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
 
- /* 글자 크기 위계 */
- --fs-display:36px; /* 입장 화면 대제목 */
- --fs-title:20px;   /* 패널 안 단계 제목 (h2) */
- --fs-heading:16px; /* 화면 제목 (h1), 카드 제목 (h3) */
- --fs-body:14px;    /* 본문 */
- --fs-ui:13px;      /* 버튼·탭·목록·입력 */
- --fs-caption:12px; /* 보조 정보·범례·시각 */
- --lh-tight:1.35;
- --lh-body:1.6;
+ --fs-display:36px;--fs-title:20px;--fs-heading:16px;--fs-body:14px;--fs-ui:13px;--fs-caption:12px;
+ --lh-tight:1.35;--lh-body:1.6;
  --fw-regular:400;--fw-medium:500;--fw-semibold:600;--fw-bold:700;
 
- /* 색 */
- --c-ink:#1b2630;
- --c-ink-2:#4b5862;
- --c-muted:#87929b;
- --c-line:#e4e7ea;
- --c-canvas:#eef0f2;
- --c-surface:#ffffff;
- --c-surface-2:#f3f4f6;
- --c-hover:#eceef1;
- --c-accent:#f28c2f;
- --c-accent-strong:#d9711a;
- --c-accent-soft:#fff2e6;
- --c-danger:#c2410c;
-
- /* 간격 (4px 배수) */
  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;--sp-12:48px;
-
- /* 모서리·그림자·크기 */
- --r-sm:8px;--r-md:12px;--r-lg:16px;--r-pill:999px;
- --sh-panel:0 0 0 1px #1b26300d,0 8px 24px #1b263014;
- --sh-float:0 0 0 1px #1b26300f,0 12px 32px #1b26301f;
+ --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-pill:999px;
  --h-control:36px;--h-tool:48px;
- --panel-l:300px;--panel-r:320px;
+ --panel-l:300px;--panel-r:352px;
+ --ease:cubic-bezier(.2,.8,.2,1);
+
+
+ /* ── 고정 팔레트: 사이트 전체가 이 값만 씀 ── */
+ --gray-0:#ffffff;--gray-50:#f1f4f8;--gray-100:#e7ecf3;--gray-200:#e0e6ee;--gray-300:#c9d2de;--gray-400:#a3afbf;
+ --gray-500:#8391a4;--gray-600:#5e6c80;--gray-700:#465467;--gray-800:#263142;--gray-850:#1b2431;--gray-900:#141b25;--gray-925:#121a26;--gray-950:#0b1018;
+ --orange-50:#fff1e4;--orange-200:#fbcfa3;--orange-500:#f2862b;--orange-600:#d26a12;--orange-900:#3a2615;
+
+ /* 라이트 (기본) */
+ --c-ink:var(--gray-925);
+ --c-ink-2:var(--gray-700);
+ --c-muted:var(--gray-500);
+ --c-line:var(--gray-200);
+ --c-canvas:var(--gray-100);
+ --c-dot:var(--gray-300);
+ --c-surface:var(--gray-0);
+ --c-surface-2:var(--gray-50);
+ --c-hover:var(--gray-100);
+ --c-on-ink:var(--gray-0);
+ --c-accent:var(--orange-500);
+ --c-accent-strong:var(--orange-600);
+ --c-accent-soft:var(--orange-50);
+ --c-danger:#c2410c;
+ --sh-panel:0 0 0 1px #1a2a440f,0 1px 2px #1a2a440a,0 12px 32px -8px #1a2a441f;
+ --sh-float:0 0 0 1px #1a2a4412,0 2px 4px #1a2a440d,0 16px 40px -8px #1a2a4433;
+ color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+ :root:not([data-theme=light]){
+  --c-ink:var(--gray-100);--c-ink-2:var(--gray-300);--c-muted:var(--gray-500);--c-line:var(--gray-800);--c-canvas:var(--gray-950);--c-dot:var(--gray-850);
+  --c-surface:var(--gray-900);--c-surface-2:var(--gray-850);--c-hover:var(--gray-800);--c-on-ink:var(--gray-950);
+  --c-accent:var(--orange-500);--c-accent-strong:var(--orange-500);--c-accent-soft:var(--orange-900);--c-danger:#ff8a5c;
+  --sh-panel:0 0 0 1px #ffffff0f,0 12px 32px -8px #00000099;
+  --sh-float:0 0 0 1px #ffffff14,0 16px 40px -8px #000000b3;
+  color-scheme:dark;
+ }
+}
+:root[data-theme=dark]{
+ --c-ink:var(--gray-100);--c-ink-2:var(--gray-300);--c-muted:var(--gray-500);--c-line:var(--gray-800);--c-canvas:var(--gray-950);--c-dot:var(--gray-850);
+ --c-surface:var(--gray-900);--c-surface-2:var(--gray-850);--c-hover:var(--gray-800);--c-on-ink:var(--gray-950);
+ --c-accent:var(--orange-500);--c-accent-strong:var(--orange-500);--c-accent-soft:var(--orange-900);--c-danger:#ff8a5c;
+ --sh-panel:0 0 0 1px #ffffff0f,0 12px 32px -8px #00000099;
+ --sh-float:0 0 0 1px #ffffff14,0 16px 40px -8px #000000b3;
+ color-scheme:dark;
 }

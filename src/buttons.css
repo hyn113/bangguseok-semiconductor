@@ -192,3 +192,24 @@
 :root :is(.shell-page,.ws,.tour-panel) :is(.btn.__eq,.outline,.learning-fallback-choices button,.gowning-item):not(#z):is([aria-pressed=true],.selected,.chosen){box-shadow:none!important}
 /* 2D 화면은 글자 무게도 한 단계 가볍게(읽기 위주) */
 :root :is(.shell-page,.ws,.tour-panel) :is(.btn.__eq,.btn,.orange,.photo-primary,.outline,.shell-quiz,.ws-learn,.tour-primary,.tour-secondary,.text-button,.concept-notes,.photo-between button,.wafer-compact-controls button,.learning-fallback-choices button):not(#z){font-weight:600!important}
+
+/* 정정: Tertiary(글자 버튼)는 다시 바탕 없이 — 투명 금지는 '바탕이 있는 버튼'에만 적용
+   (반투명 채움 버튼 → 흰 단색 Secondary로 바꾼 것은 유지) */
+:root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes):not(#z){background:transparent!important}
+:root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes):not(#z):hover:not(:disabled){background:var(--btn3-hover)!important}
+:root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes):not(#z):disabled{background:transparent!important}
+.selection-page,.entry-page,.mission-scrim{--btn3-fg:var(--gray-200);--btn3-hover:#ffffff1a;--btn3-press:#ffffff29}
+.entry-page .tour-panel,.mission-result-side{--btn3-fg:var(--c-ink-2);--btn3-hover:var(--c-hover);--btn3-press:var(--c-pressed)}
+:root :is(.btn.__eq,.entry-back):not(#z):hover:not(:disabled){color:var(--gray-0)!important}
+.shell-page .gowning-source .text-button,.shell-page .concept-read .concept-notes{margin-left:-16px!important}
+.entry-choice-card .entry-back{margin-left:-16px!important}
+
+/* 시작 방법 선택 카드: 이전처럼 어두운 유리 카드 + 흰 글자 (입체 받침은 유지) */
+:root :is(.btn.__eq,.entry-options>button):not(#z){background:color-mix(in srgb,var(--gray-700) 70%,transparent)!important;border-color:#ffffff33!important;color:var(--gray-0)!important;box-shadow:0 var(--ledge) 0 #0000004d!important}
+:root :is(.btn.__eq,.entry-options>button):not(#z):hover:not(:disabled){background:color-mix(in srgb,var(--gray-600) 80%,transparent)!important}
+:root :is(.btn.__eq,.entry-options>button):not(#z):active:not(:disabled){box-shadow:0 0 0 #0000004d!important}
+:root :is(.btn.__eq,.entry-options>button):not(#z) :is(small,b){color:var(--gray-200)!important}
+:root :is(.btn.__eq,.entry-options>button):not(#z) strong{color:var(--gray-0)!important}
+/* 배경 일시정지: 중요도가 낮아 2D 평면 (받침·눌림 없음, 테두리 1px) */
+:root :is(.btn.__eq,.entry-top button):not(#z){box-shadow:none!important;margin-bottom:0!important;border-width:1px!important;transform:none!important;font-weight:600!important}
+:root :is(.btn.__eq,.entry-top button):not(#z):active:not(:disabled){transform:none!important;box-shadow:none!important;background:var(--btn2-press)!important}

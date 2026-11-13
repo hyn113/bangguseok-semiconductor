@@ -15,6 +15,11 @@ export function Welcome({visitor,onVisitor,onContinue,startAt='welcome',menu}:{v
  const [screen,setScreen]=useState<'welcome'|'choice'|'tour'>(startAt),[playing,setPlaying]=useState(()=>!reduced()),[motion,setMotion]=useState(()=>!reduced()),[reset,setReset]=useState(0),[point,setPoint]=useState(0),[seen,setSeen]=useState<number[]>([]);
  const [studyNote,setStudyNote]=useState(''),[leavePending,setLeavePending]=useState(false),[nicknameError,setNicknameError]=useState(false);
  const nicknameInput=useRef<HTMLInputElement>(null);
+ /* 클린룸 학습 패널: 접고 펴기 + 왼쪽 가장자리로 너비 조절(320~520px, 기억) */
+ const[tourOpen,setTourOpen]=useState(true),[tourW,setTourW]=useState(()=>{try{const n=Number(localStorage.getItem('semilab.tour.w'));return n>=320&&n<=520?n:368}catch{return 368}});
+ const tourDrag=useRef<{x:number;w:number}|null>(null);
+ const fitTour=(w:number)=>Math.round(Math.max(320,Math.min(520,(typeof window!=='undefined'?window.innerWidth:1440)-120,w))/4)*4;
+ const saveTour=(w:number)=>{setTourW(w);try{localStorage.setItem('semilab.tour.w',String(w))}catch{}};
  const noteInput=useRef<HTMLTextAreaElement>(null),noteSection=useRef<HTMLDetailsElement>(null);
  const showNotes=()=>{if(noteSection.current)noteSection.current.open=true;noteInput.current?.focus()};
  const leaveTrigger=useRef<HTMLElement|null>(null);
@@ -37,7 +42,16 @@ export function Welcome({visitor,onVisitor,onContinue,startAt='welcome',menu}:{v
   screen==='choice'?<section className="entry-choice-card"><h1 ref={heading} tabIndex={-1}>{visitor.nickname.trim()?`${visitor.nickname.trim()}님, `:''}어디서 시작할까요?</h1><p>클린룸을 가볍게 둘러보거나,<br/>관심 있는 실습으로 바로 이동할 수 있어요.</p><div className="entry-options"><button onClick={tour}><strong>클린룸 학습하기</strong><small>1인칭 공간 탐색 · 세 가지 기초 개념</small><b>둘러보기 →</b></button><button onClick={requestContinue}><strong>바로 실습 선택</strong><small>FFU · 클린룸 복장 · 잉곳과 웨이퍼</small><b>실습으로 →</b></button></div><button className="entry-back" onClick={()=>setScreen('welcome')}>← 처음 화면으로</button></section>:
   <>{menu}<header className="tour-head"><button type="button" className="tour-back" data-tip="시작 방법 선택" data-tip-pos="bottom" onClick={()=>setScreen('choice')}><Icon name="chevron-left"/><span className="sr-only">시작 방법 선택</span></button><span className="tour-title">클린룸 공부하기</span></header>
    <nav className="tour-steps" aria-label="클린룸 학습 지점">{points.map((p,i)=><button key={p.step} type="button" aria-current={point===i?'step':undefined} data-seen={seen.includes(i)||undefined} onClick={()=>select(i)}><span className="tour-step-num">{seen.includes(i)&&point!==i?<Icon name="check2"/>:i+1}</span>{p.step}</button>)}</nav>
-   <aside className="tour-panel" data-menu={menu?true:undefined} aria-label="클린룸 학습"><div className="tour-panel-scroll">
+   {!tourOpen&&<button type="button" className="tour-chip" data-menu={menu?true:undefined} aria-expanded="false" aria-controls="tour-panel" data-tip="패널 펼치기" data-tip-pos="bottom" onClick={()=>setTourOpen(true)}><Icon name="layout-sidebar-reverse"/><span>클린룸 학습</span></button>}
+   <aside id="tour-panel" className="tour-panel" hidden={!tourOpen} data-menu={menu?true:undefined} aria-label="클린룸 학습" style={{width:fitTour(tourW)}}>
+    <div className="tour-resizer" role="separator" aria-orientation="vertical" aria-label="패널 너비" aria-valuemin={320} aria-valuemax={520} aria-valuenow={fitTour(tourW)} tabIndex={0} title="끌어서 너비 조절 · 두 번 누르면 기본 너비"
+     onPointerDown={e=>{if(e.button!==0)return;tourDrag.current={x:e.clientX,w:fitTour(tourW)};e.currentTarget.setPointerCapture?.(e.pointerId);e.currentTarget.dataset.dragging='true'}}
+     onPointerMove={e=>{const d=tourDrag.current;if(d)setTourW(fitTour(d.w+(d.x-e.clientX)))}}
+     onPointerUp={e=>{if(tourDrag.current){tourDrag.current=null;delete e.currentTarget.dataset.dragging;saveTour(fitTour(tourW))}}}
+     onDoubleClick={()=>saveTour(368)}
+     onKeyDown={e=>{const st=e.shiftKey?32:16;if(e.key==='ArrowLeft'){e.preventDefault();saveTour(fitTour(tourW+st))}else if(e.key==='ArrowRight'){e.preventDefault();saveTour(fitTour(tourW-st))}}}/>
+    <div className="tour-panel-head"><span>클린룸 학습</span><button type="button" className="tour-collapse" aria-label="패널 접기" aria-expanded="true" aria-controls="tour-panel" data-tip="패널 접기" data-tip-pos="left" onClick={()=>setTourOpen(false)}><Icon name="layout-sidebar-reverse"/></button></div>
+    <div className="tour-panel-scroll">
     <span className="tour-count">{point+1} / {points.length} · {points[point].label}</span>
     <h1 ref={heading} tabIndex={-1}>{points[point].title}</h1>
     <p className="tour-text">{points[point].text}</p>
@@ -45,7 +59,7 @@ export function Welcome({visitor,onVisitor,onContinue,startAt='welcome',menu}:{v
     <div className="tour-inline-study shell-page"><ConceptPanel topics={cleanroomConcepts} currentId={point===0?'cleanroom-airflow':'cleanroom-contamination'} contextLabel="클린룸 둘러보기 개념" onNotes={showNotes}/>
     <details ref={noteSection} className="tour-study-notes"><summary><Icon name="journal-text"/>내 학습 메모<Icon name="chevron-down" className="tour-notes-chevron"/></summary><textarea ref={noteInput} id="tour-study-note" aria-label="둘러보며 알게 된 점" aria-describedby="tour-note-help" value={studyNote} onChange={e=>setStudyNote(e.target.value)} maxLength={4000} rows={5} placeholder="메모"/><p id="tour-note-help">이 화면에서만 유지돼요. 실습 선택으로 나가면 사라져요.</p></details></div>
    </div></aside>
-   <div className="tour-dock" role="toolbar" aria-label="장면 도구"><button type="button" aria-pressed={!playing} aria-label={playing?'배경 일시정지':'배경 재생'} data-tip={playing?'배경 일시정지':'배경 재생'} data-tip-pos="top" onClick={()=>setPlaying(p=>!p)}><Icon name={playing?'pause-fill':'play-fill'} size={20}/></button><button type="button" aria-label="입장 장면 다시 보기" data-tip="입장 장면 다시 보기" data-tip-pos="top" onClick={()=>{setPoint(0);setSeen([]);setReset(r=>r+1)}}><Icon name="arrow-counterclockwise" size={20}/></button></div>
+   <div className="tour-dock" role="toolbar" aria-label="장면 도구" style={{left:`calc((100vw - ${tourOpen?fitTour(tourW)+12:0}px) / 2)`}}><button type="button" aria-pressed={!playing} aria-label={playing?'배경 일시정지':'배경 재생'} data-tip={playing?'배경 일시정지':'배경 재생'} data-tip-pos="top" onClick={()=>setPlaying(p=>!p)}><Icon name={playing?'pause-fill':'play-fill'} size={20}/></button><button type="button" aria-label="입장 장면 다시 보기" data-tip="입장 장면 다시 보기" data-tip-pos="top" onClick={()=>{setPoint(0);setSeen([]);setReset(r=>r+1)}}><Icon name="arrow-counterclockwise" size={20}/></button></div>
   </>}
   {!motion&&<footer className="entry-footer"><span>동작 줄이기 설정 적용 · 카메라 이동 없이 입장</span></footer>}
  </main>;

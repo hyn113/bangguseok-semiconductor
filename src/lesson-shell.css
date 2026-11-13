@@ -759,3 +759,19 @@ body.is-resizing .panel-resizer:not([data-dragging])::after{opacity:0!important}
 .ws-card:hover{border-color:var(--c-line)!important}
 .ws-card.tilt-card[data-tilting],.ws-card:hover{box-shadow:0 18px 32px -16px #0e111452,0 4px 10px -6px #0e11141f!important}
 .ws-card.tilt-card[data-tilting]{transform:perspective(900px) rotateX(var(--tilt-rx)) rotateY(var(--tilt-ry)) translateY(-2px) scale(1.01)!important}
+
+/* 오른쪽 패널 머리: 프로필 · 등급칩 · 퀴즈 버튼이 겹치지 않게 (좁아지면 이름 → 등급칩 순서로 줄임) */
+.shell-page .shell-right>.panel-heading,.shell-page .lesson-notes-head,.shell-page .shell-right-head{display:flex!important;align-items:center;gap:8px!important;flex-wrap:nowrap!important;overflow:visible;container-type:inline-size}
+.shell-page .shell-right .profile-badge{flex:1 1 0!important;min-width:0!important;overflow:hidden;gap:8px}
+.shell-page .shell-right .profile-badge>*{flex:none}
+.shell-page .shell-right .profile-name{flex:0 1 auto!important;min-width:0!important;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shell-page .shell-right .shell-actions{flex:none!important;display:flex;align-items:center;gap:4px;margin:0!important;position:static!important}
+.shell-page .shell-right .shell-quiz{position:static!important;margin:0 4px 3px 0!important}
+@container (max-width:340px){.shell-right .profile-name{display:none}}
+@container (max-width:290px){.shell-right .grade-wrap{display:none}}
+
+/* 웨이퍼 구조 탐색 완료 안내는 왼쪽 패널 안에 */
+.shell-page .shell-left .wafer-action{display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:auto;max-width:none;margin:0 0 24px;padding:0;border:0;background:none;align-self:stretch}
+.shell-page .shell-left .wafer-action>span{display:flex;align-items:center;gap:6px;font-size:var(--fs-ui)!important;color:var(--c-ink-2)!important;line-height:1.5}
+.shell-page .shell-left .anatomy-count{margin:0 0 12px!important}
+.shell-page .shell-right .shell-actions{margin:0 36px 0 0!important}@media(max-width:900px){.shell-page .shell-right .shell-actions{margin:0!important}}

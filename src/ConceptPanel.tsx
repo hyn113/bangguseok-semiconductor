@@ -12,7 +12,7 @@ export type ConceptTopic={
  question:{prompt:string;options:string[];answer:number;explanation:string;optionExplanations?:string[]};
  sources:{label:string;url:string}[];
 };
-type Props={topics:ConceptTopic[];currentId?:string;contextLabel?:string;onNotes?:()=>void;initialExpanded?:boolean};
+type Props={topics:ConceptTopic[];currentId?:string;contextLabel?:string;onNotes?:()=>void;initialExpanded?:boolean;openSignal?:number};
 
 function ConceptQuestion({topic}:{topic:ConceptTopic}){
  const [choice,setChoice]=useState<number|null>(null),[checked,setChecked]=useState(false);
@@ -29,10 +29,12 @@ function ConceptQuestion({topic}:{topic:ConceptTopic}){
 }
 
 /** Inline, browser-local teaching content. Never awards lesson completion. */
-export function ConceptPanel({topics,currentId,contextLabel,onNotes,initialExpanded=false}:Props){
+export function ConceptPanel({topics,currentId,contextLabel,onNotes,initialExpanded=false,openSignal=0}:Props){
  const panelId=useId();
  const [selectedId,setSelectedId]=useState(()=>topics.find(topic=>topic.id===currentId)?.id??topics[0]?.id??'');
- const [expanded,setExpanded]=useState(initialExpanded);
+ const [expanded,setExpanded]=useState(initialExpanded||openSignal>0);
+ const panelRoot=useRef<HTMLElement>(null);
+ useEffect(()=>{if(!openSignal)return;setExpanded(true);requestAnimationFrame(()=>panelRoot.current?.scrollIntoView?.({block:'start',behavior:'smooth'}))},[openSignal]);
  const externalId=useRef(currentId);
  const topicIds=topics.map(topic=>topic.id).join('\u0000');
  useEffect(()=>{
@@ -43,7 +45,7 @@ export function ConceptPanel({topics,currentId,contextLabel,onNotes,initialExpan
  },[currentId,topicIds,selectedId]);
  const topic=topics.find(item=>item.id===selectedId)??topics[0];
  if(!topic)return null;
- return <section className="concept-panel" aria-labelledby={panelId+'-title'}>
+ return <section ref={panelRoot} className="concept-panel" aria-labelledby={panelId+'-title'}>
   <div className="concept-panel-heading"><span className="concept-eyebrow">한눈에 이해하는 개념</span></div>
   {topics.length>1&&<div className="concept-topic-list" role="group" aria-label="학습 개념 선택">{topics.map(item=><button key={item.id} type="button" className={item.id===topic.id?'selected':''} aria-pressed={item.id===topic.id} onClick={()=>setSelectedId(item.id)}>{item.title}</button>)}</div>}
   <div className="concept-definition"><h2 id={panelId+'-title'}>{topic.title}</h2><p>{topic.definition}</p></div>

@@ -46,30 +46,34 @@ svg.bi.trail{margin-inline-start:var(--sp-1)!important}
 .shell-page .shell-left p,.shell-page .shell-right p{margin:0 0 var(--sp-3)!important;color:var(--c-ink-2)}
 
 /* ── 패널 머리 ── */
-.shell-page .workbench-panel-title,.shell-page .shell-left>.panel-heading,.shell-page .gowning-section-title{position:relative;display:block!important;height:auto!important;margin:0!important;padding:var(--sp-4) var(--sp-12) var(--sp-4) var(--sp-4)!important;border-bottom:1px solid var(--c-line)!important}
+.shell-page .workbench-panel-title,.shell-page .shell-left>.panel-heading,.shell-page .gowning-section-title{position:relative;display:flex!important;flex-wrap:wrap;align-items:center;justify-content:flex-start!important;gap:0 var(--sp-1);height:auto!important;margin:0!important;padding:var(--sp-3) var(--sp-4) var(--sp-4) var(--sp-3)!important;border-bottom:1px solid var(--c-line)!important}
+.shell-page .workbench-panel-title>:not(.shell-toggle):not(.shell-back),.shell-page .shell-left>.panel-heading>:not(.shell-toggle):not(.shell-back),.shell-page .gowning-section-title>:not(.shell-toggle):not(.shell-back){flex-basis:100%;padding-left:var(--sp-1)}
+.shell-page .shell-left .shell-back+*{margin-top:var(--sp-3)!important}
 .shell-page .shell-left>.panel-heading small,.shell-page .workbench-panel-title p,.shell-page .gowning-section-title small{display:block;margin:var(--sp-1) 0 0!important;font-size:var(--fs-caption)!important;color:var(--c-muted)!important}
 .shell-page .photo-instruction.shell-left,.shell-page .mos-guide.shell-left{padding:0 var(--sp-4) var(--sp-6)!important}
 .shell-page .photo-instruction .workbench-panel-title,.shell-page .mos-guide .workbench-panel-title{margin:0 calc(var(--sp-4) * -1) var(--sp-4)!important}
 .shell-page .gowning-wardrobe.shell-left .gowning-items{padding:var(--sp-4)!important;gap:var(--sp-2)!important}
-.shell-head-row{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);margin:0 0 var(--sp-2)}
-.shell-head-row .shell-back{margin:0!important}
-.shell-page .shell-right>.panel-heading,.shell-page .lesson-notes-head,.shell-right-head{display:flex!important;align-items:center;justify-content:flex-start!important;gap:var(--sp-2);height:auto!important;min-height:64px;box-sizing:border-box;padding:var(--sp-3) var(--sp-4) var(--sp-3) var(--sp-3)!important;border-bottom:1px solid var(--c-line)!important}
-.shell-page .shell-right>.panel-heading>button:last-child,.shell-page .lesson-notes-head>button:last-child,.shell-right-head>:last-child{margin-left:auto}
+.shell-page .shell-right>.panel-heading,.shell-page .lesson-notes-head,.shell-right-head{display:flex!important;align-items:center;justify-content:flex-start!important;gap:var(--sp-2);height:auto!important;min-height:56px;box-sizing:border-box;padding:var(--sp-3)!important;padding-left:var(--sp-4)!important;border-bottom:1px solid var(--c-line)!important}
+.shell-actions{display:flex;align-items:center;gap:var(--sp-1);margin-left:auto;flex:none}
+.shell-page .shell-quiz{display:inline-flex;align-items:center;height:32px;min-height:0!important;margin:0 var(--sp-1) 0 0!important;padding:0 var(--sp-3)!important;border:0!important;border-radius:var(--r-sm)!important;background:var(--c-accent)!important;box-shadow:none!important;color:#fff!important;font-size:var(--fs-ui)!important;font-weight:var(--fw-semibold)!important;white-space:nowrap;cursor:pointer}
+.shell-page .shell-quiz:hover{background:var(--c-accent-strong)!important}
+.shell-page .shell-right:has(.dropdown),.shell-page .shell-left:has(.dropdown){overflow:visible!important}
+.shell-page .shell-right>.panel-heading b,.shell-page .lesson-notes-head b,.shell-page .shell-right .profile{font-size:var(--fs-ui)!important;font-weight:var(--fw-semibold)!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .shell-page .gowning-study-notes .note-sheet{padding:var(--sp-3) 0 0}
 .shell-page .gowning-study-notes .note-sheet textarea{min-height:160px}
 .shell-page .gowning-instruction.shell-right{padding:0 var(--sp-4) var(--sp-6)!important}
 .shell-right-head{margin:0 calc(var(--sp-4) * -1) var(--sp-4)!important}
 
 /* 나가기 링크 */
-.shell-page .shell-back{display:inline-flex;align-items:center;gap:var(--sp-1);min-height:0!important;margin:0 0 var(--sp-2)!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;color:var(--c-muted)!important;font-size:var(--fs-caption)!important;font-weight:var(--fw-medium)!important;cursor:pointer}
+.shell-page .shell-back{display:inline-flex;align-items:center;gap:var(--sp-1);height:32px;min-height:0!important;margin:0!important;padding:0 var(--sp-2)!important;border:0!important;border-radius:var(--r-sm)!important;background:none!important;box-shadow:none!important;color:var(--c-muted)!important;font-size:var(--fs-caption)!important;font-weight:var(--fw-medium)!important;cursor:pointer}
 .shell-page .shell-back svg.bi.lead{margin:0!important}
-.shell-page .shell-back:hover{color:var(--c-ink)!important}
+.shell-page .shell-back:hover{color:var(--c-ink)!important;background:var(--c-hover)!important}
 
 /* 패널 접기 아이콘 */
 .shell-toggle{display:inline-grid;place-items:center;flex:none;width:32px;height:32px;min-height:0!important;padding:0!important;border:0!important;border-radius:var(--r-sm)!important;background:transparent!important;box-shadow:none!important;color:var(--c-muted)!important;cursor:pointer}
 .shell-toggle:hover{background:var(--c-hover)!important;color:var(--c-ink)!important}
 .shell-toggle:focus-visible,.shell-chip:focus-visible,.dock-btn:focus-visible,.tool-tile:focus-visible{outline:2px solid var(--c-accent);outline-offset:2px}
-.shell-left .shell-toggle-left{position:absolute;top:var(--sp-3);right:var(--sp-3)}
+
 
 /* 접힌 패널 칩 */
 .shell-chip{position:fixed;top:var(--sp-3);z-index:25;display:inline-flex;align-items:center;gap:var(--sp-2);max-width:min(260px,40vw);height:40px;padding:0 var(--sp-3);border:0;border-radius:var(--r-md);background:var(--c-surface);color:var(--c-ink);font-family:inherit;font-size:var(--fs-ui);font-weight:var(--fw-semibold);line-height:1;box-shadow:var(--sh-panel);cursor:pointer}
@@ -97,7 +101,7 @@ svg.bi.trail{margin-inline-start:var(--sp-1)!important}
 .shell-page .lesson-note-tabs,.shell-page .assistant-panel .tabs{display:flex!important;gap:var(--sp-1)!important;padding:var(--sp-3) var(--sp-4)!important;margin:0!important;border-bottom:1px solid var(--c-line)!important}
 .shell-page .lesson-note-tabs button,.shell-page .assistant-panel .tabs button{height:32px;min-height:0!important;padding:0 var(--sp-3)!important;margin:0!important;border:0!important;border-radius:var(--r-sm)!important;background:transparent!important;color:var(--c-ink-2)!important;font-weight:var(--fw-medium)!important}
 .shell-page .lesson-note-tabs button[aria-pressed=true],.shell-page .assistant-panel .tabs button.active{background:var(--c-surface-2)!important;color:var(--c-ink)!important;font-weight:var(--fw-semibold)!important}
-.shell-page .lesson-notes-head .orange,.shell-page .shell-right>.panel-heading .orange{height:var(--h-control);min-height:0!important;padding:0 var(--sp-4)!important;border-radius:var(--r-sm)!important}
+
 
 /* ── 메모 (iOS 메모처럼 자동 저장) ── */
 .shell-page .lesson-note-body,.shell-page .notes-pane{display:flex!important;flex-direction:column;flex:1;min-height:0;padding:0!important;margin:0!important;border:0!important;background:none!important}
@@ -148,3 +152,20 @@ svg.bi.trail{margin-inline-start:var(--sp-1)!important}
 .menu-wrap .dropdown button[aria-current=page] .bi{color:inherit}
 .menu-wrap .dropdown hr{width:100%;height:1px;margin:var(--sp-1) 0;border:0;background:var(--c-line)}
 .menu-wrap .dropdown .menu-logout{color:var(--c-muted)}
+
+/* ── 개념 카드·실제 장비 (패널 안 글자 위계 고정) ── */
+.shell-page .concept-panel{margin:var(--sp-6) 0 0!important;padding:var(--sp-4)!important;border-radius:var(--r-md)!important}
+.shell-page .concept-panel h2,.shell-page .concept-panel h3,.shell-page .related h3{font-size:var(--fs-heading)!important;font-weight:var(--fw-bold)!important;line-height:var(--lh-tight)!important;margin:var(--sp-4) 0 var(--sp-2)!important}
+.shell-page .concept-panel p,.shell-page .concept-panel li,.shell-page .related p{font-size:var(--fs-body)!important;line-height:var(--lh-body)!important}
+.shell-page .concept-eyebrow,.shell-page .related-label{display:block;font-size:var(--fs-caption)!important;font-weight:var(--fw-semibold)!important;color:var(--c-accent-strong)!important;margin:0 0 var(--sp-2)!important}
+.shell-page .concept-panel small,.shell-page .concept-option small,.shell-page .concept-check-heading small{font-size:var(--fs-caption)!important}
+.shell-page .concept-topic-list{gap:var(--sp-2)!important}
+.shell-page .concept-topic-list button,.shell-page .concept-expand,.shell-page .concept-options button{font-size:var(--fs-ui)!important}
+.shell-page .concept-expand>span:last-child{font-size:var(--fs-heading)!important}
+.shell-page .related{margin:var(--sp-6) 0 0!important;padding:var(--sp-4)!important;border-radius:var(--r-md);background:var(--c-surface-2)}
+.shell-page .related h3{margin-top:0!important}
+.shell-page .related a{display:inline-flex;align-items:center;margin-top:var(--sp-1)}
+.shell-page .body-copy{color:var(--c-ink-2)}
+.shell-page .concept-panel-heading,.shell-page .concept-body,.shell-page .concept-definition{padding-left:0!important;padding-right:0!important}
+.shell-page .shell-left .guide-scroll>h2:first-child,.shell-page .shell-left .guide-scroll>.lesson-media+h2{margin-top:0!important}
+.shell-page .concept-topic-list{padding-left:0!important;padding-right:0!important;margin-left:0!important}

@@ -19,8 +19,8 @@
 
 
  /* ── 고정 팔레트: 사이트 전체가 이 값만 씀 ── */
- --gray-0:#ffffff;--gray-50:#f1f4f8;--gray-100:#e7ecf3;--gray-200:#e0e6ee;--gray-300:#c9d2de;--gray-400:#a3afbf;
- --gray-500:#8391a4;--gray-600:#5e6c80;--gray-700:#465467;--gray-800:#263142;--gray-850:#1b2431;--gray-900:#141b25;--gray-925:#121a26;--gray-950:#0b1018;
+ --gray-0:#ffffff;--gray-50:#f3f5f8;--gray-100:#ebeef2;--gray-200:#e2e6ec;--gray-300:#cdd3dc;--gray-400:#a7b0bd;
+ --gray-500:#8892a1;--gray-600:#626d7d;--gray-700:#4a5565;--gray-800:#2a3240;--gray-850:#1e2530;--gray-900:#161c24;--gray-925:#141a23;--gray-950:#0d1117;
  --orange-50:#fff1e4;--orange-200:#fbcfa3;--orange-500:#f2862b;--orange-600:#d26a12;--orange-900:#3a2615;
 
  /* 라이트 (기본) */
@@ -32,7 +32,9 @@
  --c-dot:var(--gray-300);
  --c-surface:var(--gray-0);
  --c-surface-2:var(--gray-50);
- --c-hover:var(--gray-100);
+ --c-hover:var(--gray-50);
+ --c-selected:var(--gray-100);
+ --c-pressed:var(--gray-200);
  --c-on-ink:var(--gray-0);
  --c-accent:var(--orange-500);
  --c-accent-strong:var(--orange-600);
@@ -45,7 +47,7 @@
 @media (prefers-color-scheme:dark){
  :root:not([data-theme=light]){
   --c-ink:var(--gray-100);--c-ink-2:var(--gray-300);--c-muted:var(--gray-500);--c-line:var(--gray-800);--c-canvas:var(--gray-950);--c-dot:var(--gray-850);
-  --c-surface:var(--gray-900);--c-surface-2:var(--gray-850);--c-hover:var(--gray-800);--c-on-ink:var(--gray-950);
+  --c-surface:var(--gray-900);--c-surface-2:var(--gray-850);--c-hover:var(--gray-850);--c-selected:var(--gray-800);--c-pressed:var(--gray-700);--c-on-ink:var(--gray-950);
   --c-accent:var(--orange-500);--c-accent-strong:var(--orange-500);--c-accent-soft:var(--orange-900);--c-danger:#ff8a5c;
   --sh-panel:0 0 0 1px #ffffff0f,0 12px 32px -8px #00000099;
   --sh-float:0 0 0 1px #ffffff14,0 16px 40px -8px #000000b3;
@@ -54,7 +56,7 @@
 }
 :root[data-theme=dark]{
  --c-ink:var(--gray-100);--c-ink-2:var(--gray-300);--c-muted:var(--gray-500);--c-line:var(--gray-800);--c-canvas:var(--gray-950);--c-dot:var(--gray-850);
- --c-surface:var(--gray-900);--c-surface-2:var(--gray-850);--c-hover:var(--gray-800);--c-on-ink:var(--gray-950);
+ --c-surface:var(--gray-900);--c-surface-2:var(--gray-850);--c-hover:var(--gray-850);--c-selected:var(--gray-800);--c-pressed:var(--gray-700);--c-on-ink:var(--gray-950);
  --c-accent:var(--orange-500);--c-accent-strong:var(--orange-500);--c-accent-soft:var(--orange-900);--c-danger:#ff8a5c;
  --sh-panel:0 0 0 1px #ffffff0f,0 12px 32px -8px #00000099;
  --sh-float:0 0 0 1px #ffffff14,0 16px 40px -8px #000000b3;

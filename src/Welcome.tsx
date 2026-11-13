@@ -10,7 +10,7 @@ const points=[
  {title:'복장과 오염 관리',label:'클린룸 복장',text:'클린룸 복장은 사람이 가져올 수 있는 오염을 관리하기 위한 구성 요소입니다. 필요한 복장과 착용 방법은 시설의 승인된 절차와 교육을 따라야 합니다.'},
  {title:'실습을 시작하기 전에',label:'학습 공간',text:'장비를 탐색하고 직접 조작하며 개념을 알아보세요. 이 시제품은 실제 장비 운전이나 작업 자격을 제공하지 않습니다. 직접 저장한 메모와 완료한 퀴즈 기록은 브라우저에 저장됩니다.'}
 ];
-export function Welcome({visitor,onVisitor,onContinue,startAt='welcome'}:{visitor:Visitor;onVisitor:(v:Visitor)=>void;onContinue:()=>void;startAt?:'welcome'|'tour'}){
+export function Welcome({visitor,onVisitor,onContinue,startAt='welcome',menu}:{visitor:Visitor;onVisitor:(v:Visitor)=>void;onContinue:()=>void;startAt?:'welcome'|'tour';menu?:import('react').ReactNode}){
  const [screen,setScreen]=useState<'welcome'|'choice'|'tour'>(startAt),[playing,setPlaying]=useState(()=>!reduced()),[motion,setMotion]=useState(()=>!reduced()),[reset,setReset]=useState(0),[point,setPoint]=useState(0),[seen,setSeen]=useState<number[]>([]);
  const [studyNote,setStudyNote]=useState(''),[leavePending,setLeavePending]=useState(false),[nicknameError,setNicknameError]=useState(false);
  const nicknameInput=useRef<HTMLInputElement>(null);
@@ -26,7 +26,7 @@ export function Welcome({visitor,onVisitor,onContinue,startAt='welcome'}:{visito
  useEffect(()=>{if(typeof window.matchMedia!=='function')return;const media=window.matchMedia('(prefers-reduced-motion: reduce)');const changed=()=>{setMotion(!media.matches);if(media.matches)setPlaying(false)};media.addEventListener?.('change',changed);return()=>media.removeEventListener?.('change',changed)},[]);
  const tour=()=>{setPoint(0);setSeen([]);setReset(r=>r+1);setScreen('tour')};
  const select=(i:number)=>{setPoint(i);setSeen(v=>v.includes(i)?v:[...v,i])};
- const topHeader=<header className="entry-top"><span className="entry-brand"><span className="entry-mvp" title="최소 기능 제품 버전">MVP</span><span className="entry-wordmark">THE FIRST FAB <i>방구석 반도체</i></span></span><div><span className="entry-prototype">시제품 · 계정 인증 없음</span><button onClick={()=>setPlaying(p=>!p)} aria-pressed={!playing}>{playing?'배경 일시정지':'배경 재생'}</button></div></header>;
+ const topHeader=<header className="entry-top"><span className="entry-brand"><span className="entry-mvp" title="최소 기능 제품 버전">MVP</span><span className="entry-wordmark">THE FIRST FAB <i>방구석 반도체</i></span></span><div><span className="entry-prototype">시제품 · 계정 인증 없음</span><button onClick={()=>setPlaying(p=>!p)} aria-pressed={!playing}>{playing?'배경 일시정지':'배경 재생'}</button>{menu}</div></header>;
  const tourNavigation=<div className="tour-top"><button onClick={()=>setScreen('choice')}>← 시작 방법 선택</button><span>1인칭 클린룸 탐색 · 개념 모형</span><button onClick={requestContinue}>건너뛰고 실습 선택 →</button></div>;
  return <main className={'entry-page entry-'+screen}>
   <CleanroomEnvironment tour={screen==='tour'} playing={playing} motion={motion} reset={reset}/>

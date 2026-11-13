@@ -46,14 +46,16 @@ export function ConceptPanel({topics,currentId,contextLabel,onNotes,initialExpan
  const topic=topics.find(item=>item.id===selectedId)??topics[0];
  if(!topic)return null;
  return <section ref={panelRoot} className="concept-panel" aria-labelledby={panelId+'-title'}>
-  <div className="concept-panel-heading"><span className="concept-eyebrow">한눈에 이해하는 개념</span></div>
-  {topics.length>1&&<div className="concept-topic-list" role="group" aria-label="학습 개념 선택">{topics.map(item=><button key={item.id} type="button" className={item.id===topic.id?'selected':''} aria-pressed={item.id===topic.id} onClick={()=>setSelectedId(item.id)}>{item.title}</button>)}</div>}
-  <div className="concept-definition"><h2 id={panelId+'-title'}>{topic.title}</h2><p>{topic.definition}</p></div>
+  <h2 id={panelId+'-title'} className="concept-eyebrow">한눈에 이해하는 개념</h2>
+  <ol className="concept-toc">{topics.map((item,index)=>{const open=item.id===topic.id;return <li key={item.id} className={open?'is-open':undefined}>
+   <button type="button" className="concept-toc-row" aria-expanded={open} aria-controls={panelId+'-detail'} title={open?undefined:item.definition} onClick={()=>{setSelectedId(item.id);if(open)setExpanded(e=>!e)}}><span className="concept-toc-num">{String(index+1).padStart(2,'0')}</span><span className="concept-toc-title">{item.title}</span><Icon name="chevron-down" className="concept-toc-chevron"/></button>
+   {open&&<div id={panelId+'-detail'} className="concept-toc-detail"><p className="concept-definition">{topic.definition}</p>
   <button type="button" className="concept-expand" aria-expanded={expanded} aria-controls={panelId+'-body'} onClick={()=>setExpanded(value=>!value)}><span>{expanded?'핵심 설명 접기':'원리와 확인 문제 펼치기'}</span><span aria-hidden="true">{expanded?'−':'+'}</span></button>
   <div id={panelId+'-body'} hidden={!expanded} className="concept-body">
    <div className="concept-explanations"><section><h3><span aria-hidden="true">01</span> 원리</h3><p>{topic.principle}</p></section><section><h3><span aria-hidden="true">02</span> 지금 장면과 연결</h3><p>{topic.connection}</p></section><section className="concept-misconception"><h3><span aria-hidden="true">!</span> 자주 헷갈리는 점</h3><p>{topic.misconception}</p></section></div>
    <ConceptQuestion key={topic.id} topic={topic}/>
    <div className="concept-footer">{onNotes&&<button type="button" className="concept-notes" onClick={onNotes}>내 메모에 정리하기<Icon name="journal-text" className="trail"/></button>}<details key={topic.id} className="concept-sources"><summary>참고 자료 보기</summary>{topic.sources.filter(source=>/^https:\/\//i.test(source.url)).length?<ul>{topic.sources.filter(source=>/^https:\/\//i.test(source.url)).map(source=><li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.label}<Icon name="box-arrow-up-right" className="trail"/><span className="concept-sr-only"> (새 창)</span></a></li>)}</ul>:<p>등록된 외부 참고 자료가 없습니다.</p>}</details></div>
-  </div>
+  </div></div>}
+  </li>})}</ol>
  </section>;
 }

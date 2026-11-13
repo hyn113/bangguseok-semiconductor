@@ -1,13 +1,16 @@
 import {useEffect,useRef,useState,useSyncExternalStore} from 'react';
-import type {Ref} from 'react';
+import type {Ref,CSSProperties,PointerEvent as RPointerEvent,KeyboardEvent as RKeyboardEvent} from 'react';
 import {Icon,type IconName} from './Icon';
 import './lesson-shell.css';
 
 /* 학습 화면 공통 3단 레이아웃의 좌우 패널 접기 상태.
    피그마처럼 화면을 옮겨도 유지되도록 모듈 단위로 기억합니다(브라우저 저장소는 쓰지 않음). */
 export type ShellSide='left'|'right';
-type State={left:boolean;right:boolean};
-let state:State={left:false,right:false};
+type State={left:boolean;right:boolean;wl:number;wr:number};
+/* 패널 너비: 피그마처럼 안쪽 가장자리를 끌어 조절 (4px 단위, 240~480px). 이 브라우저에 기억해요. */
+export const PANEL_MIN=240,PANEL_MIN_R=304,PANEL_MAX=480,PANEL_DEFAULT={wl:300,wr:352};
+const readWidths=()=>{try{const v=JSON.parse(localStorage.getItem('semilab.panels')||'{}');const ok=(n:unknown,d:number,min:number)=>typeof n==='number'&&n>=min&&n<=PANEL_MAX?n:d;return {wl:ok(v.wl,PANEL_DEFAULT.wl,PANEL_MIN),wr:ok(v.wr,PANEL_DEFAULT.wr,PANEL_MIN_R)}}catch{return {...PANEL_DEFAULT}}};
+let state:State={left:false,right:false,...readWidths()};
 const listeners=new Set<()=>void>();
 const emit=()=>listeners.forEach(l=>l());
 const subscribe=(l:()=>void)=>{listeners.add(l);return()=>{listeners.delete(l)}};
@@ -15,27 +18,39 @@ export const toggleShellPanel=(side:ShellSide)=>{state={...state,[side]:!state[s
 const focusLater=(selector:string)=>requestAnimationFrame(()=>document.querySelector<HTMLElement>(selector)?.focus());
 let bound=0;
 const onKey=(e:KeyboardEvent)=>{if(e.key!=='\\'||!(e.metaKey||e.ctrlKey))return;const t=e.target as HTMLElement|null;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;e.preventDefault();toggleBoth()};
-export const setShellPanels=(closed:boolean)=>{state={left:closed,right:closed};emit()};
-const toggleBoth=()=>{const anyOpen=!state.left||!state.right;state={left:anyOpen,right:anyOpen};emit()};
+export const setShellPanels=(closed:boolean)=>{state={...state,left:closed,right:closed};emit()};
+const clampW=(n:number,min=PANEL_MIN)=>Math.round(Math.min(PANEL_MAX,Math.max(min,n))/4)*4;
+export const setPanelWidth=(side:ShellSide,w:number)=>{state={...state,[side==='left'?'wl':'wr']:clampW(w,side==='left'?PANEL_MIN:PANEL_MIN_R)};emit();try{localStorage.setItem('semilab.panels',JSON.stringify({wl:state.wl,wr:state.wr}))}catch{}};
+const toggleBoth=()=>{const anyOpen=!state.left||!state.right;state={...state,left:anyOpen,right:anyOpen};emit()};
 
 /** 접힘 상태와 루트 요소에 붙일 속성을 돌려줍니다. Ctrl/⌘ + \ 로 양쪽을 함께 접고 펼칩니다. */
 export function useLessonShell(){
  const s=useSyncExternalStore(subscribe,()=>state,()=>state);
  useEffect(()=>{if(bound++===0)window.addEventListener('keydown',onKey);return()=>{if(--bound===0)window.removeEventListener('keydown',onKey)}},[]);
- return {collapsed:s,attrs:{'data-shell-left':s.left?'closed':'open','data-shell-right':s.right?'closed':'open'}};
+ return {collapsed:s,attrs:{'data-shell-left':s.left?'closed':'open','data-shell-right':s.right?'closed':'open',style:{'--panel-l':s.wl+'px','--panel-r':s.wr+'px'} as CSSProperties}};
 }
 
 const SidebarIcon=({side}:{side:ShellSide})=><Icon name={side==='left'?'layout-sidebar':'layout-sidebar-reverse'}/>;
 
 /** 패널 머리에 두는 접기 버튼 */
 export function PanelToggle({side}:{side:ShellSide}){
- return <button type="button" className={'shell-toggle shell-toggle-'+side} aria-label={side==='left'?'왼쪽 패널 접기':'오른쪽 패널 접기'} title={(side==='left'?'왼쪽':'오른쪽')+' 패널 접기 (Ctrl/⌘ + \\)'} aria-expanded="true" aria-controls={'shell-panel-'+side} onClick={()=>{toggleShellPanel(side);focusLater('.shell-chip-'+side)}}><SidebarIcon side={side}/></button>;
+ return <button type="button" data-tip={side==='left'?'왼쪽 패널 접기':'오른쪽 패널 접기'} data-tip-pos={side==='left'?'bottom':'left'} className={'shell-toggle shell-toggle-'+side} aria-label={side==='left'?'왼쪽 패널 접기':'오른쪽 패널 접기'} aria-expanded="true" aria-controls={'shell-panel-'+side} onClick={()=>{toggleShellPanel(side);focusLater('.shell-chip-'+side)}}><SidebarIcon side={side}/></button>;
 }
 
 /** 패널이 접혔을 때 화면 모서리에 떠 있는 펼치기 칩 */
+/** 패널 너비 조절 손잡이 (끌기 · 방향키 · 두 번 눌러 기본값) */
+function PanelResizer({side,width}:{side:ShellSide;width:number}){
+ const drag=useRef<{x:number;w:number}|null>(null);
+ const down=(e:RPointerEvent<HTMLDivElement>)=>{if(e.button!==0)return;drag.current={x:e.clientX,w:width};e.currentTarget.setPointerCapture?.(e.pointerId);document.body.classList.add('is-resizing')};
+ const move=(e:RPointerEvent<HTMLDivElement>)=>{const d=drag.current;if(!d)return;const dx=e.clientX-d.x;setPanelWidth(side,side==='left'?d.w+dx:d.w-dx)};
+ const up=()=>{drag.current=null;document.body.classList.remove('is-resizing')};
+ const key=(e:RKeyboardEvent<HTMLDivElement>)=>{const step=e.shiftKey?32:16;let n=width;if(e.key==='ArrowLeft')n+=side==='left'?-step:step;else if(e.key==='ArrowRight')n+=side==='left'?step:-step;else if(e.key==='Home')n=side==='left'?PANEL_MIN:PANEL_MIN_R;else if(e.key==='End')n=PANEL_MAX;else return;e.preventDefault();setPanelWidth(side,n)};
+ return <div className={'panel-resizer panel-resizer-'+side} role="separator" aria-orientation="vertical" aria-label={(side==='left'?'왼쪽':'오른쪽')+' 패널 너비'} aria-valuemin={side==='left'?PANEL_MIN:PANEL_MIN_R} aria-valuemax={PANEL_MAX} aria-valuenow={width} tabIndex={0} title="끌어서 너비 조절 · 두 번 누르면 기본 너비" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onLostPointerCapture={up} onDoubleClick={()=>setPanelWidth(side,side==='left'?PANEL_DEFAULT.wl:PANEL_DEFAULT.wr)} onKeyDown={key}/>;
+}
+
 export function ShellChips({left,right}:{left:string;right:string}){
  const {collapsed}=useLessonShell();
- return <>{collapsed.left&&<button type="button" className="shell-chip shell-chip-left" aria-label={'왼쪽 패널 펼치기 · '+left} aria-expanded="false" aria-controls="shell-panel-left" onClick={()=>{toggleShellPanel('left');focusLater('#shell-panel-left .shell-toggle')}}><SidebarIcon side="left"/><span>{left}</span></button>}{collapsed.right&&<button type="button" className="shell-chip shell-chip-right" aria-label={'오른쪽 패널 펼치기 · '+right} aria-expanded="false" aria-controls="shell-panel-right" onClick={()=>{toggleShellPanel('right');focusLater('#shell-panel-right .shell-toggle')}}><span>{right}</span><SidebarIcon side="right"/></button>}</>;
+ return <>{!collapsed.left&&<PanelResizer side="left" width={collapsed.wl}/>}{!collapsed.right&&<PanelResizer side="right" width={collapsed.wr}/>}{collapsed.left&&<button type="button" className="shell-chip shell-chip-left" aria-label={'왼쪽 패널 펼치기 · '+left} aria-expanded="false" aria-controls="shell-panel-left" onClick={()=>{toggleShellPanel('left');focusLater('#shell-panel-left .shell-toggle')}}><SidebarIcon side="left"/><span>{left}</span></button>}{collapsed.right&&<button type="button" className="shell-chip shell-chip-right" aria-label={'오른쪽 패널 펼치기 · '+right} aria-expanded="false" aria-controls="shell-panel-right" onClick={()=>{toggleShellPanel('right');focusLater('#shell-panel-right .shell-toggle')}}><span>{right}</span><SidebarIcon side="right"/></button>}</>;
 }
 
 /* 캔버스 하단 도구 막대 — 피그마식.
@@ -50,8 +65,8 @@ export function CanvasToolbar({tiles:own}:{tiles:ToolTile[]}){
  return <div ref={root} className="canvas-toolbar">
   {open&&<div id="canvas-adjust" className="canvas-popover" role="group" aria-label="조절">{tiles.map(t=><button key={t.id} ref={t.buttonRef} type="button" className="tool-tile" aria-pressed={t.pressed} disabled={t.disabled} onClick={t.onClick}><Icon name={t.icon} size={20}/><span>{t.label}</span></button>)}</div>}
   <div className="canvas-dock" role="toolbar" aria-label="캔버스 도구">
-   <button type="button" className="dock-btn dock-hand" aria-pressed={!open} aria-label="둘러보기" title="둘러보기 · 드래그해서 돌려보기" onClick={()=>setOpen(false)}><Icon name="hand-index" size={20}/></button>
-   <button type="button" className="dock-btn dock-adjust" aria-pressed={open} aria-expanded={open} aria-controls="canvas-adjust" aria-label="조절" title="조절" onClick={()=>setOpen(o=>!o)}><Icon name="sliders" size={20}/></button>
+   <button type="button" className="dock-btn dock-hand" aria-pressed={!open} aria-label="둘러보기" data-tip="둘러보기 · 드래그해서 돌려보기" data-tip-pos="top" onClick={()=>setOpen(false)}><Icon name="hand-index" size={20}/></button>
+   <button type="button" className="dock-btn dock-adjust" aria-pressed={open} aria-expanded={open} aria-controls="canvas-adjust" aria-label="조절" data-tip="조절" data-tip-pos="top" onClick={()=>setOpen(o=>!o)}><Icon name="sliders" size={20}/></button>
   </div>
  </div>;
 }

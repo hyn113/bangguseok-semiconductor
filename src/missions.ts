@@ -11,7 +11,12 @@ export type MissionLesson='wafer'|'photo'|'ffu'|'gown'|'gowning'|'mosfet';
 export const TARGET_YIELD=95;
 /* 미션을 보내는 곳 이름(예: 협력 기업명). 실제 기업 이름은 사용 허락을 받은 경우에만 넣어 주세요. 비우면 '긴급 미션 도착!'만 보여요. */
 export const MISSION_ISSUER='';
-export const levels=[{id:1,name:'Level 1',label:'입문',count:3},{id:2,name:'Level 2',label:'기본',count:5},{id:3,name:'Level 3',label:'심화',count:Infinity}] as const;
+/* 레벨마다 미션 이야기가 달라져요: 첫 출근 → 라인 점검 → 수율 회복 */
+export const levels=[
+ {id:1,name:'Level 1',label:'입문',count:3,alert:'새 미션 도착!',title:'첫 출근 미션',brief:'신입 공정 엔지니어로 첫 출근한 날이에요.\n기본 개념 문제로 라인을 한 바퀴 점검해 보세요.'},
+ {id:2,name:'Level 2',label:'기본',count:5,alert:'점검 요청 도착!',title:'라인 점검 미션',brief:'생산 라인에서 이상 신호가 감지됐어요.\n공정 미션을 해결해서 수율을 지켜 내세요.'},
+ {id:3,name:'Level 3',label:'심화',count:Infinity,alert:'긴급 미션 도착!',title:'수율 회복 미션',brief:'수율이 급격히 떨어졌어요!\n모든 공정 미션을 해결해 라인을 정상으로 되돌리세요.'},
+] as const;
 
 const fromConcept=(t:typeof waferConcepts[number]):MissionQ=>({kind:'choice',q:t.question.prompt,sub:t.title,options:t.question.options,answer:t.question.answer,why:t.question.explanation});
 /* 개념 문제 사이사이에 순서 문제를 섞어 둬요 */

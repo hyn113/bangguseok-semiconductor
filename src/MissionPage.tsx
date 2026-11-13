@@ -19,12 +19,17 @@ const isRight=(q:MissionQ,a:Answer)=>q.kind==='choice'?a===q.answer:Array.isArra
 
 export function MissionPage({lesson,profile,onExit,onLearn}:{lesson:MissionLesson;profile:ReactNode;onExit:()=>void;onLearn:()=>void}){
  const name=lessonTitle(lesson,missionNames[lesson]);
- const[phase,setPhase]=useState<'intro'|'level'|'play'|'result'>('intro'),[level,setLevel]=useState<1|2|3>(1),[round,setRound]=useState(1);
+ const[phase,setPhase]=useState<'intro'|'level'|'play'|'result'>('level'),[level,setLevel]=useState<1|2|3>(1),[round,setRound]=useState(1);
  const questions=useMemo(()=>missionQuestions(lesson,level),[lesson,level]);
  const[at,setAt]=useState(0),[answers,setAnswers]=useState<Answer[]>([]),[checked,setChecked]=useState<boolean[]>([]);
  const[memoOpen,setMemoOpen]=useState(false),[onlyWrong,setOnlyWrong]=useState(false);
  const[note,setNote]=useState(()=>readLessonNote(lesson));
  const heading=useRef<HTMLHeadingElement>(null);
+ /* 메모 패널 너비: 왼쪽 가장자리를 끌어 줄이고 늘려요(300~560px, 화면을 넘지 않게). 이 브라우저에 기억해요. */
+ const[memoW,setMemoW]=useState(()=>{try{const n=Number(localStorage.getItem('semilab.mission.memoW'));return n>=300&&n<=560?n:364}catch{return 364}});
+ const fitW=(w:number)=>Math.round(Math.max(300,Math.min(560,window.innerWidth-120,w))/4)*4;
+ const memoDrag=useRef<{x:number;w:number}|null>(null);
+ const saveW=(w:number)=>{setMemoW(w);try{localStorage.setItem('semilab.mission.memoW',String(w))}catch{}};
  useEffect(()=>{heading.current?.focus({preventScroll:true})},[phase,at]);
  const start=()=>{setAnswers(questions.map(()=>null));setChecked(questions.map(()=>false));setAt(0);setOnlyWrong(false);setRound(r=>r+1);setPhase('play')};
  const q=questions[at],a=answers[at]??null,done=checked[at];
@@ -68,16 +73,18 @@ export function MissionPage({lesson,profile,onExit,onLearn}:{lesson:MissionLesso
 
   {(phase==='intro'||phase==='level')&&<div className="mission-scrim"><div className="mission-dialog" role="dialog" aria-modal="true" aria-labelledby="mission-dialog-title">
    {phase==='intro'?<>
-    <span className="mission-alert">{MISSION_ISSUER?`${MISSION_ISSUER} `:''}긴급 미션 도착!</span>
-    <h1 id="mission-dialog-title" ref={heading} tabIndex={-1}>{name} 공정 미션</h1>
-    <p>문제를 정확하게 해결할수록 공정 수율이 올라가요.<br/>목표 수율 {TARGET_YIELD}%를 달성해 최고의 공정 엔지니어가 되어 보세요!</p>
-    <span className="mission-chip">{lv.name} · {lv.label} · {questions.length}문제</span>
-    <div className="mission-dialog-actions"><button type="button" className="btn btn--secondary btn--lg" onClick={()=>setPhase('level')}>레벨 선택</button><button type="button" className="btn btn--primary btn--lg" onClick={start}>미션 시작</button></div>
+    <span className="mission-alert">{MISSION_ISSUER?`${MISSION_ISSUER} `:''}{lv.alert}</span>
+    <h1 id="mission-dialog-title" ref={heading} tabIndex={-1}>{lv.title}</h1>
+    <p className="mission-brief">{lv.brief.split('\n').map((l,i)=><span key={i}>{l}</span>)}</p>
+    <p className="mission-goal">{name} · {questions.length}문제 · 목표 수율 <b>{TARGET_YIELD}%</b></p>
+    <div className="mission-dialog-actions"><button type="button" className="btn btn--secondary btn--lg" onClick={()=>setPhase('level')}>레벨 바꾸기</button><button type="button" className="btn btn--primary btn--lg" onClick={start}>미션 시작</button></div>
    </>:<>
+    <span className="mission-alert">{name}</span>
     <h1 id="mission-dialog-title" ref={heading} tabIndex={-1}>레벨을 골라 주세요</h1>
-    <div className="mission-levels" role="radiogroup" aria-label="레벨">{levels.map(l=>{const n=missionQuestions(lesson,l.id).length;return <button key={l.id} type="button" role="radio" aria-checked={level===l.id} onClick={()=>setLevel(l.id)}><strong>{l.name}</strong><span>{l.label} · {n}문제</span></button>})}</div>
-    <p className="mission-level-pick">{lv.name} 선택 · {lv.label} {missionQuestions(lesson,level).length}문제</p>
-    <div className="mission-dialog-actions"><button type="button" className="btn btn--tertiary btn--lg" onClick={()=>setPhase('intro')}>뒤로</button><button type="button" className="btn btn--primary btn--lg" onClick={start}>다음으로<Icon name="arrow-right" className="trail"/></button></div>
+    <div className="game-levels" role="radiogroup" aria-label="레벨">{levels.map(l=>{const n=missionQuestions(lesson,l.id).length;return <button key={l.id} type="button" role="radio" className="game-tile" aria-checked={level===l.id} onClick={()=>setLevel(l.id)} onDoubleClick={()=>{setLevel(l.id);setPhase('intro')}}>
+     <span className="game-tile-stars" aria-hidden="true">{[1,2,3].map(k=><Icon key={k} name={k<=l.id?'star-fill':'star'}/>)}</span>
+     <strong>{l.name}</strong><span>{l.label} · {n}문제</span></button>})}</div>
+    <div className="mission-dialog-actions"><button type="button" className="btn btn--tertiary btn--lg" onClick={onExit}>나가기</button><button type="button" className="btn btn--primary btn--lg" onClick={()=>setPhase('intro')}>다음으로<Icon name="arrow-right" className="trail"/></button></div>
    </>}
   </div></div>}
 
@@ -97,9 +104,15 @@ export function MissionPage({lesson,profile,onExit,onLearn}:{lesson:MissionLesso
    </li>})}</ol>
   </div></div>}
 
-  <button type="button" className="mission-memo-tab" aria-expanded={memoOpen} aria-controls="mission-memo" onClick={()=>setMemoOpen(v=>!v)}><Icon name={memoOpen?'x-lg':'journal-text'}/><span>{memoOpen?'닫기':'메모'}</span></button>
+  {phase==='play'&&<button type="button" className="mission-memo-tab" aria-expanded={memoOpen} aria-controls="mission-memo" onClick={()=>setMemoOpen(v=>!v)}><Icon name={memoOpen?'x-lg':'journal-text'}/><span>{memoOpen?'닫기':'메모'}</span></button>}
   {memoOpen&&<div className="mission-memo-scrim" onClick={()=>setMemoOpen(false)} aria-hidden="true"/>}
-  {memoOpen&&<aside id="mission-memo" className="mission-memo shell-page" aria-label="학습 메모와 AI 어시스턴스">
+  {memoOpen&&<aside id="mission-memo" className="mission-memo shell-page" aria-label="학습 메모와 AI 어시스턴스" style={{width:fitW(memoW)}}>
+   <div className="mission-memo-resizer" role="separator" aria-orientation="vertical" aria-label="메모 패널 너비" aria-valuemin={300} aria-valuemax={560} aria-valuenow={fitW(memoW)} tabIndex={0} title="끌어서 너비 조절 · 두 번 누르면 기본 너비"
+    onPointerDown={e=>{if(e.button!==0)return;memoDrag.current={x:e.clientX,w:fitW(memoW)};e.currentTarget.setPointerCapture?.(e.pointerId);e.currentTarget.dataset.dragging='true'}}
+    onPointerMove={e=>{const d=memoDrag.current;if(d)setMemoW(fitW(d.w+(d.x-e.clientX)))}}
+    onPointerUp={e=>{if(memoDrag.current){memoDrag.current=null;delete e.currentTarget.dataset.dragging;saveW(fitW(memoW))}}}
+    onDoubleClick={()=>saveW(364)}
+    onKeyDown={e=>{const step=e.shiftKey?32:16;if(e.key==='ArrowLeft'){e.preventDefault();saveW(fitW(memoW+step))}else if(e.key==='ArrowRight'){e.preventDefault();saveW(fitW(memoW-step))}}}/>
    <div className="mission-memo-head">{profile}<button type="button" className="hub-icon" aria-label="메모 닫기" onClick={()=>setMemoOpen(false)}><Icon name="x-lg"/></button></div>
    <StudyHub lesson={lesson==='gowning'?'gowning':lesson} primary={{label:`${name} 학습 메모`,value:note.text,updated:note.updated,failed:note.failed,onChange:t=>setNote(writeLessonNote(lesson,t))}}/>
   </aside>}

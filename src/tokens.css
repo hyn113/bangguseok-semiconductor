@@ -1,0 +1,43 @@
+/* 방구석 반도체 디자인 토큰
+   - 간격·패딩·마진·갭은 모두 4px 배수 (--sp-*)
+   - 글자 크기는 6단계 위계 (--fs-*)
+   - 아이콘: Bootstrap Icons (src/Icon.tsx) */
+:root{
+ /* 글꼴 */
+ --font-sans:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
+
+ /* 글자 크기 위계 */
+ --fs-display:36px; /* 입장 화면 대제목 */
+ --fs-title:20px;   /* 패널 안 단계 제목 (h2) */
+ --fs-heading:16px; /* 화면 제목 (h1), 카드 제목 (h3) */
+ --fs-body:14px;    /* 본문 */
+ --fs-ui:13px;      /* 버튼·탭·목록·입력 */
+ --fs-caption:12px; /* 보조 정보·범례·시각 */
+ --lh-tight:1.35;
+ --lh-body:1.6;
+ --fw-regular:400;--fw-medium:500;--fw-semibold:600;--fw-bold:700;
+
+ /* 색 */
+ --c-ink:#1b2630;
+ --c-ink-2:#4b5862;
+ --c-muted:#87929b;
+ --c-line:#e4e7ea;
+ --c-canvas:#eef0f2;
+ --c-surface:#ffffff;
+ --c-surface-2:#f3f4f6;
+ --c-hover:#eceef1;
+ --c-accent:#f28c2f;
+ --c-accent-strong:#d9711a;
+ --c-accent-soft:#fff2e6;
+ --c-danger:#c2410c;
+
+ /* 간격 (4px 배수) */
+ --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;--sp-12:48px;
+
+ /* 모서리·그림자·크기 */
+ --r-sm:8px;--r-md:12px;--r-lg:16px;--r-pill:999px;
+ --sh-panel:0 0 0 1px #1b26300d,0 8px 24px #1b263014;
+ --sh-float:0 0 0 1px #1b26300f,0 12px 32px #1b26301f;
+ --h-control:36px;--h-tool:48px;
+ --panel-l:300px;--panel-r:320px;
+}

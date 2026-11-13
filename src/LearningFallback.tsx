@@ -6,7 +6,7 @@ type WaferProps={stage:number;progress:number;selected:number;onSelect:(n:number
 type EquipmentProps={kind:'gown'|'ffu';selected:number;onSelect:(n:number)=>void;step:number};
 const waferLabels=['다이','스크라이브 레인','가장자리','노치'];
 const stageLabels=['준비된 잉곳','와이어로 얇은 원판 분리','가장자리 다듬기','평탄도 다듬기','가공 손상층 감소','표면 연마','회로 없는 빈 웨이퍼','여러 후속 공정에서 회로 형성','회로 형성 이후의 패턴 웨이퍼'];
-function ModeNotice(){return <p className="learning-fallback-mode"><span aria-hidden="true">◇</span> 2D 학습 모드 <small>이 브라우저에서 3D를 사용할 수 없어 개념 그림으로 보여드려요.</small></p>}
+function ModeNotice(){return }
 export function WaferFallback({stage,progress,selected,onSelect}:WaferProps){
  const id=useId().replace(/:/g,'');const amount=Math.max(0,Math.min(100,progress))/100;
  return <div className="learning-fallback wafer-fallback"><ModeNotice/><svg className="learning-fallback-figure" viewBox="0 0 420 210" role="img" aria-label={stageLabels[stage]||'웨이퍼 개념 그림'}>

@@ -10,8 +10,8 @@ const points=[
  {title:'복장과 오염 관리',label:'클린룸 복장',text:'클린룸 복장은 사람이 가져올 수 있는 오염을 관리하기 위한 구성 요소입니다. 필요한 복장과 착용 방법은 시설의 승인된 절차와 교육을 따라야 합니다.'},
  {title:'실습을 시작하기 전에',label:'학습 공간',text:'장비를 탐색하고 직접 조작하며 개념을 알아보세요. 이 시제품은 실제 장비 운전이나 작업 자격을 제공하지 않습니다. 직접 저장한 메모와 완료한 퀴즈 기록은 브라우저에 저장됩니다.'}
 ];
-export function Welcome({visitor,onVisitor,onContinue}:{visitor:Visitor;onVisitor:(v:Visitor)=>void;onContinue:()=>void}){
- const [screen,setScreen]=useState<'welcome'|'choice'|'tour'>('welcome'),[playing,setPlaying]=useState(()=>!reduced()),[motion,setMotion]=useState(()=>!reduced()),[reset,setReset]=useState(0),[point,setPoint]=useState(0),[seen,setSeen]=useState<number[]>([]);
+export function Welcome({visitor,onVisitor,onContinue,startAt='welcome'}:{visitor:Visitor;onVisitor:(v:Visitor)=>void;onContinue:()=>void;startAt?:'welcome'|'tour'}){
+ const [screen,setScreen]=useState<'welcome'|'choice'|'tour'>(startAt),[playing,setPlaying]=useState(()=>!reduced()),[motion,setMotion]=useState(()=>!reduced()),[reset,setReset]=useState(0),[point,setPoint]=useState(0),[seen,setSeen]=useState<number[]>([]);
  const [studyNote,setStudyNote]=useState(''),[leavePending,setLeavePending]=useState(false),[nicknameError,setNicknameError]=useState(false);
  const nicknameInput=useRef<HTMLInputElement>(null);
  const noteInput=useRef<HTMLTextAreaElement>(null),noteSection=useRef<HTMLDetailsElement>(null);

@@ -1,4 +1,6 @@
-import {useEffect,useSyncExternalStore} from 'react';
+import {useEffect,useRef,useState,useSyncExternalStore} from 'react';
+import type {Ref} from 'react';
+import {Icon,type IconName} from './Icon';
 import './lesson-shell.css';
 
 /* 학습 화면 공통 3단 레이아웃의 좌우 패널 접기 상태.
@@ -22,7 +24,7 @@ export function useLessonShell(){
  return {collapsed:s,attrs:{'data-shell-left':s.left?'closed':'open','data-shell-right':s.right?'closed':'open'}};
 }
 
-const SidebarIcon=({side}:{side:ShellSide})=><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><rect x="1.5" y="2.5" width="13" height="11" rx="2" fill="none" stroke="currentColor" strokeWidth="1.3"/><path d={side==='left'?'M6 2.5v11':'M10 2.5v11'} stroke="currentColor" strokeWidth="1.3"/><rect x={side==='left'?2.2:10.6} y="3.2" width="3.2" height="9.6" rx="1" fill="currentColor" opacity=".22"/></svg>;
+const SidebarIcon=({side}:{side:ShellSide})=><Icon name={side==='left'?'layout-sidebar':'layout-sidebar-reverse'}/>;
 
 /** 패널 머리에 두는 접기 버튼 */
 export function PanelToggle({side}:{side:ShellSide}){
@@ -33,4 +35,19 @@ export function PanelToggle({side}:{side:ShellSide}){
 export function ShellChips({left,right}:{left:string;right:string}){
  const {collapsed}=useLessonShell();
  return <>{collapsed.left&&<button type="button" className="shell-chip shell-chip-left" aria-label={'왼쪽 패널 펼치기 · '+left} aria-expanded="false" aria-controls="shell-panel-left" onClick={()=>{toggleShellPanel('left');focusLater('#shell-panel-left .shell-toggle')}}><SidebarIcon side="left"/><span>{left}</span></button>}{collapsed.right&&<button type="button" className="shell-chip shell-chip-right" aria-label={'오른쪽 패널 펼치기 · '+right} aria-expanded="false" aria-controls="shell-panel-right" onClick={()=>{toggleShellPanel('right');focusLater('#shell-panel-right .shell-toggle')}}><span>{right}</span><SidebarIcon side="right"/></button>}</>;
+}
+
+/* 캔버스 하단 도구 막대 — 피그마식.
+   손 도구(기본): 모형을 마우스로 돌려보는 상태. 조절 도구: 위로 보기·초기화 같은 조절 타일이 펼쳐짐. */
+export type ToolTile={id:string;label:string;icon:IconName;onClick:()=>void;pressed?:boolean;disabled?:boolean;buttonRef?:Ref<HTMLButtonElement>};
+export function CanvasToolbar({tiles}:{tiles:ToolTile[]}){
+ const[open,setOpen]=useState(false),root=useRef<HTMLDivElement>(null);
+ useEffect(()=>{if(!open)return;const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){setOpen(false);root.current?.querySelector<HTMLButtonElement>('.dock-adjust')?.focus()}};const down=(e:PointerEvent)=>{if(!root.current?.contains(e.target as Node))setOpen(false)};document.addEventListener('keydown',key);document.addEventListener('pointerdown',down);return()=>{document.removeEventListener('keydown',key);document.removeEventListener('pointerdown',down)}},[open]);
+ return <div ref={root} className="canvas-toolbar">
+  {open&&<div id="canvas-adjust" className="canvas-popover" role="group" aria-label="조절">{tiles.map(t=><button key={t.id} ref={t.buttonRef} type="button" className="tool-tile" aria-pressed={t.pressed} disabled={t.disabled} onClick={t.onClick}><Icon name={t.icon} size={20}/><span>{t.label}</span></button>)}</div>}
+  <div className="canvas-dock" role="toolbar" aria-label="캔버스 도구">
+   <button type="button" className="dock-btn dock-hand" aria-pressed={!open} aria-label="둘러보기" title="둘러보기 · 드래그해서 돌려보기" onClick={()=>setOpen(false)}><Icon name="hand-index" size={20}/></button>
+   <button type="button" className="dock-btn dock-adjust" aria-pressed={open} aria-expanded={open} aria-controls="canvas-adjust" aria-label="조절" title="조절" onClick={()=>setOpen(o=>!o)}><Icon name="sliders" size={20}/></button>
+  </div>
+ </div>;
 }

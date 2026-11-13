@@ -130,3 +130,37 @@ svg.bi.flip{transform:scaleX(-1)}
 .selection-page .catalog-dots{margin:0 var(--sp-2)!important}
 .selection-page .catalog-dots.selector-switch button{min-width:0!important}
 .selection-page .catalog-dots.selector-switch button::after{position:static!important;left:auto!important;top:auto!important}
+
+/* ── 넘김 품질: 살짝 튕기며 안착 + 정면 카드가 앞으로 떠오름 ── */
+.catalog-ring{transition:transform .85s cubic-bezier(.2,1.12,.32,1)}
+.ring-slot{transition:transform .6s cubic-bezier(.2,1,.3,1),opacity .35s ease,filter .35s ease}
+.selection-page .ring-card{transition:box-shadow .4s ease,border-color .4s ease,background-color .4s ease}
+.selection-page .ring-slot[data-front] .ring-card{box-shadow:0 28px 60px -18px #0e111480,0 0 0 1px #ffffff1a!important}
+.selection-page .catalog-ring-stage[data-dragging] .ring-slot[data-front] .ring-card{box-shadow:0 18px 40px -12px #0e111466!important}
+@media(prefers-reduced-motion:reduce){.catalog-ring,.ring-slot,.selection-page .ring-card{transition:none}}
+
+/* ── 카드 글자: 학습 화면과 같은 위계 (제목 20 · 본문 14 · 보조 12) ── */
+.selection-page .ring-card .selected-copy h2{margin:0 0 var(--sp-1)!important;font-size:var(--fs-title)!important;font-weight:var(--fw-semibold)!important;line-height:1.3!important;letter-spacing:0!important;color:var(--gray-0)!important}
+.selection-page .ring-card .selected-copy .catalog-sub{margin:0 0 var(--sp-2)!important;font-size:var(--fs-body)!important;font-weight:var(--fw-medium)!important;line-height:1.5!important;color:var(--gray-100)!important}
+.selection-page .ring-card .selected-copy p:not(.catalog-sub){margin:0!important;font-size:var(--fs-body)!important;font-weight:var(--fw-regular)!important;line-height:1.6!important;color:var(--gray-200)!important}
+.selection-page .ring-card .selected-copy>div,.selection-page .ring-card .selected-copy>div span{font-size:var(--fs-caption)!important;font-weight:var(--fw-medium)!important}
+.selection-page .ring-card .model-badge{font-size:var(--fs-caption)!important;padding:2px var(--sp-2)!important;border-radius:6px!important}
+
+/* ── 원기둥 캐러셀 v2: 그림 중심의 세로 카드, 설명은 아래에 한 번만 ── */
+.selection-page .catalog-ring-stage{height:clamp(300px,40vh,380px);perspective:1200px;perspective-origin:50% 50%;margin-top:var(--sp-4)}
+.ring-slot{height:auto;top:50%;transform-origin:50% 50%}
+.selection-page .ring-card{display:flex;flex-direction:column;width:100%;aspect-ratio:3/4;max-height:100%;margin-top:calc(var(--card-w) * -2 / 3);padding:0!important;border:0!important;border-radius:20px!important;background:var(--gray-0)!important;box-shadow:0 20px 44px -16px #0e111473!important;overflow:hidden;color:var(--gray-900);cursor:pointer}
+.selection-page .ring-slot[data-front] .ring-card{cursor:grab;box-shadow:0 32px 64px -20px #0e11148c,0 0 0 1px #ffffff26!important}
+.selection-page .ring-card .catalog-preview{flex:1;height:auto!important;border-radius:0;background:linear-gradient(180deg,var(--gray-50),var(--gray-100))!important}
+.selection-page .ring-card .catalog-preview svg{display:block;width:100%;height:100%;padding:var(--sp-3);box-sizing:border-box}
+.selection-page .ring-card .catalog-glyph{color:var(--gray-500)}
+.selection-page .ring-card .catalog-glyph svg.bi{width:56px!important;height:56px!important;padding:0}
+.ring-card-foot{flex:none;display:flex;flex-direction:column;gap:2px;padding:var(--sp-4) var(--sp-4) var(--sp-4);background:var(--gray-0);border-top:1px solid var(--gray-100);text-align:left}
+.ring-card-foot strong{font-size:var(--fs-heading);font-weight:var(--fw-semibold);line-height:1.35;color:var(--gray-900);letter-spacing:0}
+.ring-card-foot span{font-size:var(--fs-caption);font-weight:var(--fw-medium);color:var(--gray-500)}
+.selection-page .catalog-info{max-width:440px;margin:var(--sp-5,20px) auto 0;text-align:center}
+.selection-page .catalog-info p{margin:0;font-size:var(--fs-body);line-height:1.6;color:var(--gray-200)}
+.selection-page .catalog-paging{margin-top:var(--sp-3)!important}
+.selection-page .catalog-ring-stage{height:calc(var(--card-h) + 24px)}
+.ring-slot{top:12px;height:var(--card-h)}
+.selection-page .ring-card{height:100%;aspect-ratio:auto;margin-top:0}

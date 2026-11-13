@@ -17,7 +17,7 @@ const modules={
 const glyph:Record<CatalogModule,IconName>={photo:'grid-3x3-gap',gown:'person-standing',ffu:'fan',wafer:'record-circle',mosfet:'boxes'};
 const tabs:{id:CatalogTab;name:string;items:CatalogModule[]}[]=[{id:'process',name:'8대 공정',items:['wafer','photo']},{id:'equipment',name:'장비',items:['gown','ffu']},{id:'design',name:'설계',items:['mosfet']},{id:'all',name:'전체',items:['wafer','photo','gown','ffu','mosfet']}];
 
-const badge:Record<CatalogModule,string>={mosfet:'설계 · NMOS',photo:'공정 · 양성 PR',wafer:'기초 · 웨이퍼',ffu:'3D 개념 모형',gown:'3D 개념 모형'};
+const area:Record<CatalogModule,string>={wafer:'8대 공정',photo:'8대 공정',gown:'장비',ffu:'장비',mosfet:'설계'};
 /** 카드 앞면 그림. 3D 장면은 정면 카드에서 멈춰 있을 때만 그려요(WebGL 개수 절약) */
 function Preview({id,live,gid}:{id:CatalogModule;live:boolean;gid:string}){
  return <div className="selected-model catalog-preview" aria-hidden="true">{
@@ -25,7 +25,7 @@ function Preview({id,live,gid}:{id:CatalogModule;live:boolean;gid:string}){
   id==='wafer'?<svg viewBox="0 0 400 280"><defs><linearGradient id={gid} x1="0" x2="1"><stop stopColor="#9ab7c9"/><stop offset=".5" stopColor="#f2f8fb"/><stop offset="1" stopColor="#617e96"/></linearGradient></defs><ellipse cx="200" cy="154" rx="143" ry="82" fill={`url(#${gid})`} stroke="#577791" strokeWidth="5"/><ellipse cx="200" cy="145" rx="143" ry="82" fill="none" stroke="#b4ccd9" strokeWidth="3"/><path d="M84 133h232M76 155h248M92 178h216M118 199h164M118 112h164M145 82v126M180 67v151M215 65v153M250 72v139M285 87v111" stroke="#7895ab" strokeWidth="1"/><text x="200" y="253" textAnchor="middle" fill="#526a7c" fontSize="14">웨이퍼 구조 · 개념 이미지</text></svg>:
   live&&(id==='ffu'||id==='gown')?<Scene kind={id} step={id==='gown'?4:0} playing={false} exploded={true} flow={true} selected={-1} onSelect={()=>{}} reset={0}/>:
   live&&id==='mosfet'?<MosfetScene selected="gate" onSelect={()=>{}} channel={true} saturated={false} reset={0}/>:
-  <span className="catalog-glyph"><Icon name={glyph[id]} size={48}/></span>}<span className="model-badge">{badge[id]}</span></div>;
+  <span className="catalog-glyph"><Icon name={glyph[id]} size={48}/></span>}</div>;
 }
 
 /* 원기둥 캐러셀 — 카드를 원기둥 둘레에 세우고 마우스로 돌려 봐요.
@@ -35,14 +35,14 @@ function Preview({id,live,gid}:{id:CatalogModule;live:boolean;gid:string}){
    - 옆 카드를 누르면 그 카드가 정면으로 와요 */
 export function SelectionCatalog({selected,tab,onSelect,onTab,onOpen}:{selected:CatalogModule;tab:CatalogTab;onSelect:(id:CatalogModule)=>void;onTab:(id:CatalogTab)=>void;onOpen:(id:CatalogModule,concepts?:boolean)=>void}){
  const items=tabs.find(t=>t.id===tab)!.items,n=items.length,index=Math.max(0,items.indexOf(selected)),current=items[index],info=modules[current];
- const slots=n<2?1:n*Math.ceil(8/n),step=360/slots;
+ const slots=n<2?1:n*Math.ceil(10/n),step=360/slots;
  const surface=useRef<HTMLDivElement>(null),tabRefs=useRef<(HTMLButtonElement|null)[]>([]);
  const[width,setWidth]=useState(1000),[rot,setRot]=useState(-index*step),[dragging,setDragging]=useState(false);
  const rotRef=useRef(rot);rotRef.current=rot;
  const justDragged=useRef(false),gesture=useRef<{id:number;x:number;y:number;start:number;moved:boolean;samples:{t:number;r:number}[]}|null>(null);
  useEffect(()=>{const el=surface.current;if(!el||typeof ResizeObserver==='undefined')return;const ro=new ResizeObserver(()=>setWidth(el.clientWidth||1000));ro.observe(el);setWidth(el.clientWidth||1000);return()=>ro.disconnect()},[]);
- const cardW=Math.round(Math.min(440,Math.max(260,width*.42)));
- const radius=slots<2?0:Math.round(cardW/2/Math.tan(Math.PI/slots)*1.06);
+ const cardW=Math.round(Math.min(264,Math.max(208,width*.22))),cardH=Math.round(cardW*1.25);
+ const radius=slots<2?0:Math.round(cardW/2/Math.tan(Math.PI/slots)*1.12);
  const frontSlot=(r:number)=>((Math.round(-r/step)%slots)+slots)%slots;
  /* 바깥에서 고른 카드(점·화살표·탭)로 가장 짧게 돌아가기 */
  const turnTo=(k:number,from=rotRef.current)=>{const now=frontSlot(from);let best=now,dist=Infinity;for(let s=0;s<slots;s++){if(s%n!==k)continue;let d=s-now;d=((d%slots)+slots)%slots;if(d>slots/2)d-=slots;if(Math.abs(d)<Math.abs(dist)){dist=d;best=s}}void best;return Math.round(from/step)*step-dist*step};
@@ -61,24 +61,28 @@ export function SelectionCatalog({selected,tab,onSelect,onTab,onOpen}:{selected:
  const up=(e:PointerEvent<HTMLDivElement>)=>{const g=gesture.current;if(!g||e.pointerId!==g.id)return;gesture.current=null;setDragging(false);if(!g.moved)return;justDragged.current=true;setTimeout(()=>{justDragged.current=false},0);
   const a=g.samples[0],b=g.samples[g.samples.length-1],v=(b.r-a.r)/Math.max(16,b.t-a.t);/* 도/ms */
   const projected=rotRef.current+Math.max(-step*2.5,Math.min(step*2.5,v*260));settle(projected)};
+ /* 트랙패드·휠로 좌우 돌리기 — 멈추면 가까운 카드에 붙어요 */
+ const wheelTimer=useRef<number|undefined>(undefined);
+ const wheel=(e:React.WheelEvent<HTMLDivElement>)=>{if(n<2)return;const dx=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:0;if(!dx)return;setDragging(true);const r=rotRef.current-dx*degPerPx*.6;rotRef.current=r;setRot(r);window.clearTimeout(wheelTimer.current);wheelTimer.current=window.setTimeout(()=>{setDragging(false);settle(rotRef.current)},140)};
  const norm=(d:number)=>{d=((d+180)%360+360)%360-180;return d};
  const front=frontSlot(rot);
  return <div className="selection-catalog"><div className="catalog-tabs" role="tablist" aria-label="학습 분야">{tabs.map((t,i)=><button key={t.id} ref={el=>{tabRefs.current[i]=el}} id={`catalog-tab-${t.id}`} type="button" role="tab" aria-selected={tab===t.id} aria-controls="catalog-panel" tabIndex={tab===t.id?0:-1} onClick={()=>chooseTab(t.id)} onKeyDown={event=>tabKey(event,i)}>{t.name}<span>{t.items.length}</span></button>)}</div>
  <section id="catalog-panel" role="tabpanel" aria-labelledby={`catalog-tab-${tab}`}><span className="sr-only" role="status" aria-live="polite">{index+1} / {items.length} · {info.title}</span>
- <div className={'catalog-ring-stage catalog-track'+(n<2?' is-single':'')} data-dragging={dragging||undefined} ref={surface} role="region" aria-roledescription="캐러셀" aria-label="학습 카드 둘러보기 · 끌어서 돌리기" tabIndex={0} style={{'--card-w':cardW+'px'} as React.CSSProperties}
+ <div className={'catalog-ring-stage catalog-track'+(n<2?' is-single':'')} data-dragging={dragging||undefined} ref={surface} role="region" aria-roledescription="캐러셀" aria-label="학습 카드 둘러보기 · 끌어서 돌리기" tabIndex={0} style={{'--card-w':cardW+'px','--card-h':cardH+'px'} as React.CSSProperties}
   onKeyDown={event=>{if(event.target!==event.currentTarget)return;if(event.key==='ArrowRight'){event.preventDefault();move(1)}else if(event.key==='ArrowLeft'){event.preventDefault();move(-1)}}}
-  onPointerDown={down} onPointerMove={dragMove} onPointerUp={up} onPointerCancel={cancel}>
+  onPointerDown={down} onPointerMove={dragMove} onPointerUp={up} onPointerCancel={cancel} onWheel={wheel}>
   <div key={tab} className="catalog-ring" style={{transform:`translateZ(${-radius}px) rotateY(${rot}deg)`}}>
    {Array.from({length:slots},(_,s)=>{const id=items[s%n],m=modules[id],d=norm(s*step+rot),near=Math.abs(d)/step,isFront=s===front&&!dragging;
     /* 정면 ±1칸까지 또렷하게, 그 너머는 빠르게 흐려짐 */
-    const fade=near<=1?1-near*.28:Math.max(0,.72-(near-1)*1.4);
-    return <div key={s} className="ring-slot" data-front={s===front||undefined} aria-hidden={s!==front} style={{transform:`rotateY(${s*step}deg) translateZ(${radius}px)`,opacity:fade,filter:near>1?`blur(${Math.min(6,(near-1)*8)}px)`:undefined,visibility:fade<=0.01?'hidden':undefined,zIndex:Math.round(100-near*10)} as React.CSSProperties}>
-     <article className="selected-module catalog-selected ring-card" onClick={()=>{if(!justDragged.current&&s!==front)pick(id)}}>
+    const fade=near<=1?1:Math.max(0,1-(near-1)*1.6),light=1-Math.min(1,near)*.42;
+    return <div key={s} className="ring-slot" data-front={s===front||undefined} aria-hidden={s!==front} style={{transform:`rotateY(${s*step}deg) translateZ(${radius+Math.max(0,1-near)*28}px)`,opacity:fade,filter:`brightness(${light})${near>1?` blur(${Math.min(6,(near-1)*8)}px)`:''}`,visibility:fade<=0.01?'hidden':undefined,zIndex:Math.round(100-near*10)} as React.CSSProperties}>
+     <article className="ring-card" onClick={()=>{if(!justDragged.current&&s!==front)pick(id)}}>
       <Preview id={id} live={isFront} gid={'catalog-wafer-'+s}/>
-      <div className="selected-copy"><span>{m.tag}</span><h2>{m.title}</h2>{'sub' in m&&<p className="catalog-sub">{m.sub}</p>}<p>{m.copy}</p><div><span>입문 · 개념 학습</span><span>직접 조작 가능</span></div></div>
+      <div className="ring-card-foot"><strong>{m.title}</strong><span>{'sub' in m?m.sub:area[id]}</span></div>
      </article></div>})}
   </div>
  </div>
+ <div className="catalog-info" aria-hidden="true"><p>{info.copy}</p></div>
  <div className="catalog-paging" data-single={items.length<2||undefined}>{items.length>1&&<button type="button" className="catalog-arrow" aria-label="이전 학습 카드" onClick={()=>move(-1)}><Icon name="chevron-left"/></button>}<div className="selector-switch catalog-dots" aria-label="학습 카드 선택">{items.map(id=><button key={id} className={current===id?'selected':''} aria-label={modules[id].label} aria-pressed={current===id} onClick={()=>pick(id)}/>)}</div>{items.length>1&&<button type="button" className="catalog-arrow" aria-label="다음 학습 카드" onClick={()=>move(1)}><Icon name="chevron-left" className="flip"/></button>}</div><p className="catalog-hint">{items.length>1?'좌우로 넘기거나 화살표를 눌러 선택해요. 키보드 방향키로도 이동할 수 있어요.':'현재 설계 학습은 MOSFET 1개예요. 전체 탭에서 다른 학습도 함께 볼 수 있어요.'}</p>
  <div className="selector-actions catalog-actions"><button type="button" className="catalog-cta is-primary" onClick={()=>onOpen(current)}>공부하기<Icon name="arrow-right" className="trail"/></button>{(current==='ffu'||current==='gown')&&<button type="button" className="catalog-cta is-secondary" onClick={()=>onOpen(current,true)}>{current==='ffu'?'FFU 개념 확인':'클린룸 개념 확인'}</button>}</div></section></div>
 }

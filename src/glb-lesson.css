@@ -106,27 +106,8 @@
 @media(max-width:900px){.shell-page .shell-center>.glb-part-pop,.shell-page .shell-center>.glb-part-tip{left:50%}}
 
 /* 다른 학습으로 이동 (8대 공정 1~8 · 장비 · 설계) */
-.lesson-nav{display:flex;flex-direction:column;gap:var(--sp-2);margin:0 0 var(--sp-4)}
-.lesson-nav-label{font-size:var(--fs-caption);font-weight:var(--fw-semibold);color:var(--c-muted)}
-.lesson-nav-steps{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
-.lesson-nav-steps button,.lesson-nav-chips button{height:32px;min-width:0;padding:0;border:1px solid var(--c-line);border-radius:var(--r-sm);background:var(--c-surface);color:var(--c-ink-2);font:inherit;font-size:var(--fs-ui);font-weight:var(--fw-semibold);font-variant-numeric:tabular-nums;cursor:pointer;transition:background-color .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease)}
-.lesson-nav-chips{display:flex;flex-wrap:wrap;gap:4px}
-.lesson-nav-chips button{padding:0 var(--sp-3)}
-.lesson-nav button:hover:not(:disabled){background:var(--c-hover);color:var(--c-ink)}
-.lesson-nav button[aria-current=page]{border-color:var(--c-accent);background:var(--c-accent);color:var(--gray-0)}
-.lesson-nav button[aria-current=page]:hover{background:var(--c-accent);color:var(--gray-0)}
-.lesson-nav button:disabled{border-style:dashed;background:transparent;color:var(--c-muted);opacity:.6;cursor:default}
-.lesson-nav button:focus-visible{outline:2px solid var(--c-accent);outline-offset:2px}
 /* 공정 단계 · 장비 설명 탭 */
 .shell-page .glb-tabs{margin:0 0 var(--sp-4)!important}
-.glb-parts ul{display:flex;flex-direction:column;gap:var(--sp-1);margin:var(--sp-3) 0 0;padding:0;list-style:none}
-.glb-parts button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:var(--sp-3);border:1px solid transparent;border-radius:var(--r-md);background:transparent;color:var(--c-ink);font:inherit;text-align:left;cursor:pointer;transition:background-color .15s var(--ease)}
-.glb-parts button b{font-size:var(--fs-ui);font-weight:var(--fw-semibold)}
-.glb-parts button span{font-size:var(--fs-caption);line-height:1.55;color:var(--c-ink-2)}
-.glb-parts button:hover{background:var(--c-hover)}
-.glb-parts button[aria-pressed=true]{border-color:var(--c-accent);background:var(--c-accent-soft)}
-.glb-parts button[data-absent] b{color:var(--c-muted)}
-.glb-parts button:focus-visible{outline:2px solid var(--c-accent);outline-offset:1px}
 /* 대표 관련 기업 */
 .lesson-companies{margin-top:0;border-top:1px solid var(--c-line)}
 .glb-about+.lesson-companies{margin-top:var(--sp-2)}
@@ -142,3 +123,72 @@
 .shell-page .glb-tabs.tabs button:hover{color:var(--c-ink)!important}
 .shell-page .glb-tabs.tabs button.active{background:var(--c-surface)!important;color:var(--c-ink)!important;font-weight:var(--fw-semibold)!important;box-shadow:0 0 0 1px var(--c-line),0 1px 2px #1d22290f!important}
 .shell-page .glb-tabs.tabs button::after,.shell-page .glb-tabs.tabs::after{display:none!important}
+
+/* 탭 막대: 글자 탭 + 오른쪽 검색 (피그마식) */
+.glb-tabbar{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);margin:0 calc(var(--sp-4) * -1) var(--sp-4);padding:0 var(--sp-3) var(--sp-3) var(--sp-4);border-bottom:1px solid var(--c-line)}
+.glb-tabs2{display:flex;gap:var(--sp-1)}
+.glb-tabs2 button{height:32px;padding:0 var(--sp-3);border:0;border-radius:var(--r-sm);background:transparent;color:var(--c-ink-2);font:inherit;font-size:var(--fs-ui);font-weight:var(--fw-medium);cursor:pointer}
+.glb-tabs2 button:hover{color:var(--c-ink);background:var(--c-hover)}
+.glb-tabs2 button[aria-selected=true]{background:var(--c-selected);color:var(--c-ink);font-weight:var(--fw-semibold)}
+.glb-tabs2 button:focus-visible{outline:2px solid var(--c-accent);outline-offset:1px}
+.glb-search-btn[aria-pressed=true]{background:var(--c-selected);color:var(--c-ink)}
+.glb-search{display:flex;align-items:center;gap:var(--sp-2);height:36px;margin:0 0 var(--sp-3);padding:0 var(--sp-3);border-radius:var(--r-sm);background:var(--c-surface-2);color:var(--c-muted)}
+.glb-search svg.bi{width:14px!important;height:14px!important}
+.glb-search input{flex:1;min-width:0;border:0;background:transparent;color:var(--c-ink);font:inherit;font-size:var(--fs-ui);outline:none}
+/* 기계 설명: 부품 선택(어두운 드롭다운) + 부품 카드 */
+.glb-partpick{position:relative;margin:0 calc(var(--sp-4) * -1) var(--sp-4)}
+.glb-partpick-btn{display:flex;align-items:center;gap:var(--sp-2);width:100%;height:44px;padding:0 var(--sp-4);border:0;border-bottom:1px solid var(--c-line);background:transparent;color:var(--c-ink);font:inherit;font-size:var(--fs-ui);font-weight:var(--fw-semibold);text-align:left;cursor:pointer}
+.glb-partpick-btn:hover,.glb-partpick-btn[aria-expanded=true]{background:var(--c-accent-soft)}
+.glb-partpick-chev{width:12px!important;height:12px!important;color:var(--c-muted);transition:transform .15s var(--ease)}
+.glb-partpick-btn[aria-expanded=true] .glb-partpick-chev{transform:rotate(90deg)}
+.glb-partpick-btn:focus-visible{outline:2px solid var(--c-accent);outline-offset:-2px}
+.glb-partpick-menu{position:absolute;z-index:5;top:48px;left:var(--sp-4);right:var(--sp-4);display:flex;flex-direction:column;gap:2px;max-height:320px;margin:0;padding:6px;overflow-y:auto;list-style:none;border-radius:var(--r-md);background:var(--gray-800);box-shadow:0 12px 32px -8px #0e111480}
+.glb-partpick-menu button{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);width:100%;height:36px;padding:0 var(--sp-3);border:0;border-radius:var(--r-sm);background:transparent;color:var(--gray-100);font:inherit;font-size:var(--fs-ui);text-align:left;cursor:pointer}
+.glb-partpick-menu button:hover{background:var(--gray-700)}
+.glb-partpick-menu [aria-selected=true] button{background:var(--c-accent);color:var(--gray-0)}
+.glb-partpick-menu button[data-absent]{color:var(--gray-400)}
+.glb-partpick-menu small{font-size:var(--fs-caption);color:var(--gray-400)}
+.glb-partpick-menu button:focus-visible{outline:2px solid var(--c-accent);outline-offset:-2px}
+.glb-partcard{display:flex;flex-direction:column;gap:var(--sp-3)}
+.glb-partcard figure{margin:0;border-radius:var(--r-md);background:var(--c-surface-2);overflow:hidden}
+.glb-partcard img{display:block;width:100%;aspect-ratio:7/5;object-fit:contain}
+.shell-page .glb-partcard h3{display:flex;align-items:baseline;gap:var(--sp-2);flex-wrap:wrap;margin:0;font-size:var(--fs-heading);font-weight:var(--fw-bold);color:var(--c-ink)}
+.glb-partcard h3 small{font-size:var(--fs-caption);font-weight:var(--fw-regular);color:var(--c-muted)}
+.glb-partcard dl{display:flex;flex-direction:column;gap:var(--sp-2);margin:0;padding-bottom:var(--sp-3);border-bottom:1px solid var(--c-line)}
+.glb-partcard dl div{display:grid;grid-template-columns:72px minmax(0,1fr);gap:var(--sp-3);font-size:var(--fs-ui);line-height:1.5}
+.glb-partcard dt{color:var(--c-muted)}
+.glb-partcard dd{margin:0;color:var(--c-ink)}
+.shell-page .glb-partcard h4{margin:0;font-size:var(--fs-caption);font-weight:var(--fw-semibold);color:var(--c-muted)}
+.shell-page .glb-partcard>p{margin:0!important;font-size:var(--fs-ui);line-height:1.7;color:var(--c-ink-2)}
+.glb-partcard-empty{display:flex;align-items:center;gap:var(--sp-2);color:var(--c-muted)!important;font-size:var(--fs-ui)}
+.glb-partcard-empty svg.bi{width:14px!important;height:14px!important}
+
+/* 이전 · 다음 공정(장비) 넘기기 */
+.lesson-pager{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2);margin:var(--sp-6) 0 0}
+.lesson-pager>button{display:flex;flex-direction:column;gap:4px;min-width:0;padding:var(--sp-3);border:1px solid var(--c-line);border-radius:var(--r-md);background:var(--c-surface);color:var(--c-ink);font:inherit;text-align:left;cursor:pointer;transition:border-color .15s var(--ease),background-color .15s var(--ease)}
+.lesson-pager>button.is-next{text-align:right;align-items:flex-end}
+.lesson-pager small{display:inline-flex;align-items:center;gap:2px;font-size:var(--fs-caption);color:var(--c-muted)}
+.lesson-pager small svg.bi{width:12px!important;height:12px!important}
+.lesson-pager b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--fs-ui);font-weight:var(--fw-semibold)}
+.lesson-pager>button:hover{border-color:var(--c-ink-2);background:var(--c-hover)}
+.lesson-pager>button:focus-visible{outline:2px solid var(--c-accent);outline-offset:2px}
+
+/* 다른 학습으로 이동: 드롭다운 */
+.lesson-nav{position:relative;display:block;margin:0 0 var(--sp-3)}
+.lesson-nav-btn{display:flex;align-items:center;gap:var(--sp-2);width:100%;height:40px;padding:0 var(--sp-3);box-sizing:border-box;border:1px solid var(--c-line);border-radius:var(--r-md);background:var(--c-surface);color:var(--c-ink);font:inherit;font-size:var(--fs-ui);text-align:left;cursor:pointer;transition:background-color .15s var(--ease),border-color .15s var(--ease)}
+.lesson-nav-btn .lesson-nav-label{flex:none;color:var(--c-muted);font-size:var(--fs-caption);font-weight:var(--fw-semibold)}
+.lesson-nav-btn b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:var(--fw-semibold)}
+.lesson-nav-chev{flex:none;width:14px!important;height:14px!important;color:var(--c-muted);transition:transform .15s var(--ease)}
+.lesson-nav-btn[aria-expanded=true] .lesson-nav-chev{transform:rotate(180deg)}
+.lesson-nav-btn:hover,.lesson-nav-btn[aria-expanded=true]{background:var(--c-hover);border-color:var(--c-ink-2)}
+.lesson-nav-btn:focus-visible{outline:2px solid var(--c-accent);outline-offset:2px}
+.lesson-nav-menu{position:absolute;z-index:6;top:44px;left:0;right:0;display:flex;flex-direction:column;gap:2px;margin:0;padding:6px;list-style:none;border-radius:var(--r-md);background:var(--gray-800);box-shadow:var(--sh-float)}
+.lesson-nav-menu button{display:flex;align-items:center;gap:var(--sp-2);width:100%;height:36px;padding:0 var(--sp-3);border:0;border-radius:var(--r-sm);background:transparent;color:var(--gray-0);font:inherit;font-size:var(--fs-ui);text-align:left;cursor:pointer}
+.lesson-nav-menu button span{flex:1}
+.lesson-nav-menu button svg.bi{width:14px!important;height:14px!important}
+.lesson-nav-menu button:hover:not(:disabled){background:var(--gray-700)}
+.lesson-nav-menu [aria-selected=true] button{background:var(--c-accent)}
+.lesson-nav-menu button:disabled{color:var(--gray-500);cursor:default}
+.lesson-nav-menu small{font-size:var(--fs-caption);color:var(--gray-500)}
+.lesson-nav-menu button:focus-visible{outline:2px solid var(--c-accent);outline-offset:-2px}
+.shell-page .glb-guide.shell-left:has(.lesson-nav-menu),.shell-page .photo-instruction.shell-left:has(.lesson-nav-menu){overflow:visible!important}

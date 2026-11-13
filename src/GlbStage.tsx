@@ -16,7 +16,7 @@ export type PlayState='loading'|'playing'|'paused'|'done'|'static'|'error';
 export type CircuitState={closed:boolean;high:boolean;a:boolean;b:boolean};
 export type CircuitKey=keyof CircuitState;
 type Props={src:string;label:string;play:'once'|'loop'|'none';paused:boolean;replay:number;reset:number;parts:GlbPart[];
- interact?:Interaction;circuit?:CircuitState;demo?:number;clear?:number;focus?:{part:GlbPart;n:number}|null;onParts?:(p:GlbPart[])=>void;onToggle?:(k:CircuitKey)=>void;onState?:(s:PlayState)=>void;onPick?:(p:GlbPart|null)=>void};
+ interact?:Interaction;circuit?:CircuitState;demo?:number;clear?:number;focus?:{part:GlbPart;n:number}|null;onParts?:(p:GlbPart[])=>void;onShot?:(part:GlbPart,url:string)=>void;onToggle?:(k:CircuitKey)=>void;onState?:(s:PlayState)=>void;onPick?:(p:GlbPart|null)=>void};
 
 const Q_ON=new THREE.Quaternion(0,0,0,1),Q_OFF=new THREE.Quaternion(0,0,0.3193088,0.9476507);
 const LEVERS:Record<string,CircuitKey>={'switch a lever':'closed','signal switch lever':'high','input a lever':'a','input b lever':'b'};
@@ -38,8 +38,8 @@ export function GlbStage(p:Props){
   el.appendChild(renderer.domElement);
   const scene=new THREE.Scene(),pmrem=new THREE.PMREMGenerator(renderer);
   scene.environment=pmrem.fromScene(new RoomEnvironment(),0.04).texture;
-  scene.add(new THREE.HemisphereLight(0xffffff,0x8a9099,0.6));
-  const sun=new THREE.DirectionalLight(0xffffff,1.4);sun.position.set(3,6,4);scene.add(sun);
+  const hemi=new THREE.HemisphereLight(0xffffff,0x8a9099,0.6);scene.add(hemi);
+  const sun=new THREE.DirectionalLight(0xffffff,1.4);sun.position.set(3,6,4);scene.add(sun);hemi.layers.enableAll();sun.layers.enableAll();
   const camera=new THREE.PerspectiveCamera(32,1,0.01,1000);
   const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.enablePan=true;controls.screenSpacePanning=true;
   const homeCam=new THREE.Vector3(),homeTarget=new THREE.Vector3();
@@ -56,7 +56,19 @@ export function GlbStage(p:Props){
   const tint=(part:GlbPart|null)=>{untint();if(!part)return;for(const o of L.groups.get(part)??[])o.traverse(x=>{const m=x as THREE.Mesh;if(!m.isMesh)return;const orig=m.material;
    const mk=(mat:THREE.Material)=>{const c=mat.clone() as THREE.MeshStandardMaterial;if(c.emissive){c.emissive=c.emissive.clone().lerp(ACCENT,.55);c.emissiveIntensity=Math.max(c.emissiveIntensity??1,.55)}else if((c as unknown as {color?:THREE.Color}).color)(c as unknown as {color:THREE.Color}).color.lerp(ACCENT,.4);return c};
    m.material=Array.isArray(orig)?orig.map(mk):mk(orig);L.tinted.push({mesh:m,mat:orig})})};
-  const select=(part:GlbPart|null)=>{L.sel=part;tint(part);props.current.onPick?.(part)};
+  /* 부품만 따로 찍은 작은 이미지 (왼쪽 '기계 설명'에 보여줘요) — 레이어 1에 올려 그 부품만 그려요 */
+  let shotR:THREE.WebGLRenderer|null=null,shotEnv:THREE.Texture|null=null;const shotCam=new THREE.PerspectiveCamera(30,1.4,0.01,1000);shotCam.layers.set(1);
+  const shoot=(part:GlbPart)=>{const g=L.groups.get(part);if(!g?.length||!props.current.onShot)return;
+   try{if(!shotR){shotR=new THREE.WebGLRenderer({antialias:true,alpha:true});shotR.setPixelRatio(1);shotR.setSize(560,400,false);shotR.outputColorSpace=THREE.SRGBColorSpace;shotR.toneMapping=THREE.ACESFilmicToneMapping;const pm=new THREE.PMREMGenerator(shotR);shotEnv=pm.fromScene(new RoomEnvironment(),0.04).texture;pm.dispose()}
+    const box=new THREE.Box3();for(const o of g){o.updateMatrixWorld(true);box.expandByObject(o)}if(box.isEmpty())return;
+    const c=box.getCenter(new THREE.Vector3()),r=box.getSize(new THREE.Vector3()).length()/2||1;
+    const dir=camera.position.clone().sub(controls.target).normalize();const dist=r/Math.sin(THREE.MathUtils.degToRad(15))*1.05;
+    shotCam.position.copy(c).addScaledVector(dir,dist);shotCam.near=dist/100;shotCam.far=dist*10;shotCam.lookAt(c);shotCam.updateProjectionMatrix();
+    for(const o of g)o.traverse(x=>x.layers.enable(1));const env=scene.environment;scene.environment=shotEnv;
+    shotR.render(scene,shotCam);const url=shotR.domElement.toDataURL('image/png');
+    scene.environment=env;for(const o of g)o.traverse(x=>x.layers.disable(1));
+    props.current.onShot(part,url)}catch{}};
+  const select=(part:GlbPart|null)=>{L.sel=part;if(part)shoot(part);tint(part);props.current.onPick?.(part)};
 
   /* 회로: 지금 상태를 모형에 반영 (스위치 각도 · 램프 · 화살표 · 진리표) */
   const show=(name:string,on:boolean)=>{const o=L.nodes.get(name);if(o)o.scale.setScalar(on?1:0)};
@@ -135,7 +147,7 @@ export function GlbStage(p:Props){
    const g=(part:GlbPart|null)=>part?{target:L.groups.get(part)??[],name:part.name}:null;
    frames.update(camera,L.hover&&L.hover!==L.sel?g(L.hover):null,g(L.sel))};
   tick();load(props.current.src);
-  return()=>{disposed=true;api.current=null;frames.dispose();cancelAnimationFrame(frame);ro.disconnect();controls.dispose();if(L.root)dispose(L.root);pmrem.dispose();renderer.dispose();renderer.domElement.remove()};
+  return()=>{disposed=true;api.current=null;shotR?.dispose();shotEnv?.dispose();frames.dispose();cancelAnimationFrame(frame);ro.disconnect();controls.dispose();if(L.root)dispose(L.root);pmrem.dispose();renderer.dispose();renderer.domElement.remove()};
  },[]);
 
  const first=useRef(true);

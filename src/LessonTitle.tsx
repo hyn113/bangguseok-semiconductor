@@ -24,5 +24,5 @@ export function LessonTitle({id,fallback}:{id:string;fallback:string}){
  const finish=()=>{if(!cancelled.current&&draft!==title)setLessonTitle(id,draft===fallback?'':draft);setEditing(false)};
  return <h1 className="lesson-title">{editing
   ?<input ref={input} className="lesson-title-input" aria-label="학습 파일 이름" value={draft} maxLength={40} onChange={e=>setDraft(e.target.value)} onBlur={finish} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();input.current?.blur()}else if(e.key==='Escape'){e.preventDefault();cancelled.current=true;input.current?.blur()}}}/>
-  :<button type="button" className="lesson-title-button" data-tip="이름 바꾸기" data-tip-pos="bottom" aria-label={`${title} · 이름 바꾸기`} onClick={start}>{title}</button>}</h1>;
+  :<button type="button" className="lesson-title-button" title="눌러서 이름 바꾸기" aria-label={`${title} · 이름 바꾸기`} onClick={start}>{title}</button>}</h1>;
 }

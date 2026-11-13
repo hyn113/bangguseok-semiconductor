@@ -230,3 +230,9 @@
 
 /* Secondary 받침: 회색 버튼 아래 진회색 (밝은·어두운 화면 공통) */
 :root,.selection-page,.entry-page,.mission-scrim,.entry-page .tour-panel,.mission-result-side{--btn2-ledge:var(--gray-900)}
+
+/* 학습하기 머리의 '퀴즈 풀기'는 주황(Primary 색) · 평면 2D · 작은 크기 그대로 */
+:root :is(.btn.__eq,.shell-quiz):not(#z){background:var(--orange-500)!important;color:var(--gray-0)!important;border:0!important;box-shadow:none!important;margin-bottom:0!important}
+:root :is(.btn.__eq,.shell-quiz):not(#z):hover:not(:disabled){background:var(--orange-600)!important}
+:root :is(.btn.__eq,.shell-quiz):not(#z):active:not(:disabled){background:var(--orange-600)!important;transform:none!important}
+:root :is(.btn.__eq,.shell-quiz):not(#z) svg.bi{color:currentColor!important}

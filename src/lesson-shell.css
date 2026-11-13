@@ -191,3 +191,9 @@ svg.bi.trail{margin-inline-start:var(--sp-1)!important}
 .shell-page input[type=range]::-moz-range-thumb{width:24px;height:24px;border:0;border-radius:50%;background:#fff;box-shadow:0 0 0 1px #1b26301a,0 4px 8px #1b263026}
 .shell-page input[type=range]:focus-visible{outline:2px solid var(--c-accent);outline-offset:4px;border-radius:4px}
 .shell-page .mos-sliders output{color:var(--c-ink)!important;font-variant-numeric:tabular-nums}
+
+/* ── 블렌더 모형 캔버스 ── */
+.model-stage{position:relative;width:100%;height:min(72vh,680px);min-height:320px;margin:0 auto}
+.model-stage canvas{display:block;width:100%!important;height:100%!important;touch-action:none;cursor:grab}
+.model-stage canvas:active{cursor:grabbing}
+.model-stage-status{position:absolute;inset:0;display:grid;place-items:center;margin:0!important;color:var(--c-muted)!important;font-size:var(--fs-ui)!important}

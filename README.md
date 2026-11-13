@@ -62,6 +62,7 @@ API 키, 비밀번호, `.env` 파일, 개인 학습 기록을 커밋하지 마�
 - 아이콘: [Bootstrap Icons](https://icons.getbootstrap.com) — `src/Icon.tsx`에 쓰는 아이콘만 경로로 들어 있어요. 새 아이콘은 같은 형식으로 추가하세요.
 - 학습 화면 셸: `src/LessonShell.tsx`, `src/lesson-shell.css` — 떠 있는 좌우 패널(접기/펼치기, `Ctrl/⌘ + \`), 가운데 캔버스, 하단 도구 막대(둘러보기 · 조절)
 - 메모: `src/NoteSheet.tsx` — 입력하는 즉시 이 브라우저에 저장돼요.
+- 블렌더 3D 모형: `.glb`로 내보내 `public/models/`에 넣고 `src/lessonModels.ts`에 등록하면 그 화면의 가운데 캔버스가 기본 모형 대신 그 파일을 보여 줘요. 내보내기 설정과 분해하기 규칙은 파일 맨 위 주석에 있어요. 조절 패널은 분해하기 · 초기화 · 보기(좌우 패널 닫기)예요.
 - 구성 요소 이미지·영상: `src/lessonMedia.tsx`에 경로를 등록하면 왼쪽 패널에 나타나고, 등록하지 않으면 보이지 않아요. 파일은 `public/media/`에 넣으세요.
 
 ## 구조

@@ -15,6 +15,7 @@ export const toggleShellPanel=(side:ShellSide)=>{state={...state,[side]:!state[s
 const focusLater=(selector:string)=>requestAnimationFrame(()=>document.querySelector<HTMLElement>(selector)?.focus());
 let bound=0;
 const onKey=(e:KeyboardEvent)=>{if(e.key!=='\\'||!(e.metaKey||e.ctrlKey))return;const t=e.target as HTMLElement|null;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;e.preventDefault();toggleBoth()};
+export const setShellPanels=(closed:boolean)=>{state={left:closed,right:closed};emit()};
 const toggleBoth=()=>{const anyOpen=!state.left||!state.right;state={left:anyOpen,right:anyOpen};emit()};
 
 /** 접힘 상태와 루트 요소에 붙일 속성을 돌려줍니다. Ctrl/⌘ + \ 로 양쪽을 함께 접고 펼칩니다. */
@@ -40,8 +41,11 @@ export function ShellChips({left,right}:{left:string;right:string}){
 /* 캔버스 하단 도구 막대 — 피그마식.
    손 도구(기본): 모형을 마우스로 돌려보는 상태. 조절 도구: 위로 보기·초기화 같은 조절 타일이 펼쳐짐. */
 export type ToolTile={id:string;label:string;icon:IconName;onClick:()=>void;pressed?:boolean;disabled?:boolean;buttonRef?:Ref<HTMLButtonElement>};
-export function CanvasToolbar({tiles}:{tiles:ToolTile[]}){
+export function CanvasToolbar({tiles:own}:{tiles:ToolTile[]}){
  const[open,setOpen]=useState(false),root=useRef<HTMLDivElement>(null);
+ const {collapsed}=useLessonShell(),focused=collapsed.left&&collapsed.right;
+ /* 보기: 좌우 패널을 모두 닫고 모형만 크게 봄. 다시 누르면 패널을 엶 */
+ const tiles:ToolTile[]=[...own,{id:'view',label:'보기',icon:'box',pressed:focused,onClick:()=>setShellPanels(!focused)}];
  useEffect(()=>{if(!open)return;const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){setOpen(false);root.current?.querySelector<HTMLButtonElement>('.dock-adjust')?.focus()}};const down=(e:PointerEvent)=>{if(!root.current?.contains(e.target as Node))setOpen(false)};document.addEventListener('keydown',key);document.addEventListener('pointerdown',down);return()=>{document.removeEventListener('keydown',key);document.removeEventListener('pointerdown',down)}},[open]);
  return <div ref={root} className="canvas-toolbar">
   {open&&<div id="canvas-adjust" className="canvas-popover" role="group" aria-label="조절">{tiles.map(t=><button key={t.id} ref={t.buttonRef} type="button" className="tool-tile" aria-pressed={t.pressed} disabled={t.disabled} onClick={t.onClick}><Icon name={t.icon} size={20}/><span>{t.label}</span></button>)}</div>}

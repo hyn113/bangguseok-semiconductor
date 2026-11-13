@@ -52,14 +52,14 @@ function Mannequin({done,current,placed,fit}:{done:number;current:number;placed:
   </g>
  </svg>
 }
-export function GowningLesson({onExit,onExplore,startWithConcepts=false,menu,profile}:{onExit:()=>void;onExplore:()=>void;startWithConcepts?:boolean;menu?:import('react').ReactNode;profile?:import('react').ReactNode}){
+export function GowningLesson({onExit,onExplore,startWithConcepts=false,menu,profile,onMission}:{onMission?:()=>void;onExit:()=>void;onExplore:()=>void;startWithConcepts?:boolean;menu?:import('react').ReactNode;profile?:import('react').ReactNode}){
  const[step,setStep]=useState(0),[selected,setSelected]=useState<string|null>(null),[placed,setPlaced]=useState(false),[feedback,setFeedback]=useState('준비물에서 첫 번째 착용품을 골라 보세요.'),[checks,setChecks]=useState<boolean[]>([false,false,false]),[complete,setComplete]=useState(false),[restartOpen,setRestartOpen]=useState(false),[leaveTo,setLeaveTo]=useState<'exit'|'explore'|null>(null),[ghost,setGhost]=useState<{x:number;y:number;name:string}|null>(null);
  const readNote=(k:string)=>{try{return localStorage.getItem(k)}catch{return null}};
  const [studyNote,setStudyNote]=useState(()=>readNote('semilab.gowning.note')||''),[noteUpdated,setNoteUpdated]=useState(()=>readNote('semilab.gowning.note.updated')),[noteFailed,setNoteFailed]=useState(false);
  const editNote=(text:string)=>{const now=new Date().toISOString();setStudyNote(text);setNoteUpdated(now);try{localStorage.setItem('semilab.gowning.note',text);localStorage.setItem('semilab.gowning.note.updated',now);setNoteFailed(false)}catch{setNoteFailed(true)}};
  const shell=useLessonShell();
  const stageModel=lessonModels.gowning,[exploded,setExploded]=useState(false),[view,setView]=useState(0);
- const[conceptSignal,setConceptSignal]=useState(0);const onQuiz=()=>setConceptSignal(n=>n+1);
+ const[conceptSignal,setConceptSignal]=useState(0);const onQuiz=()=>{if(onMission)onMission();else setConceptSignal(n=>n+1)};
  const conceptEntry=useRef<HTMLDivElement>(null);
  const noteInput=useRef<HTMLTextAreaElement>(null),noteSection=useRef<HTMLDetailsElement>(null);
  const showNotes=()=>{if(noteSection.current)noteSection.current.open=true;noteInput.current?.focus()};

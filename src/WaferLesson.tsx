@@ -25,10 +25,10 @@ export const waferSteps=[
 export const anatomy=[{name:'다이 Die',desc:'웨이퍼 위에 반복 배치된 개별 반도체 회로 영역입니다. 여기서는 내부 회로를 단순한 무늬로 표현했어요.'},{name:'스크라이브 레인',desc:'다이 사이에 확보하는 경계 영역입니다. 분리 경로와 관련되며, 설계에 따라 검사·측정용 구조가 놓이기도 합니다.'},{name:'가장자리 영역',desc:'웨이퍼 외곽에는 공정과 설계상 고려할 영역이 있습니다. 가장자리 다이의 품질이나 수율을 일정한 비율로 단정할 수는 없어요.'},{name:'노치 Notch',desc:'웨이퍼 방향을 구분하는 데 쓰이는 작은 홈의 예시입니다. 플랫은 잘라낸 평평한 변으로, 노치와 모양이 다릅니다. 적용 형상은 규격·제품에 따라 달라요.'}];
 const anatomyNames=anatomy.map(a=>a.name);
 const reduced=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-export function WaferLesson({onExit,menu,profile}:{onExit:()=>void;menu?:import('react').ReactNode;profile?:import('react').ReactNode}){
+export function WaferLesson({onExit,menu,profile,onMission}:{onMission?:()=>void;onExit:()=>void;menu?:import('react').ReactNode;profile?:import('react').ReactNode}){
  const shell=useLessonShell();
  const stageModel=lessonModels.wafer,[exploded,setExploded]=useState(false);
- const[conceptSignal,setConceptSignal]=useState(0);const onQuiz=()=>setConceptSignal(n=>n+1);
+ const[conceptSignal,setConceptSignal]=useState(0);const onQuiz=()=>{if(onMission)onMission();else setConceptSignal(n=>n+1)};
  const[initial]=useState(readWaferProgress),[resumed,setResumed]=useState(!!initial.data.updated),[progressError,setProgressError]=useState(initial.failed),[completedAt,setCompletedAt]=useState<string|null>(initial.data.completedAt),[restarting,setRestarting]=useState(false);
  const[stage,setStage]=useState(initial.data.stage),[progress,setProgress]=useState(initial.data.progress),[selected,setSelected]=useState(initial.data.selected),[seen,setSeen]=useState<number[]>(initial.data.seen),[reset,setReset]=useState(0),[playing,setPlaying]=useState(()=>!reduced()),[note,setNote]=useState(''),[saved,setSaved]=useState(''),[noteUpdated,setNoteUpdated]=useState<string|null>(null),[saveStatus,setSaveStatus]=useState(''),[leaving,setLeaving]=useState(false);const dialogOpener=useRef<HTMLElement|null>(null);const dialog=useRef<HTMLDivElement>(null),exitButton=useRef<HTMLButtonElement>(null);const active=stage>=1&&stage<=5,done=progress>=100;const completion=useRef<HTMLDivElement>(null),stageTitle=useRef<HTMLHeadingElement>(null),advanceLock=useRef(false);
  const previousProgress=useRef(JSON.stringify({stage,progress,selected,seen,completedAt}));

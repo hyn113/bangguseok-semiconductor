@@ -755,3 +755,7 @@ body.is-resizing .panel-resizer:not([data-dragging])::after{opacity:0!important}
 .shell-page .mos-guide>.mos-panel-tabs{margin:16px 0 0!important}
 .shell-page .mos-panel-tabs+div>.mos-card:first-child,.shell-page .mos-panel-tabs+div>section:first-child{margin-top:0!important}
 .shell-page .mos-guide>.mos-panel-tabs+div{margin-top:8px!important}
+/* 워크스페이스 카드 호버: 테두리는 그대로, 그림자를 아래로 길게 → 떠 보이게 */
+.ws-card:hover{border-color:var(--c-line)!important}
+.ws-card.tilt-card[data-tilting],.ws-card:hover{box-shadow:0 18px 32px -16px #0e111452,0 4px 10px -6px #0e11141f!important}
+.ws-card.tilt-card[data-tilting]{transform:perspective(900px) rotateX(var(--tilt-rx)) rotateY(var(--tilt-ry)) translateY(-2px) scale(1.01)!important}

@@ -180,3 +180,4 @@
 .mission-memo-resizer[data-dragging]::after{background:var(--gray-400)}
 .mission-memo-resizer:focus-visible{outline:none}
 .game-tile{min-height:104px}.game-tile strong{font-size:20px}
+.mission-result-side{justify-content:center;align-self:stretch}

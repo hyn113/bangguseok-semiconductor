@@ -164,3 +164,17 @@ svg.bi.flip{transform:scaleX(-1)}
 .selection-page .catalog-ring-stage{height:calc(var(--card-h) + 24px)}
 .ring-slot{top:12px;height:var(--card-h)}
 .selection-page .ring-card{height:100%;aspect-ratio:auto;margin-top:0}
+
+/* ── 카드: 반투명 유리 카드 + 그림 + 흰 글씨 (이전 느낌으로) ── */
+.selection-page .ring-card{padding:12px!important;border:1px solid #ffffff38!important;border-radius:20px!important;background:color-mix(in srgb,var(--gray-600) 82%,transparent)!important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--gray-0);box-shadow:0 20px 44px -16px #0e111466!important}
+.selection-page .ring-slot[data-front] .ring-card{border-color:#ffffff59!important;background:color-mix(in srgb,var(--gray-600) 90%,transparent)!important;box-shadow:0 30px 60px -20px #0e111480!important}
+.selection-page .ring-card .catalog-preview{border-radius:12px!important;background:var(--gray-100)!important}
+.ring-card-foot{background:transparent;border-top:0;padding:var(--sp-3) var(--sp-1) var(--sp-1)}
+.ring-card-foot strong{color:var(--gray-0)}
+.ring-card-foot span{color:var(--gray-300)}
+/* ── 카드 2장: 평평하게 나란히, 좌우로 넘기기 ── */
+.catalog-deck{position:absolute;inset:0}
+.catalog-deck .deck-slot{transition:transform .6s cubic-bezier(.2,1.05,.3,1),filter .35s ease}
+.catalog-ring-stage[data-dragging] .deck-slot{transition:none}
+.selection-page .catalog-arrow:disabled{opacity:.35;cursor:default;background:transparent!important}
+@media(prefers-reduced-motion:reduce){.catalog-deck .deck-slot{transition:none}}

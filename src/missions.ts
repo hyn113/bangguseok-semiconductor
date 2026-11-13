@@ -86,3 +86,4 @@ export type MissionResult={id:string;lesson:MissionLesson;level:number;total:num
 const KEY='semilab.missions';
 export const loadMissionResults=():MissionResult[]=>{try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch{return []}};
 export const saveMissionResult=(r:MissionResult)=>{try{localStorage.setItem(KEY,JSON.stringify([r,...loadMissionResults()].slice(0,50)))}catch{}};
+export const removeMissionResults=(ids:string[])=>{try{localStorage.setItem(KEY,JSON.stringify(loadMissionResults().filter(r=>!ids.includes(r.id))))}catch{}};

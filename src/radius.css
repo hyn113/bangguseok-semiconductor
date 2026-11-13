@@ -1,0 +1,14 @@
+/* ─────────────────────────────────────────────────────────────
+   모서리(라운드) 규칙 — 5단계만 써요 (tokens.css)
+   8  (--r-sm)   36px 이하 작은 컨트롤: 아이콘 버튼 · 탭 · 칩 · 메뉴 항목 · 작은 입력
+   12 (--r-md)   40~56px 컨트롤과 패널 안 상자: 버튼 · 입력 · 목록 줄 · 세그먼트 묶음 · 안내/피드백 상자
+   16 (--r-lg)   패널 · 떠 있는 도구 막대 · 타일과 카드
+   20 (--r-xl)   대화상자와 큰 카드: 미션 팝업 · 첫 화면 카드 · 학습 카드
+   pill/원형     점 · 아바타 · 배지 · 원형 아이콘 버튼
+   겹칠 때는 바깥 = 안쪽 + 안쪽 여백 (예: 16 막대 안 4px 여백 → 12 버튼)
+   2~4px은 선 · 슬라이더 트랙 같은 장식에만 써요.
+   ───────────────────────────────────────────────────────────── */
+:root :is(.welcome-card,.entry-choice-card):not(#z){border-radius:var(--r-xl)!important}
+:root :is(.guide-portrait,.welcome-card input,.stage-instructions):not(#z){border-radius:var(--r-md)!important}
+:root :is(.entry-prototype):not(#z){border-radius:var(--r-pill)!important}
+:root :is(.chat-composer,.ws-card):not(#z){border-radius:var(--r-lg)!important}

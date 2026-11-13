@@ -29,6 +29,7 @@ import {StudyHub} from './StudyHub';
 import {MissionPage} from './MissionPage';
 import {loadMissionResults,missionNames,type MissionLesson} from './missions';
 import './buttons.css';
+import './radius.css';
 
 const reducedMotion=()=>typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 type Module='mission'|'home'|'gown'|'ffu'|'workspace'|'results'|'wafer'|'gowning'|'mosfet'|'photo';
@@ -63,7 +64,11 @@ function App({visitor,onWelcome,onLogout,active,pendingNav,onNavDone}:{visitor:V
  const selected=attempts.find(a=>a.id===selectedAttempt)||attempts[0];const score=selected?selected.answers.filter((a,i)=>a===questions[i].a).length:0;
  const ls=(k:string)=>{try{return localStorage.getItem(k)}catch{return null}};
  const wsItems:WsItem[]=page!=='workspace'?[]:[
-  ...(waferRecord.data.updated?[{id:'wafer-progress',kind:'progress',title:lessonTitle('wafer','제1공정 · 웨이퍼 제조'),module:'8대 공정',detail:waferRecord.data.completedAt?'기초 학습 완료':'이어서 학습 · '+waferSteps[waferRecord.data.stage].title,updated:waferRecord.data.updated,icon:'boxes',open:()=>open('wafer')} as WsItem]:[]),
+  /* 학습 기록: 실제로 열어 공부한 학습마다 한 장 (웨이퍼는 진행 단계까지) */
+  ...(()=>{let seen:Record<string,string>={};try{seen=JSON.parse(ls('semilab.recent')||'{}')||{}}catch{}
+   const meta:Record<string,[string,string,IconName]>={wafer:['제1공정 · 웨이퍼 제조','8대 공정','boxes'],photo:['제3공정 · 포토','8대 공정','sun'],mosfet:['MOSFET 설계 기초','설계','sliders'],ffu:['FFU 장비 탐색','장비','fan'],gown:['클린룸 복장 탐색','장비','person-standing'],gowning:['클린룸 착의 체험','장비','person-standing']};
+   return Object.entries(meta).flatMap(([k,[base,area,icon]])=>{const w=k==='wafer'&&waferRecord.data.updated;const t=[seen[k],w||undefined].filter(Boolean).sort().pop();if(!t)return [];
+    return [{id:k+'-progress',kind:'progress',title:lessonTitle(k,base),module:area,detail:w?(waferRecord.data.completedAt?'기초 학습 완료':'이어서 학습 · '+waferSteps[waferRecord.data.stage].title):'학습하기',updated:t,icon,open:()=>open(k as Module)} as WsItem]})})(),
   ...(waferNote.trim()?[{id:'wafer-note',kind:'memo',title:'웨이퍼 메모',module:lessonTitle('wafer','제1공정 · 웨이퍼 제조'),detail:waferNote.slice(0,80),updated:ls('semilab.v03.wafer-note-updated'),icon:'file-earmark-text',open:()=>open('wafer')} as WsItem]:[]),
   ...notes.filter(n=>n.text.trim()).map(n=>({id:'note-'+n.kind,kind:'memo',title:moduleName(n.kind)+' 메모',module:moduleName(n.kind),detail:n.text.slice(0,80),updated:n.updated,icon:'file-earmark-text',open:()=>open(n.kind)}) as WsItem),
   ...([['photo','제3공정 · 포토'],['mosfet','MOSFET 설계 기초'],['gowning','클린룸 착의 체험']] as const).flatMap(([k,base])=>{const name=lessonTitle(k,base);const t=ls(`semilab.${k}.note`)||'';return t.trim()?[{id:'note-'+k,kind:'memo',title:name+' 메모',module:name,detail:t.slice(0,80),updated:ls(`semilab.${k}.note.updated`),icon:'file-earmark-text',open:()=>open(k)} as WsItem]:[]}),

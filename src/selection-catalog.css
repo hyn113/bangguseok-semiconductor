@@ -3,3 +3,10 @@
 .catalog-actions .orange{color:#17242b}
 .catalog-dots.selector-switch button.selected{width:44px;height:44px;background:transparent}
 .catalog-track .selected-copy .catalog-sub{min-height:0;margin:4px 0 8px;font-size:16px;font-weight:600;line-height:1.5;color:#fff;letter-spacing:0}
+/* iOS식 무채색 — 주황은 '공부하기' 같은 주요 행동에만 */
+.catalog-tabs button[aria-selected=true]{background:#fff;color:#1b2630;box-shadow:0 1px 4px #0000001f}
+.catalog-tabs button[aria-selected=true] span{background:#1b26301a}
+.catalog-track .catalog-selected{border-color:#ffffff40!important}
+.catalog-track .selected-copy>div span{background:#ffffff1f!important;color:#f2f3f5!important;border-color:transparent!important}
+.neighbor-card{border-color:#ffffff40}
+.catalog-track .selected-copy>div span:first-child{background:none!important;padding-left:0!important}

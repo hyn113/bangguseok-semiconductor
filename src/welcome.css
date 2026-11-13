@@ -163,3 +163,12 @@
 }
 .entry-tour .tour-panel:not([data-menu]){top:16px}
 .entry-tour .tour-inline-study.shell-page{background:none!important;min-height:0!important;padding:0!important}
+
+/* 첫 화면 · 시작 방법 선택: 스크롤 없이 한 화면에 (머리 아래 남는 공간의 가운데) */
+.entry-welcome,.entry-choice{display:flex;flex-direction:column;min-height:100dvh;height:100dvh;overflow:hidden}
+.entry-welcome>.entry-top,.entry-choice>.entry-top{flex:none}
+.entry-welcome .welcome-card{margin:auto max(24px,3vw) auto auto!important;max-height:calc(100dvh - 96px - 32px);box-sizing:border-box}
+.entry-choice .entry-choice-card{margin:auto!important;max-height:calc(100dvh - 96px - 32px);box-sizing:border-box}
+.entry-welcome .guide-portrait{min-height:0!important}
+.entry-welcome .guide-portrait img{max-height:100%;object-fit:cover}
+@media(max-height:620px),(max-width:540px){.entry-welcome,.entry-choice{height:auto;overflow:visible}.entry-welcome .welcome-card,.entry-choice .entry-choice-card{max-height:none;margin:16px auto 24px!important}}

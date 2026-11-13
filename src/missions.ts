@@ -9,6 +9,8 @@ export type MissionQ=
  |{kind:'order';q:string;sub?:string;items:string[];why:string};
 export type MissionLesson='wafer'|'photo'|'ffu'|'gown'|'gowning'|'mosfet';
 export const TARGET_YIELD=95;
+/* 미션을 보내는 곳 이름(예: 협력 기업명). 실제 기업 이름은 사용 허락을 받은 경우에만 넣어 주세요. 비우면 '긴급 미션 도착!'만 보여요. */
+export const MISSION_ISSUER='';
 export const levels=[{id:1,name:'Level 1',label:'입문',count:3},{id:2,name:'Level 2',label:'기본',count:5},{id:3,name:'Level 3',label:'심화',count:Infinity}] as const;
 
 const fromConcept=(t:typeof waferConcepts[number]):MissionQ=>({kind:'choice',q:t.question.prompt,sub:t.title,options:t.question.options,answer:t.question.answer,why:t.question.explanation});

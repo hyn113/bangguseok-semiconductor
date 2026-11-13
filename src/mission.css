@@ -125,3 +125,25 @@
 .mission-page[data-memo] .mission-memo-tab{display:none}
 .mission-page[data-memo] .mission-head{right:400px}
 @media(max-width:1100px){.mission-page[data-memo]{padding-right:24px}}
+
+/* ── 참고 화면 흐름 맞춤 ── */
+/* 1) 안내·레벨: 학습 장비 그림을 배경에 깔고 어둡게 */
+.mission-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;background:var(--gray-100)}
+.mission-backdrop .catalog-preview{position:absolute!important;inset:0;width:100%;height:100%!important;margin:0;border-radius:0!important;background:linear-gradient(180deg,var(--gray-50),var(--gray-200))!important}
+.mission-backdrop .catalog-preview .scene,.mission-backdrop .catalog-preview .mos-three{position:absolute;inset:0;height:100%!important;min-height:0}
+.mission-backdrop .catalog-preview svg{display:block;width:min(92vw,1100px);height:100%;margin:0 auto}
+.mission-backdrop .catalog-glyph svg.bi{width:160px!important;height:160px!important;color:var(--gray-400)}
+.mission-backdrop .model-badge{display:none}
+.mission-page>.mission-board[hidden]{display:none}
+/* 2) 레벨: 가로로 세 개, 고른 레벨을 아래에 한 줄로 */
+.mission-dialog .mission-levels{flex-direction:row;gap:8px}
+.mission-dialog .mission-levels button{flex:1;flex-direction:column;justify-content:center;gap:4px;height:72px;padding:0 8px}
+.mission-level-pick{margin-top:12px!important;font-size:var(--fs-ui)!important;color:var(--gray-300)!important}
+/* 3) 메모를 열면 문제 화면을 어둡게 덮고 오른쪽에 패널 */
+.mission-page[data-memo]{padding-right:24px}
+.mission-page[data-memo] .mission-head{right:96px}
+.mission-memo-scrim{position:fixed;inset:0;z-index:24;background:color-mix(in srgb,var(--gray-950) 45%,transparent);animation:pop-in .2s var(--ease) both}
+.mission-memo{z-index:26}
+/* 4) 결과: 마지막 문제 화면 위에 어둡게 덮인 팝업 */
+.mission-scrim{z-index:30}
+@media(prefers-reduced-motion:reduce){.mission-memo-scrim{animation:none}}

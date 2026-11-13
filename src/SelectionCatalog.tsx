@@ -19,7 +19,7 @@ const tabs:{id:CatalogTab;name:string;items:CatalogModule[]}[]=[{id:'process',na
 
 const area:Record<CatalogModule,string>={wafer:'8대 공정',photo:'8대 공정',gown:'장비',ffu:'장비',mosfet:'설계'};
 /** 카드 앞면 그림. 3D 장면은 정면 카드에서 멈춰 있을 때만 그려요(WebGL 개수 절약) */
-function Preview({id,live,gid}:{id:CatalogModule;live:boolean;gid:string}){
+export function Preview({id,live,gid}:{id:CatalogModule;live:boolean;gid:string}){
  return <div className="selected-model catalog-preview" aria-hidden="true">{
   id==='photo'?<svg viewBox="0 0 400 280"><rect x="40" y="180" width="320" height="55" rx="5" fill="#819eb5"/>{[40,170,300].map(x=><rect key={x} x={x} y="150" width="60" height="30" fill="#ec9a44"/>)}<path d="M130 65v65m-8-10 8 10 8-10M260 65v65m-8-10 8 10 8-10" fill="none" stroke="#bd903e" strokeWidth="4"/><text x="200" y="260" textAnchor="middle" fill="#526a7c" fontSize="14">빛 → PR 패턴 · 양성 PR 예시</text></svg>:
   id==='wafer'?<svg viewBox="0 0 400 280"><defs><linearGradient id={gid} x1="0" x2="1"><stop stopColor="#9ab7c9"/><stop offset=".5" stopColor="#f2f8fb"/><stop offset="1" stopColor="#617e96"/></linearGradient></defs><ellipse cx="200" cy="154" rx="143" ry="82" fill={`url(#${gid})`} stroke="#577791" strokeWidth="5"/><ellipse cx="200" cy="145" rx="143" ry="82" fill="none" stroke="#b4ccd9" strokeWidth="3"/><path d="M84 133h232M76 155h248M92 178h216M118 199h164M118 112h164M145 82v126M180 67v151M215 65v153M250 72v139M285 87v111" stroke="#7895ab" strokeWidth="1"/><text x="200" y="253" textAnchor="middle" fill="#526a7c" fontSize="14">웨이퍼 구조 · 개념 이미지</text></svg>:

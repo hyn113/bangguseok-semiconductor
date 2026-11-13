@@ -6,6 +6,8 @@ import {recordPass} from './grade';
 import {lessonTitle} from './LessonTitle';
 import {levels,missionQuestions,missionNames,TARGET_YIELD,saveMissionResult,type MissionLesson,type MissionQ} from './missions';
 import {readLessonNote,writeLessonNote} from './lessonNoteStore';
+import {Preview} from './SelectionCatalog';
+import {MISSION_ISSUER} from './missions';
 import './mission.css';
 
 /* 퀴즈 미션 페이지
@@ -47,8 +49,9 @@ export function MissionPage({lesson,profile,onExit,onLearn}:{lesson:MissionLesso
    </div>}
   </header>
 
-  <section className="mission-board" aria-hidden={phase!=='play'}>
-   {phase==='play'&&q?<>
+  {(phase==='intro'||phase==='level')&&<div className="mission-backdrop" aria-hidden="true"><Preview id={lesson==='gowning'?'gown':lesson} live gid="mission-wafer"/></div>}
+  <section className="mission-board" aria-hidden={phase!=='play'} hidden={phase==='intro'||phase==='level'}>
+   {(phase==='play'||phase==='result')&&q?<>
     <div className="mission-meta"><span>{lv.name} · {at+1} / {questions.length}</span><span>현재 공정 수율 <b>{yieldNow}%</b></span></div>
     <h1 ref={heading} tabIndex={-1} className="mission-q">Q. {q.q}</h1>
     {q.sub&&<p className="mission-sub">{q.sub}</p>}
@@ -65,7 +68,7 @@ export function MissionPage({lesson,profile,onExit,onLearn}:{lesson:MissionLesso
 
   {(phase==='intro'||phase==='level')&&<div className="mission-scrim"><div className="mission-dialog" role="dialog" aria-modal="true" aria-labelledby="mission-dialog-title">
    {phase==='intro'?<>
-    <span className="mission-alert">긴급 미션 도착!</span>
+    <span className="mission-alert">{MISSION_ISSUER?`${MISSION_ISSUER} `:''}긴급 미션 도착!</span>
     <h1 id="mission-dialog-title" ref={heading} tabIndex={-1}>{name} 공정 미션</h1>
     <p>문제를 정확하게 해결할수록 공정 수율이 올라가요.<br/>목표 수율 {TARGET_YIELD}%를 달성해 최고의 공정 엔지니어가 되어 보세요!</p>
     <span className="mission-chip">{lv.name} · {lv.label} · {questions.length}문제</span>
@@ -73,6 +76,7 @@ export function MissionPage({lesson,profile,onExit,onLearn}:{lesson:MissionLesso
    </>:<>
     <h1 id="mission-dialog-title" ref={heading} tabIndex={-1}>레벨을 골라 주세요</h1>
     <div className="mission-levels" role="radiogroup" aria-label="레벨">{levels.map(l=>{const n=missionQuestions(lesson,l.id).length;return <button key={l.id} type="button" role="radio" aria-checked={level===l.id} onClick={()=>setLevel(l.id)}><strong>{l.name}</strong><span>{l.label} · {n}문제</span></button>})}</div>
+    <p className="mission-level-pick">{lv.name} 선택 · {lv.label} {missionQuestions(lesson,level).length}문제</p>
     <div className="mission-dialog-actions"><button type="button" className="btn btn--tertiary btn--lg" onClick={()=>setPhase('intro')}>뒤로</button><button type="button" className="btn btn--primary btn--lg" onClick={start}>다음으로<Icon name="arrow-right" className="trail"/></button></div>
    </>}
   </div></div>}
@@ -94,6 +98,7 @@ export function MissionPage({lesson,profile,onExit,onLearn}:{lesson:MissionLesso
   </div></div>}
 
   <button type="button" className="mission-memo-tab" aria-expanded={memoOpen} aria-controls="mission-memo" onClick={()=>setMemoOpen(v=>!v)}><Icon name={memoOpen?'x-lg':'journal-text'}/><span>{memoOpen?'닫기':'메모'}</span></button>
+  {memoOpen&&<div className="mission-memo-scrim" onClick={()=>setMemoOpen(false)} aria-hidden="true"/>}
   {memoOpen&&<aside id="mission-memo" className="mission-memo shell-page" aria-label="학습 메모와 AI 어시스턴스">
    <div className="mission-memo-head">{profile}<button type="button" className="hub-icon" aria-label="메모 닫기" onClick={()=>setMemoOpen(false)}><Icon name="x-lg"/></button></div>
    <StudyHub lesson={lesson==='gowning'?'gowning':lesson} primary={{label:`${name} 학습 메모`,value:note.text,updated:note.updated,failed:note.failed,onChange:t=>setNote(writeLessonNote(lesson,t))}}/>

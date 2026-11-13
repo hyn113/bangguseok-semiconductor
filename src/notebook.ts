@@ -6,7 +6,7 @@ import {useSyncExternalStore} from 'react';
    - 폴더는 학습 화면 + 종류(메모/AI)별로 따로 있어요.
    모두 이 브라우저에만 저장돼요. */
 export type HubKind='memo'|'ai';
-export type Msg={role:'user';text:string;at:string};
+export type Msg={role:'user'|'assistant';text:string;at:string;sources?:string[];followUps?:string[]};
 export type Entry={id:string;lesson:string;kind:HubKind;text:string;messages?:Msg[];updated:string};
 export type Folder={id:string;lesson:string;kind:HubKind;name:string};
 type Book={entries:Entry[];folders:Folder[];assign:Record<string,string>;current:Record<string,string>};
@@ -44,11 +44,19 @@ export function newEntry(lesson:string,kind:HubKind){
 export function editEntry(id:string,text:string){
  commit({...book,entries:book.entries.map(e=>e.id===id?{...e,text,updated:new Date().toISOString()}:e)});
 }
-export function askInThread(lesson:string,text:string){
+export function askInThread(lesson:string,text:string):string{
  const now=new Date().toISOString();let id=currentId(book,lesson,'ai');let entries=book.entries;
  if(!id){id=uid();entries=[...pruned(book),{id,lesson,kind:'ai',text:'',messages:[],updated:now}]}
  entries=entries.map(e=>e.id===id?{...e,text:e.text||text.slice(0,80),messages:[...(e.messages||[]),{role:'user',text,at:now}],updated:now}:e);
  commit({...book,entries,current:{...book.current,[slot(lesson,'ai')]:id}});
+ return id;
+}
+export function appendMessage(id:string,msg:Msg){
+ commit({...book,entries:book.entries.map(e=>e.id===id?{...e,messages:[...(e.messages||[]),msg],updated:msg.at}:e)});
+}
+/** 마지막 AI 답을 지워요(다시 답하기) */
+export function dropLastReply(id:string){
+ commit({...book,entries:book.entries.map(e=>{if(e.id!==id||!e.messages?.length)return e;const m=[...e.messages];if(m[m.length-1].role==='assistant')m.pop();return {...e,messages:m}})});
 }
 export function deleteEntry(id:string){
  const assign={...book.assign};delete assign[id];

@@ -1,10 +1,9 @@
 import * as THREE from 'three';
 import {getViewOptions} from './viewOptions';
 
-/* 피그마처럼 3D 구성 요소 위에 그리는 선택 표시.
-   - 마우스를 올리면: 얇은 테두리 + 이름표
-   - 선택하면: 두꺼운 테두리 + 모서리 손잡이 + 채워진 이름표
-   테두리는 부품의 3D 경계 상자를 화면에 투영해 만든 사각형이에요. '보기 > 부품 이름표'를 끄면 이름표만 숨겨요. */
+/* 3D 구성 요소 이름표.
+   마우스를 올린 부품 위쪽 가운데에 이름만 띄워요(테두리 없음). 위치는 부품의 3D 경계 상자를 화면에 투영해 정해요.
+   선택 표시는 각 장면에서 부품을 살짝 밝히는 것으로 해요. '보기 > 부품 이름표'를 끄면 이름표를 숨겨요. */
 type Target=THREE.Object3D|THREE.Object3D[]|null|undefined;
 type Frame={el:HTMLDivElement;tag:HTMLSpanElement;key:string};
 
@@ -45,8 +44,7 @@ export function createPartFrames(host:HTMLElement){
  return {
   update(camera:THREE.Camera,hover:{target:Target;name:string}|null,selected:{target:Target;name:string}|null){
    show(frames.selected,selected?.target,selected?.name??'',camera);
-   const same=!!hover&&!!selected&&hover.name===selected.name;
-   show(frames.hover,same?null:hover?.target,hover?.name??'',camera);
+   show(frames.hover,hover?.target,hover?.name??'',camera);
   },
   dispose(){layer.remove()},
  };

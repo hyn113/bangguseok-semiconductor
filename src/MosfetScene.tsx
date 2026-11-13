@@ -22,7 +22,7 @@ export function MosfetScene({selected,onSelect,channel,saturated,reset}:Props){
   camera.position.set(...view.current.cam);camera.lookAt(0,0,0);
   scene.add(new THREE.HemisphereLight(0xffffff,0x647080,2.3));const light=new THREE.DirectionalLight(0xffffff,3);light.position.set(3,6,4);scene.add(light);
   const meshes:THREE.Mesh[]=[];
-  function block(id:MosPart|null,size:number[],position:number[],color:string,opacity=1){const material=new THREE.MeshStandardMaterial({color,roughness:.5,transparent:opacity<1,opacity,emissive:id===selected?0x643000:0,emissiveIntensity:.4});const mesh=new THREE.Mesh(new THREE.BoxGeometry(...size as [number,number,number]),material);mesh.position.set(...position as [number,number,number]);mesh.userData.part=id;group.add(mesh);meshes.push(mesh)}
+  function block(id:MosPart|null,size:number[],position:number[],color:string,opacity=1){const material=new THREE.MeshStandardMaterial({color,roughness:.5,transparent:opacity<1,opacity,emissive:id===selected?0x5a5f66:0,emissiveIntensity:.4});const mesh=new THREE.Mesh(new THREE.BoxGeometry(...size as [number,number,number]),material);mesh.position.set(...position as [number,number,number]);mesh.userData.part=id;group.add(mesh);meshes.push(mesh)}
   block('body',[4.6,.7,2.5],[0,-.55,0],mosParts.body.color);
   block('source',[1.15,.35,2],[-1.6,-.04,0],mosParts.source.color);
   block('drain',[1.15,.35,2],[1.6,-.04,0],mosParts.drain.color);

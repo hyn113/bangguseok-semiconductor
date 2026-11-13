@@ -164,10 +164,10 @@ export function WaferScene(props:Props){
    if(toolPoint.current&&s.stage>=2&&s.stage<=5)tool.position.set(toolPoint.current.x,.21,toolPoint.current.z);
    baseMat.roughness=s.stage<5?.36:s.stage===5?.36-p*.28:.08;
    baseMat.color.set(s.stage===4?0x7a8592:0x636d7b);
-   dieMaterial.emissive.set(s.stage===8&&s.selected===0?0x131321:0);
-   (edge.material as THREE.MeshStandardMaterial).emissive.set(s.stage===8&&s.selected===2?0x754214:0);
-   (notch.material as THREE.MeshStandardMaterial).emissive.set(s.selected===3?0x663000:0);
-   baseMat.emissive.set(s.stage===8&&s.selected===1?0x34220e:0);
+   dieMaterial.emissive.set(s.stage===8&&s.selected===0?0x1c1f23:0);
+   (edge.material as THREE.MeshStandardMaterial).emissive.set(s.stage===8&&s.selected===2?0x3a3f45:0);
+   (notch.material as THREE.MeshStandardMaterial).emissive.set(s.selected===3?0x3a3f45:0);
+   baseMat.emissive.set(s.stage===8&&s.selected===1?0x26292d:0);
    if(controls.enabled)rig.update();controls.update();
    if(s.stage>=1&&s.stage<=5&&handle.current&&guide.current){
     camera.updateMatrixWorld();

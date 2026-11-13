@@ -195,7 +195,7 @@ export function Scene(props:Props){
    }else{
     const assembled=[1.68,1.13,1.5,1.81,1.77,1.13,1.5,1.01],separated=[2.35,1.02,1.6,3.02,2.76,.7,1.6,.42];groups.forEach((g,i)=>{g.position.y=THREE.MathUtils.lerp(g.position.y,(c.exploded?separated:assembled)[i],.08)});
     if(c.playing)fan!.rotation.y+=delta*2;
-    groups.forEach((g,i)=>g.traverse(o=>{if(o instanceof THREE.Mesh)(o.material as THREE.MeshStandardMaterial).emissive.set(i===c.selected?0x21170d:0)}));
+    groups.forEach((g,i)=>g.traverse(o=>{if(o instanceof THREE.Mesh)(o.material as THREE.MeshStandardMaterial).emissive.set(i===c.selected?0x2b3036:i===hovered?0x15181b:0)}));
     dots.forEach((d,i)=>{d.visible=c.flow&&getViewOptions().effects;d.position.y=3.2-((elapsed*.6+i*.113)%2.9)})
    }
    rig.update();control.update();renderer.render(scene,camera);

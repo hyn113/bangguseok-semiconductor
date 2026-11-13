@@ -3,7 +3,8 @@ import type {Ref,DragEvent} from 'react';
 import {Icon} from './Icon';
 import {NoteSheet} from './NoteSheet';
 import {relTime} from './Workspace';
-import {useNotebook,currentId,primaryId,openEntry,newEntry,editEntry,askInThread,deleteEntry,addFolder,renameFolder,deleteFolder,moveToFolder,entryTitle,entryPreview,notebookFailed,type HubKind,type Entry} from './notebook';
+import {replyTo,streamText,starterQuestions} from './assistant';
+import {useNotebook,currentId,primaryId,openEntry,newEntry,editEntry,askInThread,appendMessage,dropLastReply,deleteEntry,addFolder,renameFolder,deleteFolder,moveToFolder,entryTitle,entryPreview,notebookFailed,type HubKind,type Entry} from './notebook';
 
 /* 오른쪽 패널의 메모장 · AI 어시스턴스.
    머리 줄: [AI 어시스턴스][메모장] ……… [이전 내역][검색][새 메모]
@@ -34,7 +35,6 @@ export function StudyHub({lesson,ai=true,primary,tab:ctrlTab,onTab}:{lesson:stri
   setPick({text,x:Math.min(Math.max(x,72),box.width-72),y:Math.max(56,y-44)});
  };
  const askAI=()=>{if(!pick)return;setDraft(d=>(d.trim()?d.trim()+'\n\n':'')+'“'+pick.text+'”\n');setPick(null);setTab('ai');setView('current');requestAnimationFrame(()=>{const t=ask.current;if(t){t.focus();t.setSelectionRange(t.value.length,t.value.length)}})};
- const send=()=>{const t=draft.trim();if(!t)return;askInThread(lesson,t);setDraft('')};
 
  const memoRef=(el:HTMLTextAreaElement|null)=>{memo.current=el;const r=primary.inputRef;if(!r)return;if(typeof r==='function')r(el);else (r as {current:HTMLTextAreaElement|null}).current=el};
  return <div ref={root} className="study-hub" data-tab={tab}>
@@ -54,23 +54,58 @@ export function StudyHub({lesson,ai=true,primary,tab:ctrlTab,onTab}:{lesson:stri
     {entry?<NoteSheet label="새 메모" value={entry.text} updated={entry.updated} failed={notebookFailed()} onChange={t=>editEntry(entry.id,t)} inputRef={memoRef} onSelection={onSelection}/>
      :<NoteSheet label={primary.label} value={primary.value} updated={primary.updated} failed={primary.failed} onChange={primary.onChange} inputRef={memoRef} onSelection={onSelection}/>}
    </div>:
-   <AiThread entry={entry} draft={draft} setDraft={setDraft} send={send} inputRef={ask}/>}
+   <AiThread lesson={lesson} entry={entry} draft={draft} setDraft={setDraft} inputRef={ask}/>}
   {pick&&<button type="button" className="hub-ask" style={{left:pick.x,top:pick.y}} onMouseDown={e=>e.preventDefault()} onClick={askAI}><Icon name="stars" className="lead"/>AI에게 물어보기</button>}
  </div>;
 }
 
-function AiThread({entry,draft,setDraft,send,inputRef}:{entry?:Entry;draft:string;setDraft:(s:string)=>void;send:()=>void;inputRef:Ref<HTMLTextAreaElement>}){
+/* 가벼운 마크다운: **굵게**, '- ' 목록, 빈 줄 = 문단 */
+function Inline({text}:{text:string}){return <>{text.split(/(\*\*[^*]+\*\*)/g).map((t,i)=>t.startsWith('**')&&t.endsWith('**')?<strong key={i}>{t.slice(2,-2)}</strong>:<span key={i}>{t}</span>)}</>}
+function Md({text}:{text:string}){
+ return <>{text.split(/\n{2,}/).map((block,i)=>{const lines=block.split('\n');return lines.every(l=>l.startsWith('- '))?<ul key={i}>{lines.map((l,k)=><li key={k}><Inline text={l.slice(2)}/></li>)}</ul>:<p key={i}>{lines.map((l,k)=><span key={k}>{k>0&&<br/>}<Inline text={l}/></span>)}</p>})}</>;
+}
+const Avatar=()=><span className="chat-avatar" aria-hidden="true"><Icon name="stars"/></span>;
+
+function AiThread({lesson,entry,draft,setDraft,inputRef}:{lesson:string;entry?:Entry;draft:string;setDraft:(s:string)=>void;inputRef:Ref<HTMLTextAreaElement>}){
  const log=useRef<HTMLDivElement>(null),msgs=entry?.messages??[];
- useEffect(()=>{const el=log.current;if(el)el.scrollTop=el.scrollHeight},[msgs.length]);
- return <div className="hub-ai">
-  <div ref={log} className="hub-ai-log" aria-live="polite">
-   {msgs.length?<>{msgs.map((m,i)=><div key={i} className="hub-msg"><p>{m.text}</p><time dateTime={m.at}>{relTime(m.at)}</time></div>)}<p className="hub-ai-note"><Icon name="info-circle" className="lead"/>AI가 연결되면 이 대화에 답해 드려요.</p></>
-    :<div className="hub-ai-empty"><Icon name="stars" size={24}/><strong>무엇이든 물어보세요</strong><p>질문은 이 대화에 저장돼요. 메모에서 글을 드래그해 바로 물어볼 수도 있어요.</p></div>}
+ const[stream,setStream]=useState<{id:string;text:string;waiting:boolean;sig:{stopped:boolean}}|null>(null);
+ const[variants,setVariants]=useState<Record<string,number>>({}),[copied,setCopied]=useState<number|null>(null);
+ const live=stream&&stream.id===entry?.id?stream:null;
+ useEffect(()=>{const el=log.current;if(el)el.scrollTop=el.scrollHeight},[msgs.length,live?.text,live?.waiting]);
+ const respond=async(id:string,q:string,variant:number)=>{
+  const r=replyTo(q,lesson,variant),sig={stopped:false};
+  setStream({id,text:'',waiting:true,sig});
+  const text=await streamText(r.text,t=>setStream(s=>s&&s.sig===sig?{...s,text:t,waiting:false}:s),sig);
+  appendMessage(id,{role:'assistant',text:text||'답변을 멈췄어요.',at:new Date().toISOString(),sources:sig.stopped?[]:r.sources,followUps:sig.stopped?[]:r.followUps});
+  setStream(s=>s&&s.sig===sig?null:s);
+ };
+ const send=(override?:string)=>{const q=(override??draft).trim();if(!q||stream)return;if(override===undefined)setDraft('');const id=askInThread(lesson,q);void respond(id,q,0)};
+ const again=()=>{if(!entry||stream)return;const lastUser=[...msgs].reverse().find(m=>m.role==='user');if(!lastUser)return;const v=(variants[entry.id]??0)+1;setVariants(x=>({...x,[entry.id]:v}));dropLastReply(entry.id);void respond(entry.id,lastUser.text,v)};
+ const copy=async(i:number,text:string)=>{try{await navigator.clipboard.writeText(text.replace(/\*\*/g,''));setCopied(i);setTimeout(()=>setCopied(c=>c===i?null:c),1500)}catch{/* 복사를 막은 환경이면 조용히 넘어가요 */}};
+ const lastAssistant=msgs.map(m=>m.role).lastIndexOf('assistant');
+ const empty=!msgs.length&&!live;
+ return <div className="hub-ai chat">
+  <div ref={log} className="chat-log" aria-live="polite">
+   {empty?<div className="chat-empty"><Avatar/><strong>무엇이 궁금하세요?</strong><div className="chat-starters">{starterQuestions(lesson,3).map(q=><button key={q} type="button" onClick={()=>send(q)}><span>{q}</span><Icon name="arrow-up"/></button>)}</div></div>
+   :<>{msgs.map((m,i)=>m.role==='user'
+     ?<div key={i} className="chat-msg is-user"><div className="chat-bubble">{m.text}</div></div>
+     :<div key={i} className="chat-msg is-ai"><Avatar/><div className="chat-content">
+       <div className="chat-md"><Md text={m.text}/></div>
+       {!!m.sources?.length&&<p className="chat-sources">참고 · {m.sources.join(', ')}</p>}
+       <div className="chat-actions">
+        <button type="button" className="hub-icon" aria-label={copied===i?'복사했어요':'답변 복사'} data-tip={copied===i?'복사했어요':'복사'} data-tip-pos="bottom" onClick={()=>copy(i,m.text)}><Icon name={copied===i?'check2':'copy'}/></button>
+        {i===lastAssistant&&!live&&<button type="button" className="hub-icon" aria-label="다시 답하기" data-tip="다시 답하기" data-tip-pos="bottom" onClick={again}><Icon name="arrow-repeat"/></button>}
+       </div>
+       {i===msgs.length-1&&!live&&!!m.followUps?.length&&<div className="chat-follow">{m.followUps.map(q=><button key={q} type="button" onClick={()=>send(q)}>{q}</button>)}</div>}
+      </div></div>)}
+    {live&&<div className="chat-msg is-ai"><Avatar/><div className="chat-content">{live.waiting?<span className="chat-typing" aria-label="답변을 쓰는 중"><i/><i/><i/></span>:<div className="chat-md is-streaming"><Md text={live.text}/></div>}</div></div>}</>}
   </div>
-  <form className="hub-ai-input" onSubmit={e=>{e.preventDefault();send()}}>
-   <textarea ref={inputRef} rows={1} aria-label="AI에게 질문" placeholder="질문 입력" value={draft} onChange={e=>setDraft(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();send()}}}/>
-   <button type="submit" className="hub-send" aria-label="보내기" disabled={!draft.trim()}><Icon name="arrow-up"/></button>
+  <form className="chat-composer" onSubmit={e=>{e.preventDefault();send()}}>
+   <textarea ref={inputRef} rows={1} aria-label="AI에게 질문" placeholder="무엇이든 물어보세요" value={draft} onChange={e=>setDraft(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();send()}}}/>
+   {live?<button type="button" className="chat-send is-stop" aria-label="답변 멈추기" onClick={()=>{live.sig.stopped=true}}><Icon name="stop-fill"/></button>
+    :<button type="submit" className="chat-send" aria-label="보내기" disabled={!draft.trim()}><Icon name="arrow-up"/></button>}
   </form>
+  <p className="chat-foot">이 앱의 학습 자료로 답해요</p>
  </div>;
 }
 

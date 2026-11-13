@@ -110,3 +110,30 @@
 /* 받침이 있는 버튼은 받침만큼 아래 여백을 확보 */
 :root :is(.btn.__eq,.btn--primary,.btn--secondary,.orange,.photo-primary,.entry-start,.catalog-cta,.tour-primary,.tour-secondary,.outline,.shell-quiz,.concept-check-button,.ws-learn):not(#z){margin-bottom:var(--ledge)}
 :root :is(.btn.__eq,.btn,.orange,.photo-primary,.entry-start,.catalog-cta,.tour-primary,.concept-check-button,.outline,.shell-quiz,.tour-secondary,.ws-learn,.head-actions>button,.entry-top button,.tour-leave-note button):not(#z):disabled{margin-bottom:var(--ledge,0)}
+
+/* ── 빠져 있던 행동 버튼도 같은 Secondary 규격으로 ── */
+:root :is(.btn.__eq,.photo-between button,.wafer-compact-controls button,.learning-fallback-choices button):not(#z){
+ display:inline-flex!important;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;--ledge:3px;
+ height:32px!important;min-height:0!important;padding:0 12px!important;border-radius:10px!important;
+ font-family:inherit;font-size:var(--fs-ui)!important;font-weight:700!important;line-height:1!important;letter-spacing:0!important;white-space:nowrap;cursor:pointer;
+ background:var(--btn2-bg)!important;color:var(--btn2-fg)!important;border:2px solid var(--btn2-line)!important;box-shadow:0 var(--ledge) 0 var(--btn2-ledge)!important;margin-bottom:var(--ledge);
+ transition:background-color .15s var(--ease),border-color .15s var(--ease),box-shadow .08s ease,transform .08s ease}
+:root :is(.btn.__eq,.photo-between button):not(#z){height:40px!important;padding:0 16px!important;border-radius:12px!important;font-size:var(--fs-body)!important;--ledge:4px}
+:root :is(.btn.__eq,.photo-between button,.wafer-compact-controls button,.learning-fallback-choices button):not(#z):hover:not(:disabled){background:var(--btn2-hover)!important}
+:root :is(.btn.__eq,.photo-between button,.wafer-compact-controls button,.learning-fallback-choices button):not(#z):active:not(:disabled){transform:translateY(var(--ledge))!important;box-shadow:0 0 0 var(--btn2-ledge)!important}
+:root :is(.btn.__eq,.learning-fallback-choices button):not(#z):is([aria-pressed=true],.selected){background:var(--c-accent-soft)!important;border-color:var(--c-accent)!important;color:var(--c-accent-strong)!important;box-shadow:0 var(--ledge) 0 var(--btn-ledge-c)!important}
+:root :is(.btn.__eq,.photo-between button,.wafer-compact-controls button,.learning-fallback-choices button):not(#z):disabled{background:var(--btn-dis-bg)!important;color:var(--btn-dis-fg)!important;border-color:var(--btn-dis-line)!important;box-shadow:none!important;transform:none!important;cursor:not-allowed}
+:root :is(.btn.__eq,.photo-between button,.wafer-compact-controls button,.learning-fallback-choices button):not(#z):focus-visible{outline:2px solid var(--c-accent)!important;outline-offset:2px!important}
+
+/* ── 선택 타일 (레벨 · 착용품 · 시작 방법): 두툼한 카드형 입체 버튼 ──
+   기본 흰 타일 + 2px 회색 테두리 + 4px 회색 받침 · 고름/완료는 주황 테두리 + 연주황 바탕 + 주황 받침 */
+:root :is(.btn.__eq,.gowning-item,.entry-options>button):not(#z){--ledge:4px;border:2px solid var(--btn2-line)!important;border-radius:16px!important;background:var(--btn2-bg)!important;color:var(--btn2-fg)!important;box-shadow:0 var(--ledge) 0 var(--btn2-ledge)!important;margin-bottom:var(--ledge);transform:none;transition:transform .08s ease,box-shadow .08s ease,background-color .15s var(--ease),border-color .15s var(--ease)!important;cursor:pointer}
+:root :is(.btn.__eq,.gowning-item,.entry-options>button):not(#z):hover:not(:disabled){background:var(--btn2-hover)!important}
+:root :is(.btn.__eq,.gowning-item,.entry-options>button):not(#z):active:not(:disabled){transform:translateY(var(--ledge))!important;box-shadow:0 0 0 var(--btn2-ledge)!important}
+:root :is(.btn.__eq,.gowning-item.chosen):not(#z){border-color:var(--c-accent)!important;background:var(--c-accent-soft)!important;color:var(--c-accent-strong)!important;box-shadow:0 var(--ledge) 0 var(--btn-ledge-c)!important}
+:root :is(.btn.__eq,.gowning-item.worn):not(#z){opacity:.55}
+:root :is(.btn.__eq,.gowning-item,.entry-options>button):not(#z):focus-visible{outline:2px solid var(--c-accent)!important;outline-offset:3px!important}
+:root :is(.btn.__eq,.entry-options>button):not(#z) :is(strong,b){font-weight:800}
+.mission-dialog .game-tile{border-width:2px}
+/* 켜고 끄는 Secondary(선택됨)는 선택 타일과 같은 주황 표시로 통일 */
+:root :is(.btn.__eq,.btn--secondary,.outline,.shell-quiz,.catalog-cta.is-secondary,.tour-secondary,.head-actions>button,.entry-top button):not(#z)[aria-pressed=true]{background:var(--c-accent-soft)!important;border-color:var(--c-accent)!important;color:var(--c-accent-strong)!important;box-shadow:0 var(--ledge) 0 var(--btn-ledge-c)!important}

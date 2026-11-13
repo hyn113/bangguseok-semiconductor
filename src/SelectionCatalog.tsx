@@ -8,11 +8,11 @@ import './selection-catalog.css';
 export type CatalogModule='gown'|'ffu'|'wafer'|'mosfet'|'photo';
 export type CatalogTab='all'|'process'|'equipment'|'design';
 const modules={
- photo:{title:'제3공정 · 포토',sub:'도포부터 현상까지',tag:'PHOTOLITHOGRAPHY',copy:'양성 PR의 도포·노광·현상을 연결하고 빛으로 만든 패턴을 확인해요.',symbol:'▥',label:'포토공정 선택'},
- gown:{title:'클린룸 복장 탐색',tag:'CLEANROOM INTRODUCTION',copy:'착용품을 한 번 눌러 입고, 예시 순서와 역할을 확인해요.',symbol:'♧',label:'클린룸 선택'},
- ffu:{title:'FFU 장비 탐색',tag:'EQUIPMENT EXPLORER',copy:'공기의 흐름과 장비 구성 요소를 눈으로 확인해요.',symbol:'▧',label:'FFU 선택'},
- wafer:{title:'제1공정 · 웨이퍼 제조',sub:'잉곳부터 웨이퍼까지',tag:'WAFER FOUNDATIONS',copy:'잉곳 절단부터 빈 웨이퍼와 회로 구조까지 탐색해요.',symbol:'◎',label:'웨이퍼 선택'},
- mosfet:{title:'MOSFET 설계 기초',tag:'SEMICONDUCTOR DESIGN',copy:'구조를 살펴보고 전압과 W/L을 바꾸며 전류의 변화를 확인해요.',symbol:'▤',label:'MOSFET 선택'}
+ photo:{title:'제3공정 · 포토',sub:'도포부터 현상까지',copy:'양성 PR의 도포·노광·현상을 연결하고 빛으로 만든 패턴을 확인해요.',symbol:'▥',label:'포토공정 선택'},
+ gown:{title:'클린룸 복장 탐색',copy:'착용품을 한 번 눌러 입고, 예시 순서와 역할을 확인해요.',symbol:'♧',label:'클린룸 선택'},
+ ffu:{title:'FFU 장비 탐색',copy:'공기의 흐름과 장비 구성 요소를 눈으로 확인해요.',symbol:'▧',label:'FFU 선택'},
+ wafer:{title:'제1공정 · 웨이퍼 제조',sub:'잉곳부터 웨이퍼까지',copy:'잉곳 절단부터 빈 웨이퍼와 회로 구조까지 탐색해요.',symbol:'◎',label:'웨이퍼 선택'},
+ mosfet:{title:'MOSFET 설계 기초',copy:'구조를 살펴보고 전압과 W/L을 바꾸며 전류의 변화를 확인해요.',symbol:'▤',label:'MOSFET 선택'}
 };
 const glyph:Record<CatalogModule,IconName>={photo:'grid-3x3-gap',gown:'person-standing',ffu:'fan',wafer:'record-circle',mosfet:'boxes'};
 const tabs:{id:CatalogTab;name:string;items:CatalogModule[]}[]=[{id:'process',name:'8대 공정',items:['wafer','photo']},{id:'equipment',name:'장비',items:['gown','ffu']},{id:'design',name:'설계',items:['mosfet']},{id:'all',name:'전체',items:['wafer','photo','gown','ffu','mosfet']}];

@@ -4,7 +4,6 @@ import {useEffect,useRef,useState} from 'react';
 import type {KeyboardEvent,PointerEvent} from 'react';
 import {Scene} from './EquipmentScene';
 import {MosfetScene} from './MosfetScene';
-import {tiltHandlers} from './tilt';
 import './selection-catalog.css';
 export type CatalogModule='gown'|'ffu'|'wafer'|'mosfet'|'photo';
 export type CatalogTab='all'|'process'|'equipment'|'design';
@@ -17,29 +16,69 @@ const modules={
 };
 const glyph:Record<CatalogModule,IconName>={photo:'grid-3x3-gap',gown:'person-standing',ffu:'fan',wafer:'record-circle',mosfet:'boxes'};
 const tabs:{id:CatalogTab;name:string;items:CatalogModule[]}[]=[{id:'process',name:'8대 공정',items:['wafer','photo']},{id:'equipment',name:'장비',items:['gown','ffu']},{id:'design',name:'설계',items:['mosfet']},{id:'all',name:'전체',items:['wafer','photo','gown','ffu','mosfet']}];
+
+const badge:Record<CatalogModule,string>={mosfet:'설계 · NMOS',photo:'공정 · 양성 PR',wafer:'기초 · 웨이퍼',ffu:'3D 개념 모형',gown:'3D 개념 모형'};
+/** 카드 앞면 그림. 3D 장면은 정면 카드에서 멈춰 있을 때만 그려요(WebGL 개수 절약) */
+function Preview({id,live,gid}:{id:CatalogModule;live:boolean;gid:string}){
+ return <div className="selected-model catalog-preview" aria-hidden="true">{
+  id==='photo'?<svg viewBox="0 0 400 280"><rect x="40" y="180" width="320" height="55" rx="5" fill="#819eb5"/>{[40,170,300].map(x=><rect key={x} x={x} y="150" width="60" height="30" fill="#ec9a44"/>)}<path d="M130 65v65m-8-10 8 10 8-10M260 65v65m-8-10 8 10 8-10" fill="none" stroke="#bd903e" strokeWidth="4"/><text x="200" y="260" textAnchor="middle" fill="#526a7c" fontSize="14">빛 → PR 패턴 · 양성 PR 예시</text></svg>:
+  id==='wafer'?<svg viewBox="0 0 400 280"><defs><linearGradient id={gid} x1="0" x2="1"><stop stopColor="#9ab7c9"/><stop offset=".5" stopColor="#f2f8fb"/><stop offset="1" stopColor="#617e96"/></linearGradient></defs><ellipse cx="200" cy="154" rx="143" ry="82" fill={`url(#${gid})`} stroke="#577791" strokeWidth="5"/><ellipse cx="200" cy="145" rx="143" ry="82" fill="none" stroke="#b4ccd9" strokeWidth="3"/><path d="M84 133h232M76 155h248M92 178h216M118 199h164M118 112h164M145 82v126M180 67v151M215 65v153M250 72v139M285 87v111" stroke="#7895ab" strokeWidth="1"/><text x="200" y="253" textAnchor="middle" fill="#526a7c" fontSize="14">웨이퍼 구조 · 개념 이미지</text></svg>:
+  live&&(id==='ffu'||id==='gown')?<Scene kind={id} step={id==='gown'?4:0} playing={false} exploded={true} flow={true} selected={-1} onSelect={()=>{}} reset={0}/>:
+  live&&id==='mosfet'?<MosfetScene selected="gate" onSelect={()=>{}} channel={true} saturated={false} reset={0}/>:
+  <span className="catalog-glyph"><Icon name={glyph[id]} size={48}/></span>}<span className="model-badge">{badge[id]}</span></div>;
+}
+
+/* 원기둥 캐러셀 — 카드를 원기둥 둘레에 세우고 마우스로 돌려 봐요.
+   - 카드가 적으면 같은 카드를 되풀이해 둘레를 채워요(최소 8칸)
+   - 정면과 바로 옆 두 장, 모두 3장만 또렷하게 보이고 나머지는 흐려져요
+   - 끌면 손을 따라 돌고, 놓으면 속도만큼 더 돌다가 가장 가까운 카드에서 멈춰요
+   - 옆 카드를 누르면 그 카드가 정면으로 와요 */
 export function SelectionCatalog({selected,tab,onSelect,onTab,onOpen}:{selected:CatalogModule;tab:CatalogTab;onSelect:(id:CatalogModule)=>void;onTab:(id:CatalogTab)=>void;onOpen:(id:CatalogModule,concepts?:boolean)=>void}){
- const items=tabs.find(t=>t.id===tab)!.items,index=Math.max(0,items.indexOf(selected)),current=items[index],info=modules[current];
+ const items=tabs.find(t=>t.id===tab)!.items,n=items.length,index=Math.max(0,items.indexOf(selected)),current=items[index],info=modules[current];
+ const slots=n<2?1:n*Math.ceil(8/n),step=360/slots;
  const surface=useRef<HTMLDivElement>(null),tabRefs=useRef<(HTMLButtonElement|null)[]>([]);
- const gesture=useRef<{id:number;x:number;y:number}|null>(null);
- /* 넘김 방향(입장 애니메이션)과 끄는 중인 거리 */
- const[dir,setDir]=useState(0),[drag,setDrag]=useState(0);
- const cancel=()=>{const d=gesture.current;gesture.current=null;setDrag(0);if(d&&surface.current?.hasPointerCapture?.(d.id))surface.current.releasePointerCapture(d.id)};
- useEffect(()=>{const hidden=()=>{if(document.visibilityState==='hidden')cancel()};window.addEventListener('blur',cancel);document.addEventListener('visibilitychange',hidden);return()=>{cancel();window.removeEventListener('blur',cancel);document.removeEventListener('visibilitychange',hidden)}},[]);
- useEffect(()=>{cancel()},[tab,current]);
- const chooseTab=(next:CatalogTab)=>{cancel();const nextItems=tabs.find(t=>t.id===next)!.items;onTab(next);if(!nextItems.includes(current))onSelect(nextItems[0])};
- const move=(amount:number)=>{cancel();setDir(amount>0?1:-1);onSelect(items[(index+amount+items.length)%items.length])};
- const pick=(id:CatalogModule)=>{const k=items.indexOf(id);if(k!==index)setDir(k>index?1:-1);onSelect(id)};
+ const[width,setWidth]=useState(1000),[rot,setRot]=useState(-index*step),[dragging,setDragging]=useState(false);
+ const rotRef=useRef(rot);rotRef.current=rot;
+ const justDragged=useRef(false),gesture=useRef<{id:number;x:number;y:number;start:number;moved:boolean;samples:{t:number;r:number}[]}|null>(null);
+ useEffect(()=>{const el=surface.current;if(!el||typeof ResizeObserver==='undefined')return;const ro=new ResizeObserver(()=>setWidth(el.clientWidth||1000));ro.observe(el);setWidth(el.clientWidth||1000);return()=>ro.disconnect()},[]);
+ const cardW=Math.round(Math.min(440,Math.max(260,width*.42)));
+ const radius=slots<2?0:Math.round(cardW/2/Math.tan(Math.PI/slots)*1.06);
+ const frontSlot=(r:number)=>((Math.round(-r/step)%slots)+slots)%slots;
+ /* 바깥에서 고른 카드(점·화살표·탭)로 가장 짧게 돌아가기 */
+ const turnTo=(k:number,from=rotRef.current)=>{const now=frontSlot(from);let best=now,dist=Infinity;for(let s=0;s<slots;s++){if(s%n!==k)continue;let d=s-now;d=((d%slots)+slots)%slots;if(d>slots/2)d-=slots;if(Math.abs(d)<Math.abs(dist)){dist=d;best=s}}void best;return Math.round(from/step)*step-dist*step};
+ useEffect(()=>{if(gesture.current)return;if(n<2){setRot(0);return}if(frontSlot(rotRef.current)%n!==index)setRot(turnTo(index))},[index,tab]);
+ useEffect(()=>{setRot(n<2?0:-index*step)},[tab]);
+ const settle=(r:number)=>{const snapped=Math.round(r/step)*step;setRot(snapped);const k=frontSlot(snapped)%n;if(k!==index)onSelect(items[k])};
+ const cancel=()=>{const g=gesture.current;gesture.current=null;setDragging(false);if(g){if(surface.current?.hasPointerCapture?.(g.id))surface.current.releasePointerCapture(g.id);settle(rotRef.current)}};
+ useEffect(()=>{const hidden=()=>{if(document.visibilityState==='hidden')cancel()};window.addEventListener('blur',cancel);document.addEventListener('visibilitychange',hidden);return()=>{window.removeEventListener('blur',cancel);document.removeEventListener('visibilitychange',hidden)}},[]);
+ const chooseTab=(next:CatalogTab)=>{const nextItems=tabs.find(t=>t.id===next)!.items;onTab(next);if(!nextItems.includes(current))onSelect(nextItems[0])};
+ const move=(amount:number)=>{if(n<2)return;const r=Math.round(rotRef.current/step)*step-amount*step;settle(r)};
+ const pick=(id:CatalogModule)=>{const k=items.indexOf(id);if(k<0)return;setRot(turnTo(k));onSelect(id)};
  const tabKey=(event:KeyboardEvent<HTMLButtonElement>,i:number)=>{let next=i;if(event.key==='ArrowRight')next=(i+1)%tabs.length;else if(event.key==='ArrowLeft')next=(i+tabs.length-1)%tabs.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=tabs.length-1;else return;event.preventDefault();chooseTab(tabs[next].id);tabRefs.current[next]?.focus()};
- const down=(event:PointerEvent<HTMLDivElement>)=>{if(items.length<2||event.button!==0||event.isPrimary===false||gesture.current||(event.target as Element).closest('button,a,input'))return;gesture.current={id:event.pointerId,x:event.clientX,y:event.clientY};event.currentTarget.setPointerCapture?.(event.pointerId)};
- const dragMove=(event:PointerEvent<HTMLDivElement>)=>{const d=gesture.current;if(!d||event.pointerId!==d.id)return;const dx=event.clientX-d.x;setDrag(Math.max(-240,Math.min(240,dx)))};
- const up=(event:PointerEvent<HTMLDivElement>)=>{const d=gesture.current;if(!d||event.pointerId!==d.id)return;const dx=event.clientX-d.x,dy=event.clientY-d.y;cancel();if(Math.abs(dx)>=50&&Math.abs(dx)>Math.abs(dy)*1.5)move(dx<0?1:-1)};
- const n=items.length;
- const depthSlots:{key:string;offset:number}[]=n===1?[{key:current,offset:0}]:n===2?[{key:items[(index+1)%2]+'-l',offset:-1},{key:current,offset:0},{key:items[(index+1)%2]+'-r',offset:1}]:items.map((id,k)=>{let o=(k-index+n)%n;if(o>n/2)o-=n;return {key:id,offset:o}}).filter(x=>Math.abs(x.offset)<=2).sort((a,b)=>a.offset-b.offset);
- const neighbor=(offset:number)=>{const id=items[((index+offset)%items.length+items.length)%items.length],m=modules[id];return <button type="button" className="selected-module catalog-selected catalog-neighbor" tabIndex={-1} onClick={()=>pick(id)} aria-label={`${m.title} 카드 선택`}><span className="selected-model catalog-preview catalog-glyph" aria-hidden="true"><Icon name={glyph[id]} size={48}/></span><span className="selected-copy"><span>{m.tag}</span><span className="catalog-title">{m.title}</span>{'sub' in m&&<span className="catalog-sub">{m.sub}</span>}<span className="catalog-copy">{m.copy}</span></span></button>};
+ const degPerPx=step/(cardW*.9);
+ const down=(e:PointerEvent<HTMLDivElement>)=>{if(n<2||e.button!==0||e.isPrimary===false||gesture.current||(e.target as Element).closest('.catalog-cta,a,input'))return;gesture.current={id:e.pointerId,x:e.clientX,y:e.clientY,start:rotRef.current,moved:false,samples:[{t:performance.now(),r:rotRef.current}]};};
+ const dragMove=(e:PointerEvent<HTMLDivElement>)=>{const g=gesture.current;if(!g||e.pointerId!==g.id)return;const dx=e.clientX-g.x;if(!g.moved){if(Math.abs(dx)<6)return;g.moved=true;setDragging(true);e.currentTarget.setPointerCapture?.(e.pointerId)}const r=g.start+dx*degPerPx;setRot(r);rotRef.current=r;g.samples.push({t:performance.now(),r});if(g.samples.length>6)g.samples.shift()};
+ const up=(e:PointerEvent<HTMLDivElement>)=>{const g=gesture.current;if(!g||e.pointerId!==g.id)return;gesture.current=null;setDragging(false);if(!g.moved)return;justDragged.current=true;setTimeout(()=>{justDragged.current=false},0);
+  const a=g.samples[0],b=g.samples[g.samples.length-1],v=(b.r-a.r)/Math.max(16,b.t-a.t);/* 도/ms */
+  const projected=rotRef.current+Math.max(-step*2.5,Math.min(step*2.5,v*260));settle(projected)};
+ const norm=(d:number)=>{d=((d+180)%360+360)%360-180;return d};
+ const front=frontSlot(rot);
  return <div className="selection-catalog"><div className="catalog-tabs" role="tablist" aria-label="학습 분야">{tabs.map((t,i)=><button key={t.id} ref={el=>{tabRefs.current[i]=el}} id={`catalog-tab-${t.id}`} type="button" role="tab" aria-selected={tab===t.id} aria-controls="catalog-panel" tabIndex={tab===t.id?0:-1} onClick={()=>chooseTab(t.id)} onKeyDown={event=>tabKey(event,i)}>{t.name}<span>{t.items.length}</span></button>)}</div>
  <section id="catalog-panel" role="tabpanel" aria-labelledby={`catalog-tab-${tab}`}><span className="sr-only" role="status" aria-live="polite">{index+1} / {items.length} · {info.title}</span>
- <div className={'selection-track catalog-track '+(items.length===1?'catalog-single':'')} data-dragging={drag?true:undefined} style={{'--drag':drag+'px','--dragn':drag/320} as React.CSSProperties} ref={surface} role="region" aria-roledescription="캐러셀" aria-label="학습 카드 둘러보기" tabIndex={0} onKeyDown={event=>{if(event.target!==event.currentTarget)return;if(event.key==='ArrowRight'){event.preventDefault();move(1)}else if(event.key==='ArrowLeft'){event.preventDefault();move(-1)}else if(event.key==='Home'){event.preventDefault();onSelect(items[0])}else if(event.key==='End'){event.preventDefault();onSelect(items[items.length-1])}}} onPointerDown={down} onPointerMove={dragMove} onPointerUp={up} onPointerCancel={cancel} onLostPointerCapture={cancel}>
- {depthSlots.map(slot=><div key={slot.key} className="depth-slot" data-offset={slot.offset} style={{'--o':slot.offset,'--abs':Math.abs(slot.offset)} as React.CSSProperties}>{slot.offset===0?<article key={current} data-enter={dir>0?'next':dir<0?'prev':undefined} className="selected-module catalog-selected tilt-card" aria-label={`${info.title} 선택됨`} {...tiltHandlers(8)}><div className="selected-model catalog-preview" aria-hidden="true">{current==='ffu'||current==='gown'?<Scene kind={current} step={current==='gown'?4:0} playing={false} exploded={true} flow={true} selected={-1} onSelect={()=>{}} reset={0}/>:current==='photo'?<svg viewBox="0 0 400 280"><rect x="40" y="180" width="320" height="55" rx="5" fill="#819eb5"/>{[40,170,300].map(x=><rect key={x} x={x} y="150" width="60" height="30" fill="#ec9a44"/>)}<path d="M130 65v65m-8-10 8 10 8-10M260 65v65m-8-10 8 10 8-10" fill="none" stroke="#bd903e" strokeWidth="4"/><text x="200" y="260" textAnchor="middle" fill="#526a7c" fontSize="14">빛 → PR 패턴 · 양성 PR 예시</text></svg>:current==='mosfet'?<MosfetScene selected="gate" onSelect={()=>{}} channel={true} saturated={false} reset={0}/>:<svg viewBox="0 0 400 280"><defs><linearGradient id="catalog-wafer" x1="0" x2="1"><stop stopColor="#9ab7c9"/><stop offset=".5" stopColor="#f2f8fb"/><stop offset="1" stopColor="#617e96"/></linearGradient></defs><ellipse cx="200" cy="154" rx="143" ry="82" fill="url(#catalog-wafer)" stroke="#577791" strokeWidth="5"/><ellipse cx="200" cy="145" rx="143" ry="82" fill="none" stroke="#b4ccd9" strokeWidth="3"/><path d="M84 133h232M76 155h248M92 178h216M118 199h164M118 112h164M145 82v126M180 67v151M215 65v153M250 72v139M285 87v111" stroke="#7895ab" strokeWidth="1"/><text x="200" y="253" textAnchor="middle" fill="#526a7c" fontSize="14">웨이퍼 구조 · 개념 이미지</text></svg>}<span className="model-badge">{current==='mosfet'?'설계 · NMOS':current==='photo'?'공정 · 양성 PR':current==='wafer'?'기초 · 웨이퍼':'3D 개념 모형'}</span></div><div className="selected-copy"><span>{info.tag}</span><h2>{info.title}</h2>{'sub' in info&&<p className="catalog-sub">{info.sub}</p>}<p>{info.copy}</p><div><span>입문 · 개념 학습</span><span>직접 조작 가능</span></div></div></article>:neighbor(slot.offset)}</div>)}</div>
+ <div className={'catalog-ring-stage catalog-track'+(n<2?' is-single':'')} data-dragging={dragging||undefined} ref={surface} role="region" aria-roledescription="캐러셀" aria-label="학습 카드 둘러보기 · 끌어서 돌리기" tabIndex={0} style={{'--card-w':cardW+'px'} as React.CSSProperties}
+  onKeyDown={event=>{if(event.target!==event.currentTarget)return;if(event.key==='ArrowRight'){event.preventDefault();move(1)}else if(event.key==='ArrowLeft'){event.preventDefault();move(-1)}}}
+  onPointerDown={down} onPointerMove={dragMove} onPointerUp={up} onPointerCancel={cancel}>
+  <div key={tab} className="catalog-ring" style={{transform:`translateZ(${-radius}px) rotateY(${rot}deg)`}}>
+   {Array.from({length:slots},(_,s)=>{const id=items[s%n],m=modules[id],d=norm(s*step+rot),near=Math.abs(d)/step,isFront=s===front&&!dragging;
+    /* 정면 ±1칸까지 또렷하게, 그 너머는 빠르게 흐려짐 */
+    const fade=near<=1?1-near*.28:Math.max(0,.72-(near-1)*1.4);
+    return <div key={s} className="ring-slot" data-front={s===front||undefined} aria-hidden={s!==front} style={{transform:`rotateY(${s*step}deg) translateZ(${radius}px)`,opacity:fade,filter:near>1?`blur(${Math.min(6,(near-1)*8)}px)`:undefined,visibility:fade<=0.01?'hidden':undefined,zIndex:Math.round(100-near*10)} as React.CSSProperties}>
+     <article className="selected-module catalog-selected ring-card" onClick={()=>{if(!justDragged.current&&s!==front)pick(id)}}>
+      <Preview id={id} live={isFront} gid={'catalog-wafer-'+s}/>
+      <div className="selected-copy"><span>{m.tag}</span><h2>{m.title}</h2>{'sub' in m&&<p className="catalog-sub">{m.sub}</p>}<p>{m.copy}</p><div><span>입문 · 개념 학습</span><span>직접 조작 가능</span></div></div>
+     </article></div>})}
+  </div>
+ </div>
  <div className="catalog-paging" data-single={items.length<2||undefined}>{items.length>1&&<button type="button" className="catalog-arrow" aria-label="이전 학습 카드" onClick={()=>move(-1)}><Icon name="chevron-left"/></button>}<div className="selector-switch catalog-dots" aria-label="학습 카드 선택">{items.map(id=><button key={id} className={current===id?'selected':''} aria-label={modules[id].label} aria-pressed={current===id} onClick={()=>pick(id)}/>)}</div>{items.length>1&&<button type="button" className="catalog-arrow" aria-label="다음 학습 카드" onClick={()=>move(1)}><Icon name="chevron-left" className="flip"/></button>}</div><p className="catalog-hint">{items.length>1?'좌우로 넘기거나 화살표를 눌러 선택해요. 키보드 방향키로도 이동할 수 있어요.':'현재 설계 학습은 MOSFET 1개예요. 전체 탭에서 다른 학습도 함께 볼 수 있어요.'}</p>
  <div className="selector-actions catalog-actions"><button type="button" className="catalog-cta is-primary" onClick={()=>onOpen(current)}>공부하기<Icon name="arrow-right" className="trail"/></button>{(current==='ffu'||current==='gown')&&<button type="button" className="catalog-cta is-secondary" onClick={()=>onOpen(current,true)}>{current==='ffu'?'FFU 개념 확인':'클린룸 개념 확인'}</button>}</div></section></div>
 }

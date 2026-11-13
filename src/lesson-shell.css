@@ -344,7 +344,7 @@ svg.bi.concept-toc-chevron{color:var(--c-muted);transition:transform .2s var(--e
 .shell-page .concept-toc-detail .concept-expand{display:flex!important;align-items:center;justify-content:space-between;width:100%;height:36px;margin:0!important;padding:0 var(--sp-3)!important;border:1px solid var(--c-line)!important;background:var(--c-surface)!important}
 .shell-page .concept-toc-detail .concept-body{margin-top:var(--sp-3)}
 .shell-page .shell-right{container-type:inline-size}
-@container (max-width:344px){.shell-right .profile-name{display:none}}
+@container (max-width:300px){.shell-right .profile-name{display:none}}
 
 /* ════ 피그마식 겹침 레이아웃: 캔버스가 화면 전체, 패널은 그 위에 떠 있음 ════ */
 .shell-page .shell-grid{display:block!important;position:relative;height:100vh;height:100dvh}
@@ -729,3 +729,29 @@ body.is-resizing .panel-resizer:not([data-dragging])::after{opacity:0!important}
 .part-frame-handle{display:none!important}
 .part-frame .part-frame-tag{left:50%!important;transform:translateX(-50%);bottom:calc(100% - 4px)!important;top:auto!important;max-width:220px;padding:4px 10px!important;border-radius:var(--r-pill)!important;background:var(--c-ink)!important;color:var(--c-on-ink)!important;box-shadow:0 4px 12px #0e111433!important;font-size:var(--fs-caption)!important;font-weight:var(--fw-semibold)!important;line-height:16px}
 .part-frame.tag-below .part-frame-tag{top:4px!important;bottom:auto!important}
+
+/* ── 패널 간격 규칙 (정보 위계) ──
+   패널 안쪽 좌우 16 · 머리 아래 첫 요소 16 · 탭/세그먼트 → 내용 16
+   목록 → 제목 24 · 제목 → 본문 8 · 본문 → 버튼 16 · 블록 사이 16 · 큰 묶음 사이 24(+회색 선) */
+.shell-page .shell-left>.tabs,.shell-page .wafer-chapters,.shell-page .mos-panel-tabs{margin:16px 16px 0!important;width:auto!important;align-self:stretch}
+.shell-page .mos-panel-tabs{display:flex!important}
+.shell-page .mos-panel-tabs>button{flex:1 1 0}
+.shell-page .shell-left>.tabs+.guide-scroll,.shell-page .wafer-chapters+.guide-scroll{padding-top:16px!important}
+.shell-page .mos-panel-tabs+div{margin-top:16px!important}
+.shell-page .shell-left .body-copy,.shell-page .shell-left .guide-scroll>p,.shell-page .photo-instruction>p{margin:0 0 16px!important}
+.shell-page .photo-instruction>.photo-primary{margin:0!important}
+.shell-page .photo-instruction>.photo-between{margin:16px 0!important}
+.shell-page .gowning-step-chip+h2{margin-top:8px!important}
+.shell-page .gowning-instruction .gowning-feedback{margin:0 0 16px!important}
+.shell-page .gowning-instruction .gowning-confirm{margin-top:0!important}
+.shell-page .gowning-inline-study{padding-top:0!important;border-top:0!important}
+.shell-page .gowning-source{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+/* 혼자 놓인 텍스트 버튼은 글자 시작선을 본문과 맞춰요 */
+.shell-page .gowning-source .text-button,.shell-page .concept-read .concept-notes{margin-left:-12px!important}
+/* 워크스페이스 카드 호버: 살짝만 (확대 1%, 얕은 그림자) */
+.ws-card.tilt-card[data-tilting]{transform:perspective(900px) rotateX(var(--tilt-rx)) rotateY(var(--tilt-ry)) scale(1.01)!important;box-shadow:0 10px 24px -14px #0e111440!important}
+.ws-card.tilt-card::after{opacity:0!important}
+.ws-thumb[data-kind=file]{color:var(--c-ink-2)}
+.shell-page .mos-guide>.mos-panel-tabs{margin:16px 0 0!important}
+.shell-page .mos-panel-tabs+div>.mos-card:first-child,.shell-page .mos-panel-tabs+div>section:first-child{margin-top:0!important}
+.shell-page .mos-guide>.mos-panel-tabs+div{margin-top:8px!important}

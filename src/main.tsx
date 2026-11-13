@@ -17,7 +17,7 @@ import {GowningLesson} from './GowningLesson';
 import {ffuParts,ffuReference} from './ffuParts';
 import {ConceptPanel} from './ConceptPanel';
 import {ffuConcepts,gowningConcepts} from './conceptTopics';
-import {Icon} from './Icon';
+import {Icon,type IconName} from './Icon';
 import {AppMenu,type MenuTarget} from './AppMenu';
 import {Workspace,type WsItem} from './Workspace';
 import {ProfileBadge,usePassedCount,recordPass} from './grade';
@@ -26,6 +26,7 @@ import {lessonModels} from './lessonModels';
 import {LessonMedia} from './lessonMedia';
 import {getNotebook,openEntry,entryTitle,entryPreview} from './notebook';
 import {StudyHub} from './StudyHub';
+import './buttons.css';
 
 const reducedMotion=()=>typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 type Module='home'|'gown'|'ffu'|'workspace'|'results'|'wafer'|'gowning'|'mosfet'|'photo';
@@ -50,7 +51,7 @@ function App({visitor,onWelcome,onLogout,active,pendingNav,onNavDone}:{visitor:V
  const studyNote=useRef<HTMLTextAreaElement>(null);
  const focusStudyNote=()=>{setRightTab('notes');requestAnimationFrame(()=>{studyNote.current?.focus();studyNote.current?.scrollIntoView({block:'center'})})};
  const persist=(key:string,value:unknown)=>{try{localStorage.setItem(key,JSON.stringify(value));return true}catch{setStorageError(true);return false}};
- const navigate=(p:Module)=>{setStartWithConcepts(false);setPage(p);setMenu(false);setQuiz(false);setChoice(null);setAnswers([]);setStatus('');setSearch('');if(p==='gown'||p==='ffu'){setPicked(p);setDraft(notes.find(n=>n.kind===p)?.text||'');setStep(0);setPart(0);setPlaying(!reducedMotion());setExplode(p==='ffu'&&!lessonModels.ffu);setFlow(true);setReset(r=>r+1);setLeftTab('guide')}};
+ const navigate=(p:Module)=>{if(['ffu','gown','wafer','photo','mosfet','gowning'].includes(p)){try{const r=JSON.parse(localStorage.getItem('semilab.recent')||'{}');r[p]=new Date().toISOString();localStorage.setItem('semilab.recent',JSON.stringify(r))}catch{}}setStartWithConcepts(false);setPage(p);setMenu(false);setQuiz(false);setChoice(null);setAnswers([]);setStatus('');setSearch('');if(p==='gown'||p==='ffu'){setPicked(p);setDraft(notes.find(n=>n.kind===p)?.text||'');setStep(0);setPart(0);setPlaying(!reducedMotion());setExplode(p==='ffu'&&!lessonModels.ffu);setFlow(true);setReset(r=>r+1);setLeftTab('guide')}};
  const requestTransition=(action:()=>void)=>{if((page==='gown'||page==='ffu')&&draft!==(notes.find(n=>n.kind===page)?.text||'')){setPendingTransition(()=>action)}else action()};
  const open=(p:Module)=>requestTransition(()=>navigate(p));
  const saveNote=(text:string=draft)=>{if(page!=='gown'&&page!=='ffu')return false;const next=[...notes.filter(n=>n.kind!==page),{kind:page,text,updated:new Date().toISOString()}];const ok=persist(NOTEKEY,next);if(ok)setNotes(next);setStatus(ok?'':'저장에 실패했어요. 메모를 복사해 보관해 주세요.');return ok;};
@@ -59,7 +60,10 @@ function App({visitor,onWelcome,onLogout,active,pendingNav,onNavDone}:{visitor:V
  const waferRecord=readWaferProgress(),waferNote=readWaferNote();const hasWaferRecord=!!(waferRecord.data.updated||waferNote.trim()),showWaferRecord=hasWaferRecord&&('제1공정 · 웨이퍼 제조 기초 학습 '+waferNote).includes(search);
  const selected=attempts.find(a=>a.id===selectedAttempt)||attempts[0];const score=selected?selected.answers.filter((a,i)=>a===questions[i].a).length:0;
  const ls=(k:string)=>{try{return localStorage.getItem(k)}catch{return null}};
+ const lessonFiles:{id:Module;base:string;area:string;icon:IconName}[]=[{id:'wafer',base:'제1공정 · 웨이퍼 제조',area:'8대 공정',icon:'record-circle'},{id:'photo',base:'제3공정 · 포토',area:'8대 공정',icon:'grid-3x3-gap'},{id:'ffu',base:'FFU 장비 탐색',area:'장비',icon:'fan'},{id:'gowning',base:'클린룸 착의 체험',area:'장비',icon:'person-standing'},{id:'gown',base:'클린룸 복장 탐색',area:'장비',icon:'person-standing'},{id:'mosfet',base:'MOSFET 설계 기초',area:'설계',icon:'boxes'}];
+ const recentOpen:Record<string,string>=(()=>{try{return JSON.parse(localStorage.getItem('semilab.recent')||'{}')}catch{return {}}})();
  const wsItems:WsItem[]=page!=='workspace'?[]:[
+  ...lessonFiles.filter(f=>recentOpen[f.id]).map(f=>({id:'file-'+f.id,kind:'file',title:lessonTitle(f.id,f.base),module:f.area,detail:'',updated:recentOpen[f.id],icon:f.icon,open:()=>open(f.id)}) as WsItem),
   ...(waferRecord.data.updated?[{id:'wafer-progress',kind:'progress',title:lessonTitle('wafer','제1공정 · 웨이퍼 제조'),module:'8대 공정',detail:waferRecord.data.completedAt?'기초 학습 완료':'이어서 학습 · '+waferSteps[waferRecord.data.stage].title,updated:waferRecord.data.updated,icon:'boxes',open:()=>open('wafer')} as WsItem]:[]),
   ...(waferNote.trim()?[{id:'wafer-note',kind:'memo',title:'웨이퍼 메모',module:lessonTitle('wafer','제1공정 · 웨이퍼 제조'),detail:waferNote.slice(0,80),updated:ls('semilab.v03.wafer-note-updated'),icon:'file-earmark-text',open:()=>open('wafer')} as WsItem]:[]),
   ...notes.filter(n=>n.text.trim()).map(n=>({id:'note-'+n.kind,kind:'memo',title:moduleName(n.kind)+' 메모',module:moduleName(n.kind),detail:n.text.slice(0,80),updated:n.updated,icon:'file-earmark-text',open:()=>open(n.kind)}) as WsItem),

@@ -1,0 +1,78 @@
+/* ─────────────────────────────────────────────────────────────
+   버튼 시스템 (방구석 반도체)
+
+   위계 3단계 — 한 영역(화면·패널·카드)에 Primary는 하나만
+   1. Primary   주황 채움 + 아래 받침(입체). 그 화면에서 가장 중요한 다음 행동
+                예) 시작하기 · 공부하기 · 실습 선택하기 · PR 도포하기 · 다음 단계
+   2. Secondary 중립 채움 + 1px 선. 함께 고를 수 있는 보조 행동
+                예) 개념 확인 · 퀴즈 풀기 · 다음 지점 · 다시 체험
+   3. Tertiary  배경 없음(텍스트). 되돌리기·부가 행동
+                예) 처음 화면으로 · 다시 풀어보기 · 메모에 정리하기
+   (아이콘 버튼은 32×32 · 16px 아이콘 · 사방 8px — lesson-shell.css)
+
+   크기   lg 48 · md 40(기본) · sm 32
+          글자 lg/md 14 semibold · sm 13 semibold, 아이콘 16, 아이콘-글자 간격 8
+          좌우 여백 lg 24 · md 16 · sm 12, 모서리 lg 12 · md 10 · sm 8
+   상태   기본 · 호버 · 누름(Primary는 받침만큼 눌려 내려감) · 포커스(주황 2px 링)
+          · 선택됨(aria-pressed=true, Secondary/Tertiary) · 비활성(회색, 받침 없음)
+   어두운 화면(시작·학습 선택)에서는 Secondary/Tertiary가 반투명 흰색으로 바뀌어요.
+
+   새 버튼은 class="btn btn--primary btn--lg"처럼 쓰고,
+   예전 클래스(.orange, .outline, .text-button …)도 아래에서 같은 규격으로 맞춰요.
+   ───────────────────────────────────────────────────────────── */
+:root{
+ --btn-ledge-c:#a9520c;
+ --btn2-bg:var(--c-surface);--btn2-fg:var(--c-ink);--btn2-line:var(--c-line);--btn2-hover:var(--c-hover);--btn2-press:var(--c-pressed);--btn2-on:var(--c-selected);
+ --btn3-fg:var(--c-ink-2);--btn3-hover:var(--c-hover);--btn3-press:var(--c-pressed);
+ --btn-dis-bg:var(--gray-100);--btn-dis-fg:var(--gray-400);--btn-dis-line:var(--gray-200);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--btn-ledge-c:#7a3a06;--btn-dis-bg:var(--gray-850);--btn-dis-fg:var(--gray-600);--btn-dis-line:var(--gray-800)}}
+:root[data-theme=dark]{--btn-ledge-c:#7a3a06;--btn-dis-bg:var(--gray-850);--btn-dis-fg:var(--gray-600);--btn-dis-line:var(--gray-800)}
+/* 어두운 배경 화면 */
+.selection-page,.entry-page{--btn2-bg:#ffffff14;--btn2-fg:var(--gray-0);--btn2-line:#ffffff33;--btn2-hover:#ffffff24;--btn2-press:#ffffff33;--btn2-on:#ffffff38;--btn3-fg:var(--gray-200);--btn3-hover:#ffffff1a;--btn3-press:#ffffff29;--btn-dis-bg:#ffffff12;--btn-dis-fg:#ffffff59;--btn-dis-line:#ffffff1f}
+/* 클린룸 공부하기 패널은 밝은 상자라 기본값으로 되돌림 */
+.entry-page .tour-panel{--btn2-bg:var(--c-surface);--btn2-fg:var(--c-ink);--btn2-line:var(--c-line);--btn2-hover:var(--c-hover);--btn2-press:var(--c-pressed);--btn2-on:var(--c-selected);--btn3-fg:var(--c-ink-2);--btn3-hover:var(--c-hover);--btn3-press:var(--c-pressed);--btn-dis-bg:var(--gray-100);--btn-dis-fg:var(--gray-400);--btn-dis-line:var(--gray-200)}
+
+/* ── 공통 ── */
+:root :is(.btn.__eq,.btn,.btn--primary,.orange,.photo-primary,.entry-start,.catalog-cta,.tour-primary,.concept-check-button,.ws-empty .ws-learn,
+ .btn--secondary,.outline,.shell-quiz,.tour-secondary,.ws-side .ws-learn,.head-actions>button,.entry-top button,.tour-leave-note button,
+ .btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes ):not(#z){
+ display:inline-flex!important;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;
+ height:40px;min-height:0!important;padding:0 16px!important;border-radius:10px!important;
+ font-family:inherit;font-size:var(--fs-body)!important;font-weight:var(--fw-semibold)!important;line-height:1!important;letter-spacing:0!important;
+ white-space:nowrap;text-decoration:none;cursor:pointer;transform:none;
+ transition:background-color .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease),box-shadow .1s ease,transform .1s ease}
+:root :is(.btn.__eq,.btn,.orange,.photo-primary,.entry-start,.catalog-cta,.tour-primary,.concept-check-button,.outline,.shell-quiz,.tour-secondary,.ws-learn,.head-actions>button,.entry-top button,.tour-leave-note button,.text-button,.entry-back,.concept-retry,.concept-notes ):not(#z) svg.bi{width:16px!important;height:16px!important;margin:0!important;flex:none}
+:root :is(.btn.__eq,.btn,.orange,.photo-primary,.entry-start,.catalog-cta,.tour-primary,.concept-check-button,.outline,.shell-quiz,.tour-secondary,.ws-learn,.head-actions>button,.entry-top button,.tour-leave-note button,.text-button,.entry-back,.concept-retry,.concept-notes ):not(#z) :is(span,b){font:inherit}
+/* 크기 */
+:root :is(.btn.__eq,.btn--lg,.entry-start,.catalog-cta,.tour-primary,.tour-secondary ):not(#z){height:48px!important;padding:0 24px!important;border-radius:12px!important;min-width:0}
+:root :is(.btn.__eq,.btn--sm,.shell-quiz,.head-actions>button,.entry-top button,.text-button,.entry-back,.concept-retry,.concept-notes ):not(#z){height:32px!important;padding:0 12px!important;border-radius:8px!important;font-size:var(--fs-ui)!important}
+
+/* ── 1. Primary ── */
+:root :is(.btn.__eq,.btn--primary,.orange,.photo-primary,.entry-start,.catalog-cta.is-primary,.tour-primary,.concept-check-button,.ws-empty .ws-learn ):not(#z){
+ --ledge:3px;background:var(--orange-500)!important;color:var(--gray-0)!important;border:0!important;box-shadow:0 var(--ledge) 0 var(--btn-ledge-c)!important}
+:root :is(.btn.__eq,.btn--lg.btn--primary,.entry-start,.catalog-cta.is-primary,.tour-primary ):not(#z){--ledge:4px}
+:root :is(.btn.__eq,.btn--sm.btn--primary ):not(#z){--ledge:2px}
+:root :is(.btn.__eq,.btn--primary,.orange,.photo-primary,.entry-start,.catalog-cta.is-primary,.tour-primary,.concept-check-button,.ws-empty .ws-learn ):not(#z):hover:not(:disabled){background:var(--orange-600)!important}
+:root :is(.btn.__eq,.btn--primary,.orange,.photo-primary,.entry-start,.catalog-cta.is-primary,.tour-primary,.concept-check-button,.ws-empty .ws-learn ):not(#z):active:not(:disabled){transform:translateY(var(--ledge))!important;box-shadow:0 0 0 var(--btn-ledge-c)!important}
+
+/* ── 2. Secondary ── */
+:root :is(.btn.__eq,.btn--secondary,.outline,.shell-quiz,.catalog-cta.is-secondary,.tour-secondary,.ws-side .ws-learn,.head-actions>button,.entry-top button,.tour-leave-note button ):not(#z){
+ background:var(--btn2-bg)!important;color:var(--btn2-fg)!important;border:1px solid var(--btn2-line)!important;box-shadow:none!important}
+:root :is(.btn.__eq,.btn--secondary,.outline,.shell-quiz,.catalog-cta.is-secondary,.tour-secondary,.ws-side .ws-learn,.head-actions>button,.entry-top button,.tour-leave-note button ):not(#z):hover:not(:disabled){background:var(--btn2-hover)!important}
+:root :is(.btn.__eq,.btn--secondary,.outline,.shell-quiz,.catalog-cta.is-secondary,.tour-secondary,.ws-side .ws-learn,.head-actions>button,.entry-top button,.tour-leave-note button ):not(#z):active:not(:disabled){background:var(--btn2-press)!important;transform:none!important}
+:root :is(.btn.__eq,.btn--secondary,.outline,.shell-quiz,.catalog-cta.is-secondary,.tour-secondary,.head-actions>button,.entry-top button ):not(#z)[aria-pressed=true]{background:var(--btn2-on)!important;border-color:transparent!important}
+
+/* ── 3. Tertiary ── */
+:root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes ):not(#z){
+ background:transparent!important;color:var(--btn3-fg)!important;border:0!important;box-shadow:none!important}
+:root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes ):not(#z):hover:not(:disabled){background:var(--btn3-hover)!important;color:var(--btn2-fg)!important}
+:root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes ):not(#z):active:not(:disabled){background:var(--btn3-press)!important}
+:root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes ):not(#z)[aria-pressed=true]{background:var(--btn2-on)!important;color:var(--btn2-fg)!important}
+
+/* ── 포커스 · 비활성 (모든 위계 공통) ── */
+:root :is(.btn.__eq,.btn,.orange,.photo-primary,.entry-start,.catalog-cta,.tour-primary,.concept-check-button,.outline,.shell-quiz,.tour-secondary,.ws-learn,.head-actions>button,.entry-top button,.tour-leave-note button,.text-button,.entry-back,.concept-retry,.concept-notes ):not(#z):focus-visible{outline:2px solid var(--c-accent)!important;outline-offset:2px!important}
+:root :is(.btn.__eq,.btn,.orange,.photo-primary,.entry-start,.catalog-cta,.tour-primary,.concept-check-button,.ws-learn,.outline,.shell-quiz,.tour-secondary,.head-actions>button,.entry-top button,.tour-leave-note button ):not(#z):disabled{background:var(--btn-dis-bg)!important;color:var(--btn-dis-fg)!important;border-color:var(--btn-dis-line)!important;box-shadow:none!important;transform:none!important;cursor:not-allowed;opacity:1!important}
+:root :is(.btn.__eq,.btn--tertiary,.text-button,.entry-back,.concept-retry,.concept-notes ):not(#z):disabled{background:transparent!important;color:var(--btn-dis-fg)!important;cursor:not-allowed;opacity:1!important}
+@media(prefers-reduced-motion:reduce){:root :is(.btn.__eq,.btn,.orange,.photo-primary,.entry-start,.catalog-cta,.tour-primary,.concept-check-button ):not(#z){transition:none}}
+:root .selection-page .catalog-cta:not(#z){min-width:160px}

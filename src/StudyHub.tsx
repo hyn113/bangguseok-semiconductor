@@ -104,7 +104,6 @@ function AiThread({lesson,entry,draft,setDraft,inputRef}:{lesson:string;entry?:E
    {live?<button type="button" className="chat-send is-stop" aria-label="답변 멈추기" onClick={()=>{live.sig.stopped=true}}><Icon name="stop"/></button>
     :<button type="submit" className="chat-send" aria-label="보내기" disabled={!draft.trim()}><Icon name="arrow-up"/></button>}
   </form>
-  <p className="chat-foot">이 앱의 학습 자료로 답해요</p>
  </div>;
 }
 

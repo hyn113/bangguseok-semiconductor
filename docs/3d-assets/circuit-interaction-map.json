@@ -1,0 +1,68 @@
+{
+  "format_version": 1,
+  "implementation_status": "GLB assets validated; web interactions not implemented",
+  "stages": [
+    {
+      "scene": "01_VOLTAGE_CURRENT_SWITCH",
+      "state": "closed:boolean",
+      "click_object": "switch_A_lever",
+      "targets": [
+        "lamp_glow",
+        "current_arrow_0",
+        "current_arrow_1",
+        "current_arrow_2",
+        "current_arrow_3",
+        "current_arrow_4"
+      ]
+    },
+    {
+      "scene": "02_BINARY_SIGNAL",
+      "state": "high:boolean",
+      "click_object": "signal_switch_lever",
+      "targets": [
+        "signal_LOW",
+        "signal_HIGH"
+      ]
+    },
+    {
+      "scene": "03_AND_INPUT_OUTPUT",
+      "state": {
+        "A": "boolean",
+        "B": "boolean"
+      },
+      "click_objects": [
+        "input_A_lever",
+        "input_B_lever"
+      ],
+      "rule": "Y = A && B",
+      "targets": [
+        "output_Y_glow",
+        "truth_highlight_0",
+        "truth_highlight_1",
+        "truth_highlight_2",
+        "truth_highlight_3"
+      ]
+    }
+  ],
+  "notes": [
+    "Use raycast on lever child meshes, map to parent.",
+    "The saved Blender timeline illustrates states; web must calculate state.",
+    "All lamps/labels use scale 0 or 1 as state visibility.",
+    "Stop demonstration mixer before changing live states.",
+    "Coordinate basis differs from Blender; use GLB local quaternion."
+  ],
+  "switch_local_quaternion_xyzw": {
+    "off": [
+      0,
+      0,
+      0.3193088,
+      0.9476507
+    ],
+    "on": [
+      0,
+      0,
+      0,
+      1
+    ]
+  }
+}

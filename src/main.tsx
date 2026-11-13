@@ -4,7 +4,6 @@ import {Scene} from './EquipmentScene';
 import './tokens.css';
 import {toggleTheme,useDarkMode} from './theme';
 import './style.css';
-import {WaferLesson} from './WaferLesson';
 import {Welcome,type Visitor} from './Welcome';
 import {readWaferProgress,readWaferNote} from './waferProgress';
 import {waferSteps} from './WaferLesson';
@@ -12,11 +11,12 @@ import {SelectionCatalog,type CatalogModule,type CatalogTab} from './SelectionCa
 import {PhotoLesson} from './PhotoLesson';
 import {LessonTitle,lessonTitle} from './LessonTitle';
 import {useLessonShell,PanelToggle,ShellChips,CanvasToolbar} from './LessonShell';
-import {MosfetLesson} from './MosfetLesson';
+import {GlbLesson} from './GlbLesson';
+import {readLessonNote} from './lessonNoteStore';
 import {GowningLesson} from './GowningLesson';
 import {ffuParts,ffuReference} from './ffuParts';
 import {ConceptPanel} from './ConceptPanel';
-import {ffuConcepts,gowningConcepts} from './conceptTopics';
+import {ffuConcepts,gowningConcepts,waferConcepts} from './conceptTopics';
 import {Icon,type IconName} from './Icon';
 import {AppMenu,type MenuTarget} from './AppMenu';
 import {Workspace,type WsItem} from './Workspace';
@@ -26,13 +26,16 @@ import {lessonModels} from './lessonModels';
 import {LessonMedia} from './lessonMedia';
 import {getNotebook,openEntry,entryTitle,entryPreview} from './notebook';
 import {StudyHub} from './StudyHub';
+import {glbLessons,isGlbLesson} from './glbLessons';
 import {MissionPage} from './MissionPage';
 import {loadMissionResults,missionNames,type MissionLesson} from './missions';
 import './buttons.css';
 import './radius.css';
 
 const reducedMotion=()=>typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-type Module='mission'|'home'|'gown'|'ffu'|'workspace'|'results'|'wafer'|'gowning'|'mosfet'|'photo';
+type Module='mission'|'home'|'gown'|'ffu'|'workspace'|'results'|'wafer'|'gowning'|'mosfet'|'photo'|'oxidation'|'rie'|'circuit';
+const LESSONS=['wafer','oxidation','photo','ffu','gown','rie','mosfet','circuit','gowning'];
+const LESSON_NAMES:Record<string,string>={wafer:'제1공정 · 웨이퍼 제조',oxidation:'제2공정 · 산화',photo:'제3공정 · 포토',ffu:'FFU 장비 탐색',gown:'클린룸 복장 탐색',rie:'식각 장비 · RIE',mosfet:'MOSFET 설계 기초',circuit:'전기 · 논리 기초',gowning:'클린룸 착의 체험'};
 const stages=[{name:'캐릭터 살펴보기',tag:'준비',text:'회전하며 캐릭터와 착용 전 모습을 살펴보세요.'},{name:'후드 표현',tag:'후드',text:'후드가 머리를 덮는 모습을 단순화해 표현합니다.'},{name:'방진복 표현',tag:'방진복',text:'팔을 움직이며 상체와 하체의 의상이 바뀝니다.'},{name:'장갑 표현',tag:'장갑',text:'양손에 장갑이 표시됩니다. 방진용 장갑은 모든 화학물질에 대한 보호를 보장하지 않습니다.'},{name:'전체 구성 보기',tag:'확인',text:'모든 의상 구성 요소를 함께 보여 줘요.'}];
 const parts=ffuParts,partNames=ffuParts.map(p=>p.name);
 const questions=[{q:'FFU에서 공기를 이동시키는 구성 요소는 무엇일까요?',opts:['팬','하우징','조명'],a:0,why:'팬은 공기를 이동시키는 역할을 합니다.'},{q:'이 화면의 공기 흐름을 어떻게 이해해야 할까요?',opts:['실제 풍속을 계산한 결과','개념을 설명하는 시각화','모든 시설에 적용되는 작업 절차'],a:1,why:'화살표와 입자는 개념 설명입니다. 유동 해석이나 현장 측정 결과가 아닙니다.'},{q:'실제 장비의 성능을 확인하려면 무엇이 필요할까요?',opts:['모형의 색상','팬 애니메이션의 속도','해당 장비의 사양과 시설 기준'],a:2,why:'실제 성능은 해당 장비의 사양과 시설 기준으로 확인해야 합니다.'}];
@@ -54,7 +57,7 @@ function App({visitor,onWelcome,onLogout,active,pendingNav,onNavDone}:{visitor:V
  const studyNote=useRef<HTMLTextAreaElement>(null);
  const focusStudyNote=()=>{setRightTab('notes');requestAnimationFrame(()=>{studyNote.current?.focus();studyNote.current?.scrollIntoView({block:'center'})})};
  const persist=(key:string,value:unknown)=>{try{localStorage.setItem(key,JSON.stringify(value));return true}catch{setStorageError(true);return false}};
- const navigate=(p:Module)=>{if(['ffu','gown','wafer','photo','mosfet','gowning'].includes(p)){try{const r=JSON.parse(localStorage.getItem('semilab.recent')||'{}');r[p]=new Date().toISOString();localStorage.setItem('semilab.recent',JSON.stringify(r))}catch{}}setStartWithConcepts(false);setPage(p);setMenu(false);setQuiz(false);setChoice(null);setAnswers([]);setStatus('');setSearch('');if(p==='gown'||p==='ffu'){setPicked(p);setDraft(notes.find(n=>n.kind===p)?.text||'');setStep(0);setPart(0);setPlaying(!reducedMotion());setExplode(p==='ffu'&&!lessonModels.ffu);setFlow(true);setReset(r=>r+1);setLeftTab('guide')}};
+ const navigate=(p:Module)=>{if(LESSONS.includes(p)){try{const r=JSON.parse(localStorage.getItem('semilab.recent')||'{}');r[p]=new Date().toISOString();localStorage.setItem('semilab.recent',JSON.stringify(r))}catch{}}setStartWithConcepts(false);setPage(p);setMenu(false);setQuiz(false);setChoice(null);setAnswers([]);setStatus('');setSearch('');if(p==='gown'||p==='ffu'){setPicked(p);setDraft(notes.find(n=>n.kind===p)?.text||'');setStep(0);setPart(0);setPlaying(!reducedMotion());setExplode(p==='ffu'&&!lessonModels.ffu);setFlow(true);setReset(r=>r+1);setLeftTab('guide')}};
  const requestTransition=(action:()=>void)=>{if((page==='gown'||page==='ffu')&&draft!==(notes.find(n=>n.kind===page)?.text||'')){setPendingTransition(()=>action)}else action()};
  const open=(p:Module)=>requestTransition(()=>navigate(p));
  const saveNote=(text:string=draft)=>{if(page!=='gown'&&page!=='ffu')return false;const next=[...notes.filter(n=>n.kind!==page),{kind:page,text,updated:new Date().toISOString()}];const ok=persist(NOTEKEY,next);if(ok)setNotes(next);setStatus(ok?'':'저장에 실패했어요. 메모를 복사해 보관해 주세요.');return ok;};
@@ -64,21 +67,21 @@ function App({visitor,onWelcome,onLogout,active,pendingNav,onNavDone}:{visitor:V
  const selected=attempts.find(a=>a.id===selectedAttempt)||attempts[0];const score=selected?selected.answers.filter((a,i)=>a===questions[i].a).length:0;
  const ls=(k:string)=>{try{return localStorage.getItem(k)}catch{return null}};
  const wsItems:WsItem[]=page!=='workspace'?[]:[
-  /* 학습 기록: 실제로 열어 공부한 학습마다 한 장 (웨이퍼는 진행 단계까지) */
+  /* 학습 기록: 실제로 열어 공부한 학습마다 한 장 (블렌더 단계 학습은 마지막으로 본 단계까지) */
   ...(()=>{let seen:Record<string,string>={};try{seen=JSON.parse(ls('semilab.recent')||'{}')||{}}catch{}
-   const meta:Record<string,[string,string,IconName]>={wafer:['제1공정 · 웨이퍼 제조','8대 공정','boxes'],photo:['제3공정 · 포토','8대 공정','sun'],mosfet:['MOSFET 설계 기초','설계','sliders'],ffu:['FFU 장비 탐색','장비','fan'],gown:['클린룸 복장 탐색','장비','person-standing'],gowning:['클린룸 착의 체험','장비','person-standing']};
-   return Object.entries(meta).flatMap(([k,[base,area,icon]])=>{const w=k==='wafer'&&waferRecord.data.updated;const t=[seen[k],w||undefined].filter(Boolean).sort().pop();if(!t)return [];
-    return [{id:k+'-progress',kind:'progress',title:lessonTitle(k,base),module:area,detail:w?(waferRecord.data.completedAt?'기초 학습 완료':'이어서 학습 · '+waferSteps[waferRecord.data.stage].title):'학습하기',updated:t,icon,open:()=>open(k as Module)} as WsItem]})})(),
-  ...(waferNote.trim()?[{id:'wafer-note',kind:'memo',title:'웨이퍼 메모',module:lessonTitle('wafer','제1공정 · 웨이퍼 제조'),detail:waferNote.slice(0,80),updated:ls('semilab.v03.wafer-note-updated'),icon:'file-earmark-text',open:()=>open('wafer')} as WsItem]:[]),
-  ...notes.filter(n=>n.text.trim()).map(n=>({id:'note-'+n.kind,kind:'memo',title:moduleName(n.kind)+' 메모',module:moduleName(n.kind),detail:n.text.slice(0,80),updated:n.updated,icon:'file-earmark-text',open:()=>open(n.kind)}) as WsItem),
-  ...([['photo','제3공정 · 포토'],['mosfet','MOSFET 설계 기초'],['gowning','클린룸 착의 체험']] as const).flatMap(([k,base])=>{const name=lessonTitle(k,base);const t=ls(`semilab.${k}.note`)||'';return t.trim()?[{id:'note-'+k,kind:'memo',title:name+' 메모',module:name,detail:t.slice(0,80),updated:ls(`semilab.${k}.note.updated`),icon:'file-earmark-text',open:()=>open(k)} as WsItem]:[]}),
-  ...getNotebook().entries.filter(e=>e.kind==='memo'&&e.text.trim()).map(e=>({id:'nb-'+e.id,kind:'memo',title:entryTitle(e.text,'새 메모'),module:lessonTitle(e.lesson,({wafer:'제1공정 · 웨이퍼 제조',photo:'제3공정 · 포토',mosfet:'MOSFET 설계 기초'} as Record<string,string>)[e.lesson]??baseName(e.lesson)),detail:entryPreview(e.text),updated:e.updated,icon:'file-earmark-text',open:()=>{openEntry(e.lesson,'memo',e.id);setRightTab('notes');open(e.lesson as Module)}}) as WsItem),
+   const meta:Record<string,[string,IconName]>={wafer:['8대 공정','record-circle'],oxidation:['8대 공정','layers'],photo:['8대 공정','sun'],ffu:['장비','fan'],gown:['장비','person-standing'],rie:['장비','box'],mosfet:['설계','boxes'],circuit:['설계','sliders'],gowning:['장비','person-standing']};
+   return Object.entries(meta).flatMap(([k,[area,icon]])=>{const t=seen[k];if(!t)return [];let detail='학습하기';
+    if(isGlbLesson(k)){try{const v=JSON.parse(ls(`semilab.glb.${k}.step`)||'null');const st=glbLessons[k].tracks.find(x=>x.id===v?.t)?.stages[v?.i];if(st)detail='이어서 학습 · '+st.title}catch{}}
+    return [{id:k+'-progress',kind:'progress',title:lessonTitle(k,LESSON_NAMES[k]),module:area,detail,updated:t,icon,open:()=>open(k as Module)} as WsItem]})})(),
+  /* 학습 화면마다의 기본 메모 */
+  ...LESSONS.flatMap(k=>{const n=readLessonNote(k);if(!n.text.trim())return [];const name=lessonTitle(k,LESSON_NAMES[k]);return [{id:'note-'+k,kind:'memo',title:name+' 메모',module:name,detail:n.text.slice(0,80),updated:n.updated,icon:'file-earmark-text',open:()=>open(k as Module)} as WsItem]}),
+  ...getNotebook().entries.filter(e=>e.kind==='memo'&&e.text.trim()).map(e=>({id:'nb-'+e.id,kind:'memo',title:entryTitle(e.text,'새 메모'),module:lessonTitle(e.lesson,LESSON_NAMES[e.lesson]??baseName(e.lesson)),detail:entryPreview(e.text),updated:e.updated,icon:'file-earmark-text',open:()=>{openEntry(e.lesson,'memo',e.id);setRightTab('notes');open(e.lesson as Module)}}) as WsItem),
   ...loadMissionResults().map(r=>({id:'mission-'+r.id,kind:'quiz',title:`${lessonTitle(r.lesson,missionNames[r.lesson])} 미션 · Level ${r.level}`,module:'퀴즈 미션',detail:`공정 수율 ${r.yield}%`,updated:r.date,icon:'trophy',wrong:r.wrong||undefined,open:()=>startMission(r.lesson)}) as WsItem),
   ...attempts.map(a=>{const sc=a.answers.filter((x,j)=>x===questions[j].a).length;return {id:a.id,kind:'quiz',title:'FFU 개념 확인',module:moduleName('ffu'),detail:`${sc} / 3 정답`,updated:a.date,icon:'trophy',wrong:3-sc,open:()=>{setSelectedAttempt(a.id);setPage('results')}} as WsItem}),
  ];
  const profile=<ProfileBadge name={visitor.nickname} count={passed}/>;
  const startMission=(lesson:MissionLesson)=>requestTransition(()=>{setMissionLesson(lesson);navigate('mission')});
- const go=(t:MenuTarget)=>{if(t==='tour')requestTransition(()=>{navigate('home');onWelcome('tour')});else if(t==='learn')open('home');else if(t==='quiz')startMission(page==='mission'?missionLesson:(['ffu','gown','wafer','photo','mosfet','gowning'] as string[]).includes(page)?page as MissionLesson:(picked==='gown'?'gowning':picked) as MissionLesson);else if(t==='workspace')open('workspace');else requestTransition(()=>{navigate('home');onLogout()})};
+ const go=(t:MenuTarget)=>{if(t==='tour')requestTransition(()=>{navigate('home');onWelcome('tour')});else if(t==='learn')open('home');else if(t==='quiz')startMission(page==='mission'?missionLesson:LESSONS.includes(page)?(page==='gown'?'gowning':page) as MissionLesson:(picked==='gown'?'gowning':picked) as MissionLesson);else if(t==='workspace')open('workspace');else requestTransition(()=>{navigate('home');onLogout()})};
  useEffect(()=>{if(active&&pendingNav){go(pendingNav);onNavDone?.()}},[active,pendingNav]);
  const navigation=<AppMenu current={page==='home'?'learn':page==='workspace'?'workspace':page==='mission'?'quiz':null} onSelect={go}/>;
  const notice=<div className="notice"><span>ⓘ</span> 검수 전 기능 시연용 · 현장 절차 아님 <small>실제 작업은 시설의 승인된 SOP와 교육을 따르세요.</small></div>;
@@ -87,8 +90,10 @@ function App({visitor,onWelcome,onLogout,active,pendingNav,onNavDone}:{visitor:V
  if(page==='mission')return <>{navigation}<MissionPage key={missionLesson} lesson={missionLesson} profile={profile} onExit={()=>{setNotes(loadData(NOTEKEY,validNotes,[]).data);open(missionLesson)}} onLearn={()=>{setNotes(loadData(NOTEKEY,validNotes,[]).data);open(missionLesson)}}/></>;
  if(page==='gowning')return <>{navigation}<GowningLesson profile={profile} onMission={()=>startMission('gowning')} startWithConcepts={startWithConcepts} onExit={()=>open('home')} onExplore={()=>open('gown')}/></>;
  if(page==='photo')return <>{navigation}<PhotoLesson profile={profile} onMission={()=>startMission('photo')} onExit={()=>open('home')}/></>;
- if(page==='mosfet')return <>{navigation}<MosfetLesson profile={profile} onMission={()=>startMission('mosfet')} onExit={()=>open('home')}/></>;
- if(page==='wafer')return <>{navigation}<WaferLesson profile={profile} onMission={()=>startMission('wafer')} onExit={()=>open('home')}/></>;
+ /* 블렌더 단계별 모형 학습: 웨이퍼 · 산화 · FFU · RIE · MOSFET · 전기 논리 */
+ if(page==='wafer'||page==='oxidation'||page==='ffu'||page==='rie'||page==='mosfet'||page==='circuit'){const id=page;
+  const extra=id==='wafer'?<ConceptPanel topics={waferConcepts} contextLabel={glbLessons.wafer.title} onNotes={undefined}/>:id==='ffu'?<ConceptPanel topics={ffuConcepts} contextLabel={glbLessons.ffu.title}/>:undefined;
+  return <>{navigation}<GlbLesson key={id} id={id} profile={profile} extra={extra} onMission={()=>startMission(id)} onExit={()=>open('home')}/></>}
  return <div className={'platform '+((page==='gown'||page==='ffu')?'study-page shell-page':page==='home'?'selection-page':'document-page')} {...((page==='gown'||page==='ffu')?shell.attrs:{})}>{navigation}
  {pendingTransition&&<div className="leave-overlay"><div className="leave-dialog" role="dialog" aria-modal="true" aria-labelledby="leave-title"><h2 id="leave-title">저장하지 않은 메모가 있어요.</h2><p>이동하기 전에 메모를 저장할까요? 저장하지 않고 이동하면 현재 수정 내용은 사라집니다.</p><button className="orange" onClick={()=>{if(saveNote()){const action=pendingTransition;setPendingTransition(null);action()}}}>저장하고 이동</button><button className="outline" onClick={()=>setPendingTransition(null)}>계속 작성</button><button className="text-button" onClick={()=>{const action=pendingTransition;setPendingTransition(null);action()}}>저장하지 않고 이동</button>{status.includes('실패')&&<p role="alert">{status}</p>}</div></div>}
  {page==='home'?<><div className="selection-background" aria-hidden="true"><div className="ceiling-grid"/><div className="room-line l1"/><div className="room-line l2"/><div className="room-line l3"/></div><header className="selector-header">{profile}<div className="head-actions"><button onClick={()=>open('workspace')}>워크스페이스</button></div></header><div className="selector-content"><h1>내 방에서 시작하는,<br className="mobile-break"/> 반도체 현장 탐험</h1><p className="selector-subtitle">학습하고 싶은 공간과 장비를 직접 선택해 보세요.</p><SelectionCatalog selected={picked} tab={catalogTab} onSelect={setPicked} onTab={setCatalogTab} onOpen={(id,concepts)=>{if(id==='gown'){open('gowning');if(concepts)setStartWithConcepts(true)}else{open(id);if(concepts&&id==='ffu')startMission('ffu')}}}/></div></>:

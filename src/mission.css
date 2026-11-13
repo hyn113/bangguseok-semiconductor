@@ -181,3 +181,11 @@
 .mission-memo-resizer:focus-visible{outline:none}
 .game-tile{min-height:104px}.game-tile strong{font-size:20px}
 .mission-result-side{justify-content:center;align-self:stretch}
+
+/* 결과 팝업: 높이를 화면 안에 묶고, 왼쪽 요약은 남는 높이 안에서 가운데 · 넘치면 스크롤 (잘리지 않게) */
+.mission-result{grid-template-rows:minmax(0,1fr)}
+.mission-result-side{min-height:0;overflow-y:auto;justify-content:safe center}
+.mission-result-side>*{flex:none}
+.mission-result-actions{width:100%}
+.mission-review{min-height:0}
+@media(max-width:760px){.mission-result{grid-template-rows:none}.mission-result-side{overflow:visible}}

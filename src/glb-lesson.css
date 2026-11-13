@@ -1,0 +1,93 @@
+/* 블렌더 단계별 모형 학습 화면 */
+.shell-page .glb-guide.shell-left{padding:0 var(--sp-4) var(--sp-6)!important}
+.shell-page .glb-guide .workbench-panel-title{margin:0 calc(var(--sp-4) * -1) var(--sp-4)!important}
+.shell-page .glb-visual.shell-center{padding:0!important;background:transparent}
+
+/* 건식 · 습식 같은 공정 방식 고르기 */
+.glb-tracks{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px;margin:0 0 var(--sp-3);padding:4px;border-radius:var(--r-md);background:var(--c-surface-2)}
+.glb-tracks button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;padding:var(--sp-2) var(--sp-3);border:0;border-radius:var(--r-sm);background:transparent;color:var(--c-ink-2);font:inherit;text-align:left;cursor:pointer}
+.glb-tracks button b{font-size:var(--fs-ui);font-weight:var(--fw-semibold)}
+.glb-tracks button small{font-size:var(--fs-caption);color:var(--c-muted)}
+.glb-tracks button:hover{color:var(--c-ink)}
+.glb-tracks button[aria-selected=true]{background:var(--c-surface);color:var(--c-ink);box-shadow:0 0 0 1px var(--c-line),0 1px 2px #1d22290f}
+.glb-tracks button:focus-visible{outline:2px solid var(--c-accent);outline-offset:1px}
+
+/* 단계 목록 */
+.shell-page .glb-steps{margin:0 0 var(--sp-2)!important;padding:0!important;list-style:none}
+.shell-page .glb-steps li{margin:0;padding:0}
+.shell-page .glb-steps button{width:100%;text-align:left}
+.glb-steps .glb-seen{margin-left:auto;width:14px!important;height:14px!important;color:var(--c-muted)}
+.glb-progress{height:4px;margin:0 0 var(--sp-5);border-radius:var(--r-pill);background:var(--c-surface-2);overflow:hidden}
+.glb-progress i{display:block;height:100%;border-radius:inherit;background:var(--c-accent);transition:width .3s var(--ease)}
+
+/* 지금 단계 설명 */
+.glb-stage-copy{display:flex;flex-direction:column;gap:var(--sp-3);padding-top:var(--sp-4);border-top:1px solid var(--c-line)}
+.shell-page .glb-stage-copy h2{margin:0!important;font-size:var(--fs-heading)!important;font-weight:var(--fw-bold)!important;color:var(--c-ink);outline:none}
+.shell-page .glb-stage-copy p{margin:0!important;line-height:1.65}
+.glb-key{display:flex;gap:var(--sp-2);padding:var(--sp-3);border-radius:var(--r-md);background:var(--c-surface-2);color:var(--c-ink)!important;font-size:var(--fs-ui)}
+.glb-key b{flex:none;color:var(--c-accent-strong);font-weight:var(--fw-semibold)}
+.glb-terms{display:flex;flex-direction:column;gap:var(--sp-2);margin:0}
+.glb-terms div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:var(--sp-3);font-size:var(--fs-ui);line-height:1.55}
+.glb-terms dt{color:var(--c-ink);font-weight:var(--fw-semibold)}
+.glb-terms dd{margin:0;color:var(--c-ink-2)}
+.glb-hint{display:flex;gap:var(--sp-2);align-items:flex-start;color:var(--c-muted)!important;font-size:var(--fs-ui)}
+.glb-hint svg.bi{flex:none;margin-top:2px;width:14px!important;height:14px!important}
+.glb-note{color:var(--c-muted)!important;font-size:var(--fs-caption)!important;line-height:1.55!important}
+.glb-part{display:flex;flex-direction:column;gap:2px;padding:var(--sp-3);border:1px solid var(--c-accent);border-radius:var(--r-md);background:var(--c-accent-soft)}
+.glb-part span{font-size:var(--fs-caption);color:var(--c-accent-strong);font-weight:var(--fw-semibold)}
+.glb-part b{font-size:var(--fs-body);color:var(--c-ink)}
+.shell-page .glb-part p{margin-top:var(--sp-1)!important;font-size:var(--fs-ui);color:var(--c-ink-2)}
+.glb-nav{display:flex;gap:var(--sp-2);margin-top:var(--sp-1)}
+.glb-nav .btn{flex:1}
+.glb-done{display:flex;gap:var(--sp-2);align-items:flex-start;padding:var(--sp-3);border-radius:var(--r-md);background:var(--c-surface-2);color:var(--c-ink)!important;font-size:var(--fs-ui)}
+.glb-done svg.bi{flex:none;margin-top:2px;color:var(--c-accent)}
+
+/* 회로 직접 조작 */
+.glb-controls{display:flex;flex-direction:column;gap:var(--sp-2)}
+.glb-controls button[role=switch],.glb-inputs button{display:flex;align-items:center;justify-content:space-between;height:40px;padding:0 var(--sp-3);border:1px solid var(--c-line);border-radius:var(--r-md);background:var(--c-surface);color:var(--c-ink);font:inherit;font-size:var(--fs-ui);cursor:pointer;transition:background-color .15s var(--ease),border-color .15s var(--ease)}
+.glb-controls button[role=switch] b{min-width:40px;padding:2px var(--sp-2);border-radius:var(--r-sm);background:var(--c-surface-2);color:var(--c-ink-2);text-align:center}
+.glb-controls button[role=switch][aria-checked=true]{border-color:var(--c-accent);background:var(--c-accent-soft)}
+.glb-controls button[role=switch][aria-checked=true] b{background:var(--c-accent);color:var(--gray-0)}
+.glb-controls button:hover{background:var(--c-hover)}
+.glb-controls button[aria-checked=true]:hover{background:var(--c-accent-soft)}
+.glb-controls button:focus-visible{outline:2px solid var(--c-accent);outline-offset:2px}
+.glb-inputs{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2)}
+.glb-seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:var(--r-md);background:var(--c-surface-2)}
+.glb-seg button{height:32px;border:0;border-radius:var(--r-sm);background:transparent;color:var(--c-ink-2);font:inherit;font-size:var(--fs-ui);font-weight:var(--fw-semibold);cursor:pointer}
+.glb-seg button[aria-pressed=true]{background:var(--c-surface);color:var(--c-ink);box-shadow:0 0 0 1px var(--c-line)}
+.glb-state{font-size:var(--fs-ui)!important;color:var(--c-ink-2)!important}
+.glb-state b{color:var(--c-ink)}
+.glb-truth{width:100%;border-collapse:collapse;font-size:var(--fs-ui);font-variant-numeric:tabular-nums;text-align:center}
+.glb-truth th{padding:var(--sp-1);color:var(--c-muted);font-weight:var(--fw-semibold);border-bottom:1px solid var(--c-line)}
+.glb-truth td{padding:6px var(--sp-1);color:var(--c-ink-2)}
+.glb-truth tr[aria-current=true] td{background:var(--c-accent-soft);color:var(--c-accent-strong);font-weight:var(--fw-bold)}
+.glb-truth tr[aria-current=true] td:first-child{border-radius:var(--r-sm) 0 0 var(--r-sm)}
+.glb-truth tr[aria-current=true] td:last-child{border-radius:0 var(--r-sm) var(--r-sm) 0}
+
+/* 이 학습에 대해 (목표 · 주의 · 출처) */
+.glb-about{margin-top:var(--sp-6);padding-top:var(--sp-4);border-top:1px solid var(--c-line);font-size:var(--fs-ui)}
+.glb-about summary{display:flex;align-items:center;height:32px;color:var(--c-ink-2);font-weight:var(--fw-semibold);cursor:pointer;list-style:none}
+.glb-about summary::-webkit-details-marker{display:none}
+.glb-about summary::after{content:'';margin-left:auto;width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .15s var(--ease)}
+.glb-about[open] summary::after{transform:rotate(-135deg) translateY(-1px)}
+.glb-about ul{margin:var(--sp-2) 0 var(--sp-3);padding-left:18px;color:var(--c-ink-2);line-height:1.6}
+.glb-about .glb-refs{padding-left:0;list-style:none;display:flex;flex-direction:column;gap:var(--sp-1)}
+.glb-about .glb-refs a{display:inline-flex;align-items:center;gap:4px;color:var(--c-ink-2);text-decoration:underline;text-underline-offset:2px}
+.glb-about .glb-refs svg.bi{width:12px!important;height:12px!important}
+
+/* 가운데 위쪽 재생 막대 — 작게 떠 있어 3D를 가리지 않아요 */
+.glb-player{position:absolute;z-index:3;top:var(--sp-4);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:var(--sp-1);height:48px;max-width:calc(100% - var(--sp-8));padding:0 var(--sp-2);box-sizing:border-box;border-radius:var(--r-lg);background:var(--c-surface);box-shadow:var(--sh-float)}
+.shell-page .shell-center>.glb-player{position:absolute!important;z-index:3!important;left:calc(var(--shell-l) + (100vw - var(--shell-l) - var(--shell-r)) / 2)}
+@media(max-width:900px){.shell-page .shell-center>.glb-player{left:50%}}
+.glb-player-title{display:flex;align-items:baseline;gap:var(--sp-2);min-width:0;padding:0 var(--sp-2);font-size:var(--fs-ui);color:var(--c-ink);white-space:nowrap}
+.glb-player-title b{color:var(--c-accent-strong);font-variant-numeric:tabular-nums}
+.glb-player-title span{overflow:hidden;text-overflow:ellipsis;font-weight:var(--fw-semibold)}
+.glb-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;padding:0;border:0;border-radius:var(--r-sm);background:transparent;color:var(--c-ink-2);cursor:pointer}
+.glb-icon svg.bi{width:16px!important;height:16px!important}
+.glb-icon:hover:not(:disabled){background:var(--c-hover);color:var(--c-ink)}
+.glb-icon:active:not(:disabled){background:var(--c-pressed)}
+.glb-icon:disabled{color:var(--c-muted);opacity:.45;cursor:default}
+.glb-icon:focus-visible{outline:2px solid var(--c-accent);outline-offset:1px}
+.glb-sep{width:1px;height:20px;margin:0 var(--sp-1);background:var(--c-line)}
+.shell-page[data-shell-left=closed] .glb-player,.shell-page[data-shell-right=closed] .glb-player{top:64px}
+@media(max-width:900px){.glb-player{top:var(--sp-3)}}

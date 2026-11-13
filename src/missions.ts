@@ -7,7 +7,7 @@ import {waferConcepts,ffuConcepts,cleanroomConcepts,gowningConcepts} from './con
 export type MissionQ=
  |{kind:'choice';q:string;sub?:string;options:string[];answer:number;why:string}
  |{kind:'order';q:string;sub?:string;items:string[];why:string};
-export type MissionLesson='wafer'|'photo'|'ffu'|'gown'|'gowning'|'mosfet';
+export type MissionLesson='wafer'|'photo'|'ffu'|'gown'|'gowning'|'mosfet'|'oxidation'|'rie'|'circuit';
 export const TARGET_YIELD=95;
 /* 미션을 보내는 곳 이름(예: 협력 기업명). 실제 기업 이름은 사용 허락을 받은 경우에만 넣어 주세요. 비우면 '긴급 미션 도착!'만 보여요. */
 export const MISSION_ISSUER='';
@@ -41,6 +41,30 @@ const banks:Record<MissionLesson,MissionQ[]>={
   {kind:'order',q:'FFU 안에서 공기가 지나가는 순서대로 배열해 보세요.',sub:'천장 위 공기가 클린룸으로 내려오기까지예요.',items:['흡입구 보호 그릴','팬','하우징 · 공기 분배 공간','필터 여재','여재 보호망'],why:'공기는 흡입구로 들어와 팬이 밀어내고, 하우징 안에서 고르게 퍼진 뒤 필터 여재를 지나 보호망을 거쳐 아래로 내려가요.'},
  ]),
  gown:[],gowning:[],
+ oxidation:mix([
+  {kind:'choice',q:'건식 산화와 습식 산화는 무엇이 다를까요?',options:['산화에 쓰는 기체가 달라요','습식은 웨이퍼를 물에 담가요','건식은 산화막이 생기지 않아요'],answer:0,why:'건식은 산소(O₂), 습식은 수증기(H₂O)를 사용해요. 습식도 웨이퍼를 물에 담그는 과정이 아니에요.'},
+  {kind:'choice',q:'열산화에서 산화막은 어디에서 자랄까요?',options:['웨이퍼 위에 얹혀서 쌓여요','실리콘과 산화막의 경계에서 자라요','반응관 벽에서 자라 웨이퍼로 옮겨져요'],answer:1,why:'산화종이 막을 지나 실리콘과 만나는 경계에서 반응해요. 그래서 실리콘이 소모돼요.'},
+  {kind:'choice',q:'다른 조건이 같을 때 일반적으로 더 빨리 자라는 쪽은?',sub:'성장 속도 비교',options:['건식 산화','습식 산화','항상 똑같아요'],answer:1,why:'일반적으로 습식이 더 빠르고, 건식은 느리지만 치밀한 막을 얻는 데 유리해요. 실제 속도는 온도·시간 등 조건에 따라 달라요.'},
+  {kind:'choice',q:'석영 보트의 역할은 무엇일까요?',options:['기체를 데우는 히터','여러 장의 웨이퍼를 지지하는 홀더','산화막 두께를 재는 장치'],answer:1,why:'보트는 웨이퍼를 세워 담아 반응관 안팎으로 옮기는 홀더예요.'},
+ ],[
+  {kind:'order',q:'산화 학습 장면을 순서대로 배열해 보세요.',sub:'이 학습의 단계 순서예요.',items:['준비하기','웨이퍼 투입하기','산화하기','냉각 후 꺼내기'],why:'준비 → 투입 → 산화 → 냉각 후 반출 순서로 관찰했어요. 실제 절차는 장비 지침을 따라요.'},
+ ]),
+ rie:mix([
+  {kind:'choice',q:'RIE에서 마스크의 역할은 무엇일까요?',options:['남길 영역을 덮어 보호해요','플라즈마를 만들어요','기체를 배출해요'],answer:0,why:'마스크가 덮인 곳은 보호되고, 열린 곳의 물질이 식각돼요. 마스크도 조금씩 식각될 수 있어요.'},
+  {kind:'choice',q:'RIE는 어떤 작용이 함께 관여하는 식각일까요?',options:['액체 약품에 담그는 습식 작용만','화학 반응과 방향성 있는 이온의 물리적 작용','빛으로 PR의 성질을 바꾸는 작용'],answer:1,why:'RIE는 플라즈마의 화학 반응과 이온의 방향성이 함께 작용하는 건식 식각이에요.'},
+  {kind:'choice',q:'RF 전원에 대한 설명으로 옳은 것은?',options:['가스가 흐르는 관이에요','고주파 전력을 공급해 플라즈마 형성에 관여해요','웨이퍼를 꺼내는 장치예요'],answer:1,why:'RF 전원은 전력을 공급하고, 매칭부가 전력이 잘 전달되게 도와요. RF는 가스가 흐르는 관이 아니에요.'},
+  {kind:'choice',q:'재료별 식각 속도의 차이를 무엇이라고 할까요?',options:['선택비','수율','문턱전압'],answer:0,why:'선택비가 높을수록 대상막은 잘 깎이고 마스크는 덜 깎여요.'},
+  {kind:'choice',q:'배기부가 하는 일은?',options:['웨이퍼를 데워요','챔버의 기체와 반응 생성물을 내보내요','마스크 패턴을 그려요'],answer:1,why:'배기는 기체와 생성물을 내보내 압력과 공정 분위기를 유지하는 데 기여해요.'},
+ ],[
+  {kind:'order',q:'RIE 공정 장면을 순서대로 배열해 보세요.',sub:'이 학습의 관찰 순서예요.',items:['웨이퍼 투입','배기','가스 공급','플라즈마 식각','웨이퍼 반출'],why:'투입 → 배기 → 가스 공급 → 플라즈마 식각 → 반출 순서로 살펴봤어요. 실제 장비는 인터록·퍼지 등 절차가 더 있어요.'},
+ ]),
+ circuit:mix([
+  {kind:'choice',q:'스위치가 열려 있으면 어떻게 될까요?',options:['전류가 흐를 길이 끊겨 램프가 꺼져요','전압이 완전히 사라져요','램프가 더 밝아져요'],answer:0,why:'열린 스위치는 전류의 길을 끊어요. 그래도 스위치 양끝에는 전압이 있을 수 있어요.'},
+  {kind:'choice',q:'디지털 신호의 0은 무엇을 뜻할까요?',options:['전자가 하나도 없는 상태','회로가 LOW로 판단하는 논리 상태','고장 난 회로'],answer:1,why:'0은 낮은 전압 범위로 판단하는 LOW 상태예요. 전자가 없다는 뜻이 아니에요.'},
+  {kind:'choice',q:'AND에서 출력 Y가 1이 되는 경우는?',options:['A나 B 중 하나라도 1일 때','A와 B가 모두 1일 때','A와 B가 모두 0일 때'],answer:1,why:'AND는 두 입력이 모두 1일 때만 1을 내보내요. 하나라도 0이면 출력은 0이에요.'},
+  {kind:'choice',q:'A=1, B=0일 때 AND 출력 Y는?',options:['0','1','알 수 없어요'],answer:0,why:'B가 0이므로 Y=0이에요.'},
+ ],[]),
+
  mosfet:[
   {kind:'choice',q:'VGS가 문턱전압보다 높고 VDS = 0 V라면?',options:['채널이 있고 순 드레인 전류는 0이다','채널이 없고 전류도 0이다','최대 드레인 전류가 흐른다'],answer:0,why:'게이트 전압으로 채널은 생기지만, 드레인과 소스 사이 전압 차가 없으면 전류가 흐르지 않아요.'},
   {kind:'order',q:'MOSFET 단면을 위에서 아래로 쌓인 순서대로 놓아 보세요.',sub:'게이트 쪽에서 바디 쪽으로 내려가요.',items:['게이트','게이트 절연막','채널이 생기는 표면','p형 바디'],why:'게이트 아래에 얇은 절연막이 있고, 그 아래 반도체 표면에 채널이 생기며 가장 아래가 바디예요.'},
@@ -53,7 +77,7 @@ const gownBank=mix([...gowningConcepts.map(fromConcept),...cleanroomConcepts.map
 ]);
 banks.gown=gownBank;banks.gowning=gownBank;
 
-export const missionNames:Record<MissionLesson,string>={wafer:'제1공정 · 웨이퍼 제조',photo:'제3공정 · 포토',ffu:'FFU 장비 탐색',gown:'클린룸 복장 탐색',gowning:'클린룸 착의 체험',mosfet:'MOSFET 설계 기초'};
+export const missionNames:Record<MissionLesson,string>={wafer:'제1공정 · 웨이퍼 제조',oxidation:'제2공정 · 산화',rie:'식각 장비 · RIE',circuit:'전기 · 논리 기초',photo:'제3공정 · 포토',ffu:'FFU 장비 탐색',gown:'클린룸 복장 탐색',gowning:'클린룸 착의 체험',mosfet:'MOSFET 설계 기초'};
 export function missionQuestions(lesson:MissionLesson,level:1|2|3){const all=banks[lesson];const n=levels.find(l=>l.id===level)!.count;return all.slice(0,Math.min(all.length,n))}
 export const bankSize=(lesson:MissionLesson)=>banks[lesson].length;
 

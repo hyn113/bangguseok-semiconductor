@@ -213,3 +213,6 @@ svg.bi.flip{transform:scaleX(-1)}
 .catalog-search-open:focus-visible,.catalog-search-clear:focus-visible{outline:2px solid var(--gray-0);outline-offset:-2px}
 .selection-page .catalog-empty{margin:64px auto;text-align:center;font-size:var(--fs-body);color:var(--gray-200)}
 @media(max-width:650px){.selection-page .catalog-bar{flex-wrap:wrap}.catalog-search.is-open{width:100%}}
+
+/* 블렌더 렌더 이미지 카드 */
+.catalog-preview .catalog-thumb{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit;user-select:none;-webkit-user-drag:none;pointer-events:none}

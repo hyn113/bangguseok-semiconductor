@@ -3,30 +3,34 @@ import type React from 'react';
 import {useEffect,useRef,useState} from 'react';
 import type {KeyboardEvent,PointerEvent} from 'react';
 import {Scene} from './EquipmentScene';
-import {MosfetScene} from './MosfetScene';
 import './selection-catalog.css';
-export type CatalogModule='gown'|'ffu'|'wafer'|'mosfet'|'photo';
+export type CatalogModule='gown'|'ffu'|'wafer'|'mosfet'|'photo'|'oxidation'|'rie'|'circuit';
 export type CatalogTab='all'|'process'|'equipment'|'design';
 const modules={
  photo:{title:'제3공정 · 포토',sub:'도포부터 현상까지',copy:'양성 PR의 도포·노광·현상을 연결하고 빛으로 만든 패턴을 확인해요.',symbol:'▥',label:'포토공정 선택'},
  gown:{title:'클린룸 복장 탐색',copy:'착용품을 한 번 눌러 입고, 예시 순서와 역할을 확인해요.',symbol:'♧',label:'클린룸 선택'},
- ffu:{title:'FFU 장비 탐색',copy:'공기의 흐름과 장비 구성 요소를 눈으로 확인해요.',symbol:'▧',label:'FFU 선택'},
- wafer:{title:'제1공정 · 웨이퍼 제조',sub:'잉곳부터 웨이퍼까지',copy:'잉곳 절단부터 빈 웨이퍼와 회로 구조까지 탐색해요.',symbol:'◎',label:'웨이퍼 선택'},
- mosfet:{title:'MOSFET 설계 기초',copy:'구조를 살펴보고 전압과 W/L을 바꾸며 전류의 변화를 확인해요.',symbol:'▤',label:'MOSFET 선택'}
+ ffu:{title:'FFU 장비 탐색',sub:'천장에서 내려오는 깨끗한 공기',copy:'팬과 필터가 공기를 움직이고 거르는 과정을 6개 장면으로 확인해요.',symbol:'▧',label:'FFU 선택'},
+ wafer:{title:'제1공정 · 웨이퍼 제조',sub:'잉곳부터 웨이퍼까지',copy:'결정 성장부터 절단 · 연마까지, 웨이퍼가 만들어지는 과정을 3D로 따라가요.',symbol:'◎',label:'웨이퍼 선택'},
+ oxidation:{title:'제2공정 · 산화',sub:'건식 · 습식 산화',copy:'산소와 수증기로 웨이퍼 위에 산화막을 키우는 과정을 비교해요.',symbol:'◎',label:'산화공정 선택'},
+ rie:{title:'식각 장비 · RIE',sub:'플라즈마로 깎아내기',copy:'마스크가 열린 곳만 깎아 패턴을 옮기는 반응성 이온 식각기를 살펴봐요.',symbol:'▧',label:'식각 장비 선택'},
+ circuit:{title:'전기 · 논리 기초',sub:'스위치에서 AND까지',copy:'스위치를 직접 눌러 전류와 0 · 1 신호, AND 규칙을 확인해요.',symbol:'▤',label:'전기 논리 선택'},
+ mosfet:{title:'MOSFET 설계 기초',sub:'게이트로 조절하는 전류의 길',copy:'NMOS의 구조와 채널 형성, W · L에 따른 전류 경향을 3D로 살펴봐요.',symbol:'▤',label:'MOSFET 선택'}
 };
 /* 검색에 함께 쓰는 낱말(부품·용어) */
-const keywords:Record<CatalogModule,string>={wafer:'잉곳 웨이퍼 절단 연마 다이 노치 스크라이브 실리콘',photo:'포토 리소그래피 PR 감광액 노광 현상 도포 마스크 소프트베이크',gown:'클린룸 방진복 착의 장갑 마스크 후드 부츠 오염',ffu:'FFU 팬 필터 여재 헤파 HEPA 모터 하우징 공기 흐름 클린룸',mosfet:'MOSFET 트랜지스터 게이트 소스 드레인 채널 전압 전류 설계'};
-const glyph:Record<CatalogModule,IconName>={photo:'grid-3x3-gap',gown:'person-standing',ffu:'fan',wafer:'record-circle',mosfet:'boxes'};
-const tabs:{id:CatalogTab;name:string;items:CatalogModule[]}[]=[{id:'process',name:'8대 공정',items:['wafer','photo']},{id:'equipment',name:'장비',items:['gown','ffu']},{id:'design',name:'설계',items:['mosfet']},{id:'all',name:'전체',items:['wafer','photo','gown','ffu','mosfet']}];
+const keywords:Record<CatalogModule,string>={wafer:'잉곳 웨이퍼 절단 연마 다이 노치 스크라이브 실리콘',photo:'포토 리소그래피 PR 감광액 노광 현상 도포 마스크 소프트베이크',gown:'클린룸 방진복 착의 장갑 마스크 후드 부츠 오염',ffu:'FFU 팬 필터 여재 헤파 HEPA 모터 하우징 공기 흐름 클린룸',mosfet:'MOSFET NMOS 트랜지스터 게이트 소스 드레인 채널 전압 전류 설계',oxidation:'산화 산화막 SiO2 이산화규소 건식 습식 산소 수증기 퍼니스 산화로 보트',rie:'식각 에칭 RIE 플라즈마 이온 마스크 챔버 RF 배기 선택비',circuit:'전기 회로 전압 전류 스위치 저항 램프 디지털 0 1 LOW HIGH AND 논리 진리표'};
+const glyph:Record<CatalogModule,IconName>={photo:'grid-3x3-gap',gown:'person-standing',ffu:'fan',wafer:'record-circle',mosfet:'boxes',oxidation:'layers',rie:'box',circuit:'sliders'};
+const tabs:{id:CatalogTab;name:string;items:CatalogModule[]}[]=[{id:'process',name:'8대 공정',items:['wafer','oxidation','photo']},{id:'equipment',name:'장비',items:['gown','ffu','rie']},{id:'design',name:'설계',items:['circuit','mosfet']},{id:'all',name:'전체',items:['wafer','oxidation','photo','gown','ffu','rie','circuit','mosfet']}];
 
-const area:Record<CatalogModule,string>={wafer:'8대 공정',photo:'8대 공정',gown:'장비',ffu:'장비',mosfet:'설계'};
+const area:Record<CatalogModule,string>={wafer:'8대 공정',oxidation:'8대 공정',photo:'8대 공정',gown:'장비',ffu:'장비',rie:'장비',mosfet:'설계',circuit:'설계'};
+/* 블렌더 모형으로 만든 학습은 렌더 이미지를 카드에 써요 (public/thumbs/) */
+const thumbs:Partial<Record<CatalogModule,string>>={wafer:'thumbs/wafer.jpg',oxidation:'thumbs/oxidation.jpg',ffu:'thumbs/ffu.jpg',rie:'thumbs/rie.jpg',mosfet:'thumbs/mosfet.jpg',circuit:'thumbs/circuit.jpg'};
 /** 카드 앞면 그림. 3D 장면은 정면 카드에서 멈춰 있을 때만 그려요(WebGL 개수 절약) */
 export function Preview({id,live,gid}:{id:CatalogModule;live:boolean;gid:string}){
  return <div className="selected-model catalog-preview" aria-hidden="true">{
+  thumbs[id]?<img className="catalog-thumb" src={thumbs[id]} alt="" draggable={false}/>:
   id==='photo'?<svg viewBox="0 0 400 280"><rect x="40" y="180" width="320" height="55" rx="5" fill="#819eb5"/>{[40,170,300].map(x=><rect key={x} x={x} y="150" width="60" height="30" fill="#ec9a44"/>)}<path d="M130 65v65m-8-10 8 10 8-10M260 65v65m-8-10 8 10 8-10" fill="none" stroke="#bd903e" strokeWidth="4"/><text x="200" y="260" textAnchor="middle" fill="#526a7c" fontSize="14">빛 → PR 패턴 · 양성 PR 예시</text></svg>:
   id==='wafer'?<svg viewBox="0 0 400 280"><defs><linearGradient id={gid} x1="0" x2="1"><stop stopColor="#9ab7c9"/><stop offset=".5" stopColor="#f2f8fb"/><stop offset="1" stopColor="#617e96"/></linearGradient></defs><ellipse cx="200" cy="154" rx="143" ry="82" fill={`url(#${gid})`} stroke="#577791" strokeWidth="5"/><ellipse cx="200" cy="145" rx="143" ry="82" fill="none" stroke="#b4ccd9" strokeWidth="3"/><path d="M84 133h232M76 155h248M92 178h216M118 199h164M118 112h164M145 82v126M180 67v151M215 65v153M250 72v139M285 87v111" stroke="#7895ab" strokeWidth="1"/><text x="200" y="253" textAnchor="middle" fill="#526a7c" fontSize="14">웨이퍼 구조 · 개념 이미지</text></svg>:
   live&&(id==='ffu'||id==='gown')?<Scene kind={id} step={id==='gown'?4:0} playing={false} exploded={true} flow={true} selected={-1} onSelect={()=>{}} reset={0}/>:
-  live&&id==='mosfet'?<MosfetScene selected="gate" onSelect={()=>{}} channel={true} saturated={false} reset={0}/>:
   <span className="catalog-glyph"><Icon name={glyph[id]} size={48}/></span>}</div>;
 }
 

@@ -1,0 +1,61 @@
+[
+  {
+    "file": "nmos_01_structure.glb",
+    "source_scene": "01_STRUCTURE",
+    "frames": [
+      1,
+      120
+    ],
+    "role_to_node": {
+      "body": "body_p",
+      "surface": "surface_p",
+      "source": "source_nplus",
+      "source_contact": "source_contact",
+      "drain": "drain_nplus",
+      "drain_contact": "drain_contact",
+      "oxide": "gate_oxide_SiO2",
+      "gate": "gate_electrode",
+      "body_contact": "body_contact"
+    }
+  },
+  {
+    "file": "nmos_02_channel_flow.glb",
+    "source_scene": "02_CHANNEL_AND_FLOW",
+    "frames": [
+      1,
+      120
+    ],
+    "role_to_node": {
+      "body": "body_p.001",
+      "surface": "surface_p.001",
+      "source": "source_nplus.001",
+      "source_contact": "source_contact.001",
+      "drain": "drain_nplus.001",
+      "drain_contact": "drain_contact.001",
+      "oxide": "gate_oxide_SiO2.001",
+      "gate": "gate_electrode.001",
+      "channel": "inversion_channel.001",
+      "body_contact": "body_contact.001",
+      "surface_cap_off": "surface_cap_OFF"
+    }
+  },
+  {
+    "file": "nmos_03_width_length.glb",
+    "source_scene": "03_WIDTH_LENGTH",
+    "frames": [
+      1,
+      120
+    ],
+    "role_to_node": {
+      "body": "body_p.002",
+      "surface": "surface_p.002",
+      "source": "source_nplus.002",
+      "source_contact": "source_contact.002",
+      "drain": "drain_nplus.002",
+      "drain_contact": "drain_contact.002",
+      "oxide": "gate_oxide_SiO2.002",
+      "gate": "gate_electrode.002",
+      "body_contact": "body_contact.002"
+    }
+  }
+]

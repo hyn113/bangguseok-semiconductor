@@ -5,8 +5,8 @@ import {Icon} from './Icon';
    드롭다운으로 같은 분야의 학습을 골라요. 8대 공정은 1~8공정 전체를 보여주고, 아직 없는 공정은 '준비 중'으로 흐리게 둬요. */
 export type NavLesson='wafer'|'oxidation'|'photo'|'rie'|'gown'|'ffu'|'circuit'|'mosfet'|'gowning';
 type Item={id:NavLesson|null;name:string;no?:number};
-const processes:Item[]=[{no:1,id:'wafer',name:'웨이퍼 제조'},{no:2,id:'oxidation',name:'산화'},{no:3,id:'photo',name:'포토'},{no:4,id:'rie',name:'식각'},{no:5,id:null,name:'증착 · 이온주입'},{no:6,id:null,name:'금속 배선'},{no:7,id:null,name:'EDS'},{no:8,id:null,name:'패키징'}];
-const equipment:Item[]=[{id:'gown',name:'클린룸 복장'},{id:'ffu',name:'FFU'},{id:'rie',name:'RIE 식각'}];
+const processes:Item[]=[{no:1,id:'wafer',name:'웨이퍼 제조'},{no:2,id:'oxidation',name:'산화'},{no:3,id:null,name:'포토'},{no:4,id:'rie',name:'식각'},{no:5,id:null,name:'증착 · 이온주입'},{no:6,id:null,name:'금속 배선'},{no:7,id:null,name:'EDS'},{no:8,id:null,name:'패키징'}];
+const equipment:Item[]=[{id:'ffu',name:'FFU'},{id:'rie',name:'RIE 식각'}];
 const design:Item[]=[{id:'circuit',name:'전기 · 논리'},{id:'mosfet',name:'MOSFET'}];
 export type NavArea='8대 공정'|'장비'|'설계';
 

@@ -19,7 +19,8 @@ const modules={
 /* 검색에 함께 쓰는 낱말(부품·용어) */
 const keywords:Record<CatalogModule,string>={wafer:'잉곳 웨이퍼 절단 연마 다이 노치 스크라이브 실리콘',photo:'포토 리소그래피 PR 감광액 노광 현상 도포 마스크 소프트베이크',gown:'클린룸 방진복 착의 장갑 마스크 후드 부츠 오염',ffu:'FFU 팬 필터 여재 헤파 HEPA 모터 하우징 공기 흐름 클린룸',mosfet:'MOSFET NMOS 트랜지스터 게이트 소스 드레인 채널 전압 전류 설계',oxidation:'산화 산화막 SiO2 이산화규소 건식 습식 산소 수증기 퍼니스 산화로 보트',rie:'식각 에칭 RIE 플라즈마 이온 마스크 챔버 RF 배기 선택비',circuit:'전기 회로 전압 전류 스위치 저항 램프 디지털 0 1 LOW HIGH AND 논리 진리표'};
 const glyph:Record<CatalogModule,IconName>={photo:'grid-3x3-gap',gown:'person-standing',ffu:'fan',wafer:'record-circle',mosfet:'boxes',oxidation:'layers',rie:'box',circuit:'sliders'};
-const tabs:{id:CatalogTab;name:string;items:CatalogModule[]}[]=[{id:'process',name:'8대 공정',items:['wafer','oxidation','photo']},{id:'equipment',name:'장비',items:['gown','ffu','rie']},{id:'design',name:'설계',items:['circuit','mosfet']},{id:'all',name:'전체',items:['wafer','oxidation','photo','gown','ffu','rie','circuit','mosfet']}];
+/* 포토(제3공정)와 클린룸 복장 탐색은 카탈로그에서 뺐어요 — 화면 코드는 남겨 두었어요 */
+const tabs:{id:CatalogTab;name:string;items:CatalogModule[]}[]=[{id:'process',name:'8대 공정',items:['wafer','oxidation']},{id:'equipment',name:'장비',items:['ffu','rie']},{id:'design',name:'설계',items:['circuit','mosfet']},{id:'all',name:'전체',items:['wafer','oxidation','ffu','rie','circuit','mosfet']}];
 
 const area:Record<CatalogModule,string>={wafer:'8대 공정',oxidation:'8대 공정',photo:'8대 공정',gown:'장비',ffu:'장비',rie:'장비',mosfet:'설계',circuit:'설계'};
 /* 블렌더 모형으로 만든 학습은 렌더 이미지를 카드에 써요 (public/thumbs/) */
